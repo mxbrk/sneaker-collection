@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ username: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-2xl">Welcome, {user?.name || "User"}!</h1>
+      <h1 className="text-2xl">Welcome, {user?.username || "User"}!</h1>
     </div>
   );
 }
