@@ -1,66 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-export default function ProfileUpdateForm() {
-  const [formData, setFormData] = useState({ email: "", username: "", password: "" });
-  const [message, setMessage] = useState("");
+export default function Dashboard() {
+  const [user, setUser] = useState<{ username: string } | null>(null);
+  const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage("");
-
-    try {
-      const response = await fetch("/api/updateProfile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      setMessage(data.message || data.error);
-    } catch (error) {
-      setMessage("Ein Fehler ist aufgetreten.");
-    }
-  };
-
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/me");
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+      } else {
+        router.push("/");
+      }
+    };
+    fetchUser();
+  }, [router]);
   return (
-    <form onSubmit={handleSubmit} className="flex justify-center items-center min-h-screen">
-      <input
-        type="email"
-        name="email"
-        placeholder="E-Mail"
-        value={formData.email}
-        onChange={handleChange}
-        className="p-2 border rounded"
-        required
-      />
-      <input
-        type="text"
-        name="username"
-        placeholder="Benutzername"
-        value={formData.username}
-        onChange={handleChange}
-        className="p-2 border rounded"
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Passwort"
-        value={formData.password}
-        onChange={handleChange}
-        className="p-2 border rounded"
-        required
-      />
-      <button type="submit" className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-        Profil aktualisieren
-      </button>
-      {message && <p className="text-center text-red-500">{message}</p>}
-    </form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-2xl">Welcome, {user?.username || "User"}!</h1>
+      <Link href="/profile/settings">
+      <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Settings</button>
+
+      </Link>    
+</div>
   );
 }
