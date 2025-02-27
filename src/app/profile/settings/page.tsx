@@ -1,8 +1,26 @@
 "use client";
-
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function ProfileUpdateForm() {
+  const [user, setUser] = useState<{ username: string } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/me");
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+      } else {
+        router.push("/");
+      }
+    };
+    fetchUser();
+  }, [router]);
+
+
+
   const [formData, setFormData] = useState({ email: "", username: "", password: "" });
   const [message, setMessage] = useState("");
 
