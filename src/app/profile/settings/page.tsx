@@ -1,26 +1,7 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function ProfileUpdateForm() {
-  const [user, setUser] = useState<{ username: string } | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetch("/api/me");
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-      } else {
-        router.push("/");
-      }
-    };
-    fetchUser();
-  }, [router]);
-
-
-
   const [formData, setFormData] = useState({ email: "", username: "", password: "" });
   const [message, setMessage] = useState("");
 
@@ -78,7 +59,7 @@ export default function ProfileUpdateForm() {
       <button type="submit" className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
         Profil aktualisieren
       </button>
-      {message && <p className="text-center text-red-500">{message}</p>}
+      {message && <p className="text-center text-green-500">{message}</p>}
     </form>
   );
 }

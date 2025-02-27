@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function Dashboard() {
+export default function Profile() {
   const [user, setUser] = useState<{ username: string } | null>(null);
   const router = useRouter();
 
