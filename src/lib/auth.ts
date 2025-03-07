@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; // Sicher in .env speichern!
-
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret_fallback";// Using environment variable with fallback
 export async function hashPassword(password: string) {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);

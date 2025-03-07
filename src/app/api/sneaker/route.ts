@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { productId } = req.query;  // id wird hier von der Anfrage übergeben
-  const apiKey = process.env.SNEAKERS_API_KEY; // API-Key aus Umgebungsvariablen
+  const apiKey = process.env.SNEAKERS_API_KEY; // Keep this as is, but now it will be loaded from .env // API-Key aus Umgebungsvariablen
 
   if (!apiKey) {
     return res.status(400).json({ error: 'API-Key fehlt.' });

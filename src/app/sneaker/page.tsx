@@ -44,7 +44,7 @@ const fetchSneakersData = async (query: string) => {
   const options: RequestInit = {
     method: 'GET',
     headers: {
-      Authorization: 'sd_RbI4wpZAJaxOlLbwtgkno686hwd5xHey', // API key
+      Authorization: process.env.NEXT_PUBLIC_SNEAKERS_API_KEY || '', // API key from environment variables
     },
   };
 
