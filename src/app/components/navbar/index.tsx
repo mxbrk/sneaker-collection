@@ -43,14 +43,6 @@ const Navbar = () => {
             </li>
             <li>
               <Link 
-                href="/sneaker" 
-                className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium text-sm transition-colors duration-200"
-              >
-                Sneaker
-              </Link>
-            </li>
-            <li>
-              <Link 
                 href="/blog" 
                 className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 font-medium text-sm transition-colors duration-200"
               >
@@ -92,8 +84,8 @@ const Navbar = () => {
                   </span>
                 </div>
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
-                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    Profile
+                  <Link href="/profile/wishlist" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Wishlist
                   </Link>
                   <Link href="/profile/settings" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                     Settings

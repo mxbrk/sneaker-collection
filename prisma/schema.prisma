@@ -29,6 +29,7 @@ model User {
 
   sessions     Session[] // Relation zu Sessions
   collection   SneakerCollection[] // Add this line
+  wishlistItems WishlistItem[] // Neue Relation zu Wishlist Items
 }
 
 model SneakerCollection {
@@ -49,4 +50,19 @@ model SneakerCollection {
   releaseDate DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now())
+}
+
+model WishlistItem {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sneakerId   String
+  sneakerName String
+  brand       String
+  imageUrl    String?
+  size        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@unique([userId, sneakerId, size])
 }
