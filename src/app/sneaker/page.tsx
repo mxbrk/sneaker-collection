@@ -335,15 +335,14 @@ const SneakerSearchPage = () => {
             {/* Search results stats */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-800">
-                {sneakerData.data.length > 0 
-                  ? `Found ${sneakerData.meta.total} results for "${query}"`
-                  : `No results found for "${query}"`}
-              </h2>
+              {sneakerData.data && sneakerData.data.length > 0 
+  ? `Found ${sneakerData.meta.total} results for "${query}"`
+  : `No results found for "${query}"`}              </h2>
             </div>
 
             {/* Sneaker grid */}
-            {sneakerData.data.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sneakerData.data && sneakerData.data.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {sneakerData.data.map((sneaker) => (
                   <div key={sneaker.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition group">
                     {/* Sneaker image */}
