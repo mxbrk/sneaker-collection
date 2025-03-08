@@ -141,7 +141,7 @@ export default function CollectionPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {collection.map((item) => (
                 <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="h-48 bg-gray-200 flex items-center justify-center">
+                  <div className="h-48 bg-white-200 flex items-center justify-center">
                     {item.imageUrl ? (
                       <img
                         src={item.imageUrl}

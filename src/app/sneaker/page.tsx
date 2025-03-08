@@ -40,6 +40,19 @@ const shoeSizes = [
   "US 10.5", "US 11", "US 11.5", "US 12", "US 12.5", "US 13"
 ];
 
+// Sneaker conditions
+const sneakerConditions = [
+  "DS (Deadstock)",
+  "VNDS (Very Near Deadstock)",
+  "9/10 - Excellent",
+  "8/10 - Great",
+  "7/10 - Good",
+  "6/10 - Fair",
+  "5/10 - Average",
+  "4/10 - Below Average",
+  "3/10 - Poor"
+];
+
 const fetchSneakersData = async (query: string) => {
   const options: RequestInit = {
     method: 'GET',
@@ -92,13 +105,18 @@ const addToWishlist = async (sneaker: Sneaker, size: string) => {
 };
 
 // Function to add sneaker to collection
-const addToCollection = async (sneaker: Sneaker, size: string, condition: string) => {
+// Function to add sneaker to collection
+const addToCollection = async (
+  sneaker: Sneaker, 
+  sizeUS: number, 
+  sizeEU: number, 
+  sizeUK: number, 
+  condition: string,
+  notes: string = '',
+  purchaseDate: string | null = null,
+  purchasePrice: string | null = null  // Neuer Parameter
+) => {
   try {
-    // Convert US size to EU and UK sizes (simplified conversion)
-    const usSize = parseFloat(size.replace('US ', ''));
-    const euSize = (usSize + 33).toFixed(1);
-    const ukSize = (usSize - 0.5).toFixed(1);
-
     const response = await fetch('/api/collection', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -108,11 +126,13 @@ const addToCollection = async (sneaker: Sneaker, size: string, condition: string
         brand: sneaker.brand,
         model: sneaker.model || sneaker.title.split(' ').slice(1).join(' '),
         imageUrl: sneaker.image,
-        sizeUS: usSize,
-        sizeEU: euSize,
-        sizeUK: ukSize,
-        condition: condition,
-        notes: '',
+        sizeUS,
+        sizeEU,
+        sizeUK,
+        condition,
+        notes,
+        purchaseDate,
+        purchasePrice: purchasePrice ? parseFloat(purchasePrice) : null,  // Verarbeiten Sie den Wert
       }),
     });
 
@@ -128,7 +148,6 @@ const addToCollection = async (sneaker: Sneaker, size: string, condition: string
     throw error;
   }
 };
-
 const SneakerSearchPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -138,12 +157,23 @@ const SneakerSearchPage = () => {
   const [sneakerData, setSneakerData] = useState<SneakerApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
+  
+  // UI state
   const [isAddingToWishlist, setIsAddingToWishlist] = useState<Record<string, boolean>>({});
   const [isAddingToCollection, setIsAddingToCollection] = useState<Record<string, boolean>>({});
-  const [selectedConditions, setSelectedConditions] = useState<Record<string, string>>({});
+  
+  // Modal states
   const [selectedSneaker, setSelectedSneaker] = useState<Sneaker | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWishlistModalOpen, setIsWishlistModalOpen] = useState(false);
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  
+  // Form states
+  const [selectedSize, setSelectedSize] = useState(shoeSizes[0]);
+  const [selectedCondition, setSelectedCondition] = useState(sneakerConditions[0]);
+  const [purchaseDate, setPurchaseDate] = useState('');
+  const [notes, setNotes] = useState('');
+  const [purchasePrice, setPurchasePrice] = useState('');
 
   // Initial search if query parameter exists
   useEffect(() => {
@@ -171,18 +201,6 @@ const SneakerSearchPage = () => {
 
       const data = await fetchSneakersData(searchQuery);
       setSneakerData(data);
-      
-      // Initialize selected sizes and conditions for each sneaker
-      const initialSizes: Record<string, string> = {};
-      const initialConditions: Record<string, string> = {};
-      
-      data.data.forEach(sneaker => {
-        initialSizes[sneaker.id] = shoeSizes[0];
-        initialConditions[sneaker.id] = "DS (Deadstock)";
-      });
-      
-      setSelectedSizes(initialSizes);
-      setSelectedConditions(initialConditions);
     } catch (err) {
       setError('Error fetching sneaker data');
     } finally {
@@ -196,78 +214,97 @@ const SneakerSearchPage = () => {
     handleSearch(null, brand);
   };
   
-  // Handle size selection
-  const handleSizeChange = (sneakerId: string, size: string) => {
-    setSelectedSizes(prev => ({
-      ...prev,
-      [sneakerId]: size
-    }));
+  // Open wishlist modal
+  const openWishlistModal = (sneaker: Sneaker) => {
+    setSelectedSneaker(sneaker);
+    setSelectedSize(shoeSizes[0]);
+    setIsWishlistModalOpen(true);
   };
 
-  // Handle condition selection
-  const handleConditionChange = (sneakerId: string, condition: string) => {
-    setSelectedConditions(prev => ({
-      ...prev,
-      [sneakerId]: condition
-    }));
+  // Open collection modal
+// Open collection modal
+const openCollectionModal = (sneaker: Sneaker) => {
+  setSelectedSneaker(sneaker);
+  setSelectedSize(shoeSizes[0]);
+  setSelectedCondition(sneakerConditions[0]);
+  setPurchaseDate('');
+  setPurchasePrice('');  // Fügen Sie diese Zeile hinzu
+  setNotes('');
+  setIsCollectionModalOpen(true);
+};
+  // Open details modal
+  const openDetailsModal = (sneaker: Sneaker) => {
+    setSelectedSneaker(sneaker);
+    setIsDetailsModalOpen(true);
+  };
+
+  // Close all modals
+  const closeModals = () => {
+    setIsWishlistModalOpen(false);
+    setIsCollectionModalOpen(false);
+    setIsDetailsModalOpen(false);
+    setSelectedSneaker(null);
   };
   
-  // Handle adding to wishlist
-  const handleAddToWishlist = async (sneaker: Sneaker) => {
+  // Handle adding to wishlist from modal
+  const handleAddToWishlistFromModal = async () => {
+    if (!selectedSneaker) return;
+    
     try {
       setIsAddingToWishlist(prev => ({
         ...prev,
-        [sneaker.id]: true
+        [selectedSneaker.id]: true
       }));
       
-      const size = selectedSizes[sneaker.id] || shoeSizes[0];
-      await addToWishlist(sneaker, size);
+      await addToWishlist(selectedSneaker, selectedSize);
       
-      toast.success(`Added ${sneaker.title} (Size ${size}) to your wishlist!`);
+      toast.success(`Added ${selectedSneaker.title} (${selectedSize}) to your wishlist!`);
+      closeModals();
     } catch (error: any) {
       toast.error(error.message || 'Failed to add to wishlist');
     } finally {
       setIsAddingToWishlist(prev => ({
         ...prev,
-        [sneaker.id]: false
+        [selectedSneaker.id]: false
       }));
     }
   };
 
-  // Handle adding to collection
-  const handleAddToCollection = async (sneaker: Sneaker) => {
+  // Handle adding to collection from modal
+  const handleAddToCollectionFromModal = async () => {
+    if (!selectedSneaker) return;
+    
     try {
       setIsAddingToCollection(prev => ({
         ...prev,
-        [sneaker.id]: true
+        [selectedSneaker.id]: true
       }));
       
-      const size = selectedSizes[sneaker.id] || shoeSizes[0];
-      const condition = selectedConditions[sneaker.id] || "DS (Deadstock)";
+      // Convert US size to EU and UK sizes (simplified conversion)
+      const usSize = parseFloat(selectedSize.replace('US ', ''));
+      const euSize = (usSize + 33);
+      const ukSize = (usSize - 0.5);
       
-      await addToCollection(sneaker, size, condition);
-      
-      toast.success(`Added ${sneaker.title} (Size ${size}) to your collection!`);
+      await addToCollection(
+        selectedSneaker,
+        usSize,
+        euSize,
+        ukSize,
+        selectedCondition,
+        notes,
+        purchaseDate || null,
+        purchasePrice || null  // Fügen Sie den purchasePrice-Parameter hinzu
+      );      
+      toast.success(`Added ${selectedSneaker.title} (${selectedSize}) to your collection!`);
+      closeModals();
     } catch (error: any) {
       toast.error(error.message || 'Failed to add to collection');
     } finally {
       setIsAddingToCollection(prev => ({
         ...prev,
-        [sneaker.id]: false
+        [selectedSneaker.id]: false
       }));
     }
-  };
-
-  // Open details modal
-  const openDetailsModal = (sneaker: Sneaker) => {
-    setSelectedSneaker(sneaker);
-    setIsModalOpen(true);
-  };
-
-  // Close details modal
-  const closeDetailsModal = () => {
-    setIsModalOpen(false);
-    setSelectedSneaker(null);
   };
 
   return (
@@ -335,14 +372,15 @@ const SneakerSearchPage = () => {
             {/* Search results stats */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-800">
-              {sneakerData.data && sneakerData.data.length > 0 
-  ? `Found ${sneakerData.meta.total} results for "${query}"`
-  : `No results found for "${query}"`}              </h2>
+                {sneakerData.data && sneakerData.data.length > 0 
+                  ? `Found ${sneakerData.meta.total} results for "${query}"`
+                  : `No results found for "${query}"`}
+              </h2>
             </div>
 
             {/* Sneaker grid */}
             {sneakerData.data && sneakerData.data.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {sneakerData.data.map((sneaker) => (
                   <div key={sneaker.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition group">
                     {/* Sneaker image */}
@@ -376,66 +414,26 @@ const SneakerSearchPage = () => {
                         <p className="text-xs text-gray-500 mt-1">SKU: {sneaker.sku}</p>
                       </div>
                       
-                      {/* Size selection */}
-                      <div className="mb-3">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Size:</label>
-                        <select 
-                          value={selectedSizes[sneaker.id] || shoeSizes[0]} 
-                          onChange={(e) => handleSizeChange(sneaker.id, e.target.value)}
-                          className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500"
-                        >
-                          {shoeSizes.map((size) => (
-                            <option key={size} value={size}>{size}</option>
-                          ))}
-                        </select>
-                      </div>
-                      
                       {/* Action buttons */}
                       <div className="grid grid-cols-2 gap-2">
                         <button
-                          onClick={() => handleAddToWishlist(sneaker)}
-                          disabled={isAddingToWishlist[sneaker.id]}
-                          className="flex items-center justify-center py-2 text-sm font-medium border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition disabled:opacity-70"
+                          onClick={() => openWishlistModal(sneaker)}
+                          className="flex items-center justify-center py-2 text-sm font-medium border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition"
                         >
-                          {isAddingToWishlist[sneaker.id] ? (
-                            <span className="flex items-center">
-                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              Adding...
-                            </span>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                              </svg>
-                              Wishlist
-                            </>
-                          )}
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                          Wishlist
                         </button>
                         
                         <button
-                          onClick={() => handleAddToCollection(sneaker)}
-                          disabled={isAddingToCollection[sneaker.id]}
-                          className="flex items-center justify-center py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-70"
+                          onClick={() => openCollectionModal(sneaker)}
+                          className="flex items-center justify-center py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                         >
-                          {isAddingToCollection[sneaker.id] ? (
-                            <span className="flex items-center">
-                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              Adding...
-                            </span>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                              </svg>
-                              Collection
-                            </>
-                          )}
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          Collection
                         </button>
                       </div>
                     </div>
@@ -490,14 +488,218 @@ const SneakerSearchPage = () => {
         )}
       </div>
 
-      {/* Sneaker Details Modal */}
-      {isModalOpen && selectedSneaker && (
+      {/* Wishlist Modal */}
+      {isWishlistModalOpen && selectedSneaker && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl overflow-hidden max-w-lg w-full">
+            {/* Modal header */}
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="text-lg font-bold text-gray-800">Add to Wishlist</h3>
+              <button onClick={closeModals} className="text-gray-500 hover:text-gray-700">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal content */}
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-20 h-20 bg-gray-50 rounded flex items-center justify-center">
+                  {selectedSneaker.image ? (
+                    <img
+                      src={selectedSneaker.image}
+                      alt={selectedSneaker.title}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  ) : (
+                    <div className="text-gray-400">No image</div>
+                  )}
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-800">{selectedSneaker.title}</h4>
+                  <p className="text-sm text-blue-600">{selectedSneaker.brand}</p>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Size:</label>
+                <select 
+                  value={selectedSize} 
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+                  {shoeSizes.map((size) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {/* Modal footer */}
+            <div className="p-4 border-t bg-gray-50 flex justify-end">
+              <button 
+                onClick={closeModals}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddToWishlistFromModal}
+                disabled={isAddingToWishlist[selectedSneaker.id]}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-70 flex items-center"
+              >
+                {isAddingToWishlist[selectedSneaker.id] ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Adding...
+                  </>
+                ) : "Add to Wishlist"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Collection Modal */}
+{/* Collection Modal */}
+{/* Collection Modal */}
+{isCollectionModalOpen && selectedSneaker && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl overflow-hidden max-w-2xl w-full max-h-[90vh] flex flex-col">
+      {/* Modal header */}
+      <div className="p-4 border-b flex justify-between items-center">
+        <h3 className="text-lg font-bold text-gray-800">Add to Collection</h3>
+        <button onClick={closeModals} className="text-gray-500 hover:text-gray-700">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Modal content */}
+      <div className="overflow-y-auto p-6 flex-1">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-24 h-24 bg-gray-50 rounded flex items-center justify-center">
+            {selectedSneaker.image ? (
+              <img
+                src={selectedSneaker.image}
+                alt={selectedSneaker.title}
+                className="max-h-full max-w-full object-contain"
+              />
+            ) : (
+              <div className="text-gray-400">No image</div>
+            )}
+          </div>
+          <div>
+            <h4 className="font-bold text-gray-800">{selectedSneaker.title}</h4>
+            <p className="text-sm text-blue-600">{selectedSneaker.brand}</p>
+            <p className="text-xs text-gray-500">SKU: {selectedSneaker.sku}</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Size:</label>
+            <select 
+              value={selectedSize} 
+              onChange={(e) => setSelectedSize(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              {shoeSizes.map((size) => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Condition:</label>
+            <select 
+              value={selectedCondition} 
+              onChange={(e) => setSelectedCondition(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              {sneakerConditions.map((condition) => (
+                <option key={condition} value={condition}>{condition}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Purchase Date:</label>
+            <input
+              type="date"
+              value={purchaseDate}
+              onChange={(e) => setPurchaseDate(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Purchase Price (€):</label>
+            <input
+              type="number"
+              value={purchasePrice}
+              onChange={(e) => setPurchasePrice(e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        
+        <div className="mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Notes:</label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Add any details about your sneaker (optional)"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none h-24"
+          ></textarea>
+        </div>
+      </div>
+      
+      {/* Modal footer */}
+      <div className="p-4 border-t bg-gray-50 flex justify-end">
+        <button 
+          onClick={closeModals}
+          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition mr-2"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleAddToCollectionFromModal}
+          disabled={isAddingToCollection[selectedSneaker.id]}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-70 flex items-center"
+        >
+          {isAddingToCollection[selectedSneaker.id] ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Adding...
+            </>
+          ) : "Add to Collection"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+      {/* Details Modal */}
+      {isDetailsModalOpen && selectedSneaker && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col">
             {/* Modal header */}
             <div className="p-4 border-b flex justify-between items-center">
               <h3 className="text-lg font-bold text-gray-800">Sneaker Details</h3>
-              <button onClick={closeDetailsModal} className="text-gray-500 hover:text-gray-700">
+              <button onClick={closeModals} className="text-gray-500 hover:text-gray-700">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -538,40 +740,6 @@ const SneakerSearchPage = () => {
                         <p className="font-medium">{selectedSneaker.category || "N/A"}</p>
                       </div>
                     </div>
-                    
-                    {/* Size selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Size:</label>
-                      <select 
-                        value={selectedSizes[selectedSneaker.id] || shoeSizes[0]} 
-                        onChange={(e) => handleSizeChange(selectedSneaker.id, e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                      >
-                        {shoeSizes.map((size) => (
-                          <option key={size} value={size}>{size}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    {/* Condition selection for collection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Condition:</label>
-                      <select 
-                        value={selectedConditions[selectedSneaker.id] || "DS (Deadstock)"} 
-                        onChange={(e) => handleConditionChange(selectedSneaker.id, e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="DS (Deadstock)">DS (Deadstock)</option>
-                        <option value="VNDS (Very Near Deadstock)">VNDS (Very Near Deadstock)</option>
-                        <option value="9/10">9/10 - Excellent</option>
-                        <option value="8/10">8/10 - Great</option>
-                        <option value="7/10">7/10 - Good</option>
-                        <option value="6/10">6/10 - Fair</option>
-                        <option value="5/10">5/10 - Average</option>
-                        <option value="4/10">4/10 - Below Average</option>
-                        <option value="3/10">3/10 - Poor</option>
-                      </select>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -582,65 +750,39 @@ const SneakerSearchPage = () => {
               <div className="flex space-x-3">
                 <button
                   onClick={() => {
-                    handleAddToWishlist(selectedSneaker);
-                    closeDetailsModal();
+                    closeModals();
+                    openWishlistModal(selectedSneaker);
                   }}
-                  disabled={isAddingToWishlist[selectedSneaker.id]}
-                  className="flex-1 flex items-center justify-center py-2.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition disabled:opacity-70"
+                  className="flex-1 flex items-center justify-center py-2.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition"
                 >
-                  {isAddingToWishlist[selectedSneaker.id] ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Adding...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      Add to Wishlist
-                    </span>
-                  )}
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  Add to Wishlist
                 </button>
                 
                 <button
                   onClick={() => {
-                    handleAddToCollection(selectedSneaker);
-                    closeDetailsModal();
+                    closeModals();
+                    openCollectionModal(selectedSneaker);
                   }}
-                  disabled={isAddingToCollection[selectedSneaker.id]}
-                  className="flex-1 flex items-center justify-center py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-70"
-                  >
-                    {isAddingToCollection[selectedSneaker.id] ? (
-                      <span className="flex items-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Adding...
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Add to Collection
-                      </span>
-                    )}
-                  </button>
-                </div>
+                  className="flex-1 flex items-center justify-center py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Add to Collection
+                </button>
               </div>
             </div>
           </div>
-        )}
-  
-        {/* Toast notifications container */}
-        <ToastContainer position="bottom-right" />
-      </div>
-    );
-  };
-  
-  export default SneakerSearchPage;
+        </div>
+      )}
+      
+      {/* Toast notifications container */}
+      <ToastContainer position="bottom-right" />
+    </div>
+  );
+};
+
+export default SneakerSearchPage;

@@ -18,7 +18,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Ungültiges Token." }, { status: 401 });
     }
 
-    // Fetch user's collection without specifying purchasePrice
+    // Fetch user's collection
     const collection = await prisma.sneakerCollection.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' }
@@ -54,6 +54,9 @@ export async function POST(req: Request) {
     }
 
     // Get sneaker data from request
+    const requestData = await req.json();
+    console.log("Received data:", JSON.stringify(requestData, null, 2));
+
     const {
       sneakerId,
       sneakerName,
@@ -67,9 +70,10 @@ export async function POST(req: Request) {
       notes,
       purchaseDate,
       releaseDate,
-    } = await req.json();
+      // purchasePrice, - Wir ignorieren dieses Feld vorerst
+    } = requestData;
 
-    // Create new collection entry
+    // Create new collection entry ohne purchasePrice
     const newCollectionEntry = await prisma.sneakerCollection.create({
       data: {
         userId,
@@ -85,6 +89,7 @@ export async function POST(req: Request) {
         notes,
         purchaseDate: purchaseDate ? new Date(purchaseDate) : null,
         releaseDate: releaseDate ? new Date(releaseDate) : null,
+        // purchasePrice entfernt
       },
     });
 

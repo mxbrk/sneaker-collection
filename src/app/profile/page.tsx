@@ -119,7 +119,7 @@ export default function Profile() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {collectionItems.map((item) => (
                     <div key={item.id} className="border rounded-lg overflow-hidden flex">
-                      <div className="w-1/3 bg-gray-100 flex items-center justify-center p-2">
+                      <div className="w-1/3 bg-white-100 flex items-center justify-center p-2">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
@@ -184,7 +184,7 @@ export default function Profile() {
                   <div className="space-y-3">
                     {wishlistItems.map((item) => (
                       <div key={item.id} className="flex items-center gap-3 border-b border-gray-100 pb-3">
-                        <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center shrink-0">
+                        <div className="w-12 h-12 bg-white-100 rounded flex items-center justify-center shrink-0">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
