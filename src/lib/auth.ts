@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -21,19 +22,27 @@ export const signupSchema = z.object({
 const COOKIE_NAME = 'auth_session';
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
+// Helper function to generate a secure random token
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
 export async function createSession(userId: string) {
   // Create a new session
   const expiresAt = new Date(Date.now() + MAX_AGE * 1000);
+  const token = generateToken();
   
   const session = await prisma.session.create({
     data: {
       userId,
       expiresAt,
+      token, // Add token field to satisfy the schema constraint
     },
   });
 
   // Set session cookie
-  cookies().set({
+  const cookieStore = await cookies();
+  cookieStore.set({
     name: COOKIE_NAME,
     value: session.id,
     httpOnly: true,
@@ -47,7 +56,8 @@ export async function createSession(userId: string) {
 }
 
 export async function getSession() {
-  const sessionId = cookies().get(COOKIE_NAME)?.value;
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get(COOKIE_NAME)?.value;
   
   if (!sessionId) {
     return null;
@@ -62,7 +72,8 @@ export async function getSession() {
     if (session) {
       await prisma.session.delete({ where: { id: sessionId } });
     }
-    cookies().delete(COOKIE_NAME);
+    const cookieStore = await cookies();
+    cookieStore.delete(COOKIE_NAME);
     return null;
   }
 
@@ -75,13 +86,14 @@ export async function getCurrentUser() {
 }
 
 export async function logout() {
-  const sessionId = cookies().get(COOKIE_NAME)?.value;
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get(COOKIE_NAME)?.value;
   
   if (sessionId) {
     await prisma.session.delete({ where: { id: sessionId } });
   }
   
-  cookies().delete(COOKIE_NAME);
+  cookieStore.delete(COOKIE_NAME);
 }
 
 // Authentication functions
