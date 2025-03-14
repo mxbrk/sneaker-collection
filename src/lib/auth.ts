@@ -1,0 +1,132 @@
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { cookies } from 'next/headers';
+import { z } from 'zod';
+
+const prisma = new PrismaClient();
+
+// Validation schemas
+export const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+export const signupSchema = z.object({
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  username: z.string().min(3, 'Username must be at least 3 characters').optional(),
+});
+
+// Session utilities
+const COOKIE_NAME = 'auth_session';
+const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+
+export async function createSession(userId: string) {
+  // Create a new session
+  const expiresAt = new Date(Date.now() + MAX_AGE * 1000);
+  
+  const session = await prisma.session.create({
+    data: {
+      userId,
+      expiresAt,
+    },
+  });
+
+  // Set session cookie
+  cookies().set({
+    name: COOKIE_NAME,
+    value: session.id,
+    httpOnly: true,
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: MAX_AGE,
+    sameSite: 'lax',
+  });
+
+  return session;
+}
+
+export async function getSession() {
+  const sessionId = cookies().get(COOKIE_NAME)?.value;
+  
+  if (!sessionId) {
+    return null;
+  }
+
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    include: { user: true },
+  });
+
+  if (!session || session.expiresAt < new Date()) {
+    if (session) {
+      await prisma.session.delete({ where: { id: sessionId } });
+    }
+    cookies().delete(COOKIE_NAME);
+    return null;
+  }
+
+  return session;
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+  return session?.user || null;
+}
+
+export async function logout() {
+  const sessionId = cookies().get(COOKIE_NAME)?.value;
+  
+  if (sessionId) {
+    await prisma.session.delete({ where: { id: sessionId } });
+  }
+  
+  cookies().delete(COOKIE_NAME);
+}
+
+// Authentication functions
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, 12);
+}
+
+export async function verifyPassword(password: string, hashedPassword: string) {
+  return bcrypt.compare(password, hashedPassword);
+}
+
+export async function createUser(email: string, password: string, username?: string) {
+  const hashedPassword = await hashPassword(password);
+  
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    throw new Error('User with this email already exists');
+  }
+
+  return prisma.user.create({
+    data: {
+      email,
+      passwordHash: hashedPassword,
+      username,
+    },
+  });
+}
+
+export async function authenticateUser(email: string, password: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  const isValid = await verifyPassword(password, user.passwordHash);
+
+  if (!isValid) {
+    return null;
+  }
+
+  return user;
+}
