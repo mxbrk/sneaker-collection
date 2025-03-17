@@ -16,6 +16,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Sneaker Collection - A Modern Next.js App',
   description: 'A modern, secure, and scalable application built with Next.js',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.ico',
+        href: '/favicon.ico',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -25,6 +33,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="theme-color" content="#d14124" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -50,47 +50,52 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <FormContainer
-        title="Login"
-        subtitle="Welcome back! Please enter your details."
-        onSubmit={handleSubmit}
-      >
-        <FormError message={error || undefined} />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#fafafa]">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-[#d14124]">Sneaker Collection</h1>
+        </div>
+        <FormContainer
+          title="Login"
+          subtitle="Welcome back! Please enter your details."
+          onSubmit={handleSubmit}
+        >
+          <FormError message={error || undefined} />
 
-        <Input
-          label="Email"
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          disabled={isLoading}
-        />
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
 
-        <Input
-          label="Password"
-          type="password"
-          name="password"
-          placeholder="Enter your password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          disabled={isLoading}
-        />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? 'Loading...' : 'Sign in'}
-        </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? 'Loading...' : 'Sign in'}
+          </Button>
 
-        <p className="text-center text-sm mt-4">
-          Don't have an account?{' '}
-          <Link href="/signup" className="underline hover:text-foreground/70">
-            Sign up
-          </Link>
-        </p>
-      </FormContainer>
+          <p className="text-center text-sm mt-4">
+            Don't have an account?{' '}
+            <Link href="/signup" className="text-[#d14124] hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </FormContainer>
+      </div>
     </div>
   );
 }

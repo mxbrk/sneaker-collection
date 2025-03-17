@@ -11,7 +11,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`bg-foreground text-background rounded-full py-2 px-4 font-medium text-sm transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] disabled:opacity-50 disabled:cursor-not-allowed w-full ${className}`}
+      className={`bg-[#d14124] text-white rounded-lg py-2 px-4 font-medium text-sm transition-colors hover:bg-[#b93a20] disabled:opacity-50 disabled:cursor-not-allowed w-full ${className}`}
       {...props}
     >
       {children}
@@ -37,7 +37,7 @@ export function Input({
       </label>
       <input
         id={id}
-        className={`w-full px-3 py-2 border border-black/[.08] dark:border-white/[.145] rounded-md focus:outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10 bg-transparent ${
+        className={`w-full px-3 py-2 border border-[#e5e5e5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d14124] focus:border-[#d14124] bg-white ${
           error ? 'border-red-500' : ''
         } ${className}`}
         {...props}
@@ -59,7 +59,7 @@ export function FormContainer({
   onSubmit: (e: React.FormEvent) => void;
 }) {
   return (
-    <div className="max-w-md w-full mx-auto p-6 bg-white dark:bg-black/20 rounded-lg shadow-sm border border-black/[.08] dark:border-white/[.08]">
+    <div className="max-w-md w-full mx-auto p-6 bg-white rounded-lg shadow-sm border border-[#f0f0f0]">
       <div className="space-y-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold">{title}</h1>
@@ -77,7 +77,7 @@ export function FormError({ message }: { message?: string }) {
   if (!message) return null;
   
   return (
-    <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-3 rounded-md text-sm">
+    <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
       {message}
     </div>
   );
@@ -87,7 +87,7 @@ export function FormSuccess({ message }: { message?: string }) {
   if (!message) return null;
   
   return (
-    <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 p-3 rounded-md text-sm">
+    <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm">
       {message}
     </div>
   );

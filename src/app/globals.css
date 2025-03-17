@@ -3,19 +3,44 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent: #d14124;
+  --accent-foreground: #ffffff;
+  --accent-light: #fae5e1;
+  --accent-medium: #e87a64;
+  --muted: #f1f1f1;
+  --muted-foreground: #737373;
+  --border: #e5e5e5;
+  --input: #f5f5f5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-light: var(--accent-light);
+  --color-accent-medium: var(--accent-medium);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* We're sticking to light design, so no dark mode variables */
+    --background: #ffffff;
+    --foreground: #171717;
+    --accent: #d14124;
+    --accent-foreground: #ffffff;
+    --accent-light: #fae5e1;
+    --accent-medium: #e87a64;
+    --muted: #f1f1f1;
+    --muted-foreground: #737373;
+    --border: #e5e5e5;
+    --input: #f5f5f5;
   }
 }
 
@@ -23,4 +48,26 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Base button styles */
+.btn-accent {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.btn-accent:hover {
+  background-color: var(--accent-medium);
+}
+
+.accent-text {
+  color: var(--accent);
+}
+
+.accent-border {
+  border-color: var(--accent);
+}
+
+.accent-bg-light {
+  background-color: var(--accent-light);
 }
