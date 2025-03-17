@@ -20,6 +20,12 @@ export default async function Home() {
               >
                 Profile
               </Link>
+              <Link
+                href="/search"
+                className="rounded-lg bg-[#d14124] text-white px-4 py-2 hover:bg-[#b93a20] transition-colors"
+              >
+                Search Sneakers
+              </Link>
             </>
           ) : (
             <>
@@ -50,19 +56,35 @@ export default async function Home() {
 
         <div className="flex gap-4 items-center flex-wrap justify-center mt-8">
           {user ? (
-            <Link
-              href="/profile"
-              className="rounded-lg border border-solid border-transparent transition-colors flex items-center justify-center bg-[#d14124] text-white gap-2 hover:bg-[#b93a20] font-medium text-sm sm:text-base h-12 px-6"
-            >
-              View Your Profile
-            </Link>
+            <>
+              <Link
+                href="/profile"
+                className="rounded-lg border border-solid border-transparent transition-colors flex items-center justify-center bg-[#d14124] text-white gap-2 hover:bg-[#b93a20] font-medium text-sm sm:text-base h-12 px-6"
+              >
+                View Your Profile
+              </Link>
+              <Link
+                href="/search"
+                className="rounded-lg border border-solid border-[#e5e5e5] transition-colors flex items-center justify-center hover:bg-[#fdf1f0] font-medium text-sm sm:text-base h-12 px-6"
+              >
+                Search Sneakers
+              </Link>
+            </>
           ) : (
-            <Link
-              href="/signup"
-              className="rounded-lg border border-solid border-transparent transition-colors flex items-center justify-center bg-[#d14124] text-white gap-2 hover:bg-[#b93a20] font-medium text-sm sm:text-base h-12 px-6"
-            >
-              Get Started
-            </Link>
+            <>
+              <Link
+                href="/signup"
+                className="rounded-lg border border-solid border-transparent transition-colors flex items-center justify-center bg-[#d14124] text-white gap-2 hover:bg-[#b93a20] font-medium text-sm sm:text-base h-12 px-6"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/search"
+                className="rounded-lg border border-solid border-[#e5e5e5] transition-colors flex items-center justify-center hover:bg-[#fdf1f0] font-medium text-sm sm:text-base h-12 px-6"
+              >
+                Search Sneakers
+              </Link>
+            </>
           )}
           <Link
             href="https://nextjs.org/docs"
