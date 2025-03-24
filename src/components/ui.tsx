@@ -1,5 +1,7 @@
 import React from 'react';
 
+// src/components/ui.tsx - Button Komponente
+
 export function Button({
   children,
   type = 'button',
@@ -11,14 +13,13 @@ export function Button({
   return (
     <button
       type={type}
-      className={`bg-[#d14124] text-white rounded-lg py-2 px-4 font-medium text-sm transition-colors hover:bg-[#b93a20] disabled:opacity-50 disabled:cursor-not-allowed w-full ${className}`}
+      className={`bg-[#d14124] text-white rounded-lg py-2 px-4 font-medium text-sm transition-colors hover:bg-[#b93a20] disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center ${className}`}
       {...props}
     >
       {children}
     </button>
   );
 }
-
 export function Input({
   label,
   error,
