@@ -9,7 +9,7 @@ interface SneakerCardProps {
 export default function SneakerCard({ sneaker }: SneakerCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#f0f0f0]">
-      <div className="relative h-48 bg-[#f7f7f7] overflow-hidden p-2">
+      <div className="relative h-48 bg-[#ffffff] overflow-hidden p-2">
         {sneaker.image ? (
           <Image
             src={sneaker.image}
