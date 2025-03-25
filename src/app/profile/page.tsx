@@ -10,6 +10,7 @@ interface User {
   id: string;
   email: string;
   username: string | null;
+  createdAt: string;
 }
 
 export default function ProfilePage() {
@@ -51,7 +52,7 @@ export default function ProfilePage() {
 
         const data = await response.json();
         setUser(data.user);
-        
+
         // Initialize form data with current user data
         setFormData(prevData => ({
           ...prevData,
@@ -292,7 +293,10 @@ export default function ProfilePage() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-[#171717]">
                   {user?.username || 'User'}
                 </h1>
-                <p className="text-[#737373] mt-1">{user?.email}</p>
+                <p className="text-[#737373] mt-">Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US",{
+                  year: "numeric",
+                  month: "long"
+                }) : 'Unknown'}</p>
                 <div className="mt-4 flex flex-wrap gap-3 justify-center sm:justify-start">
                   <Button 
                     onClick={toggleEditMode}
