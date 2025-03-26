@@ -25,7 +25,8 @@ export const fetchSneakersData = async (query: string): Promise<SneakerApiRespon
       throw new Error('Error fetching data');
     }
 
-    const data: SneakerApiResponse = await response.json();    
+    const data: SneakerApiResponse = await response.json();   
+    console.log(data); 
     return data;
   } catch (err) {
     console.error('Error:', err);
