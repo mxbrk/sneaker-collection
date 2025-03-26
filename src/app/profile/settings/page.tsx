@@ -231,12 +231,6 @@ export default function SettingsPage() {
               >
                 Profile
               </Link>
-              <Link
-                href="/profile/settings"
-                className="bg-[#fae5e1] text-[#d14124] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Settings
-              </Link>
             </nav>
           </div>
         </div>
