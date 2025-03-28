@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { fetchSneakersData } from '@/lib/sneaker-service';
 import { Sneaker } from '@/types/sneakers';
 import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import SneakerCard from '@/components/SneakerCard';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import Notification from '@/components/Notification';
 
 export default function SearchPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
@@ -17,6 +19,23 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
+  
+  // Notification state
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
+
+  // Function to clear search when directly navigating to /search
+  useEffect(() => {
+    // Check if we're on the search page with no query params
+    if (pathname === '/search' && !searchParams.has('q')) {
+      // Clear search state
+      setSearchQuery('');
+      setSneakers([]);
+      setTotalResults(0);
+    }
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (initialQuery) {
@@ -47,6 +66,17 @@ export default function SearchPage() {
     }
   };
 
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSneakers([]);
+    setTotalResults(0);
+    router.push('/search', { scroll: false });
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Modern, minimalist navbar */}
@@ -60,7 +90,11 @@ export default function SearchPage() {
               <Link href="/" className="text-[#171717] px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#f5f5f5] transition-colors">
                 Home
               </Link>
-              <Link href="/search" className="bg-[#fae5e1] text-[#d14124] px-3 py-2 rounded-lg text-sm font-medium">
+              <Link 
+                href="/search" 
+                className="bg-[#fae5e1] text-[#d14124] px-3 py-2 rounded-lg text-sm font-medium"
+                onClick={clearSearch}
+              >
                 Search
               </Link>
               <Link href="/profile" className="text-[#171717] px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#f5f5f5] transition-colors">
@@ -149,40 +183,11 @@ export default function SearchPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sneakers.map((sneaker) => (
-                <div key={sneaker.id} className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-[#f0f0f0]">
-                  <div className="relative aspect-square bg-[#ffffff] overflow-hidden">
-                    {sneaker.image ? (
-                      <Image
-                        src={sneaker.image}
-                        alt={sneaker.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-[#d0d0d0]">
-                        No Image
-                      </div>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-[#171717] line-clamp-1 group-hover:text-[#d14124] transition-colors">
-                      {sneaker.title || "Unnamed Sneaker"}
-                    </h3>
-                    <div className="mt-1 flex justify-between items-center">
-                      <span className="text-xs font-mono text-[#737373]">{sneaker.sku}</span>
-                      {sneaker.retailPrice ? (
-                        <span className="text-[#d14124] font-semibold">${sneaker.retailPrice}</span>
-                      ) : null}
-                    </div>
-                    <div className="mt-2 text-xs text-[#737373] flex items-center gap-2">
-                      <span className="px-2 py-1 bg-[#f5f5f5] rounded-full">{sneaker.brand}</span>
-                      <span className="line-clamp-1">{sneaker.colorway}</span>
-                    </div>
-                  </div>
-                </div>
+                <SneakerCard 
+                  key={sneaker.id} 
+                  sneaker={sneaker} 
+                  onNotification={showNotification}
+                />
               ))}
             </div>
           )}
@@ -239,6 +244,15 @@ export default function SearchPage() {
             <path d="M18 15l-6-6-6 6"/>
           </svg>
         </button>
+      )}
+      
+      {/* Notification */}
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onDismiss={() => setNotification(null)}
+        />
       )}
     </div>
   );

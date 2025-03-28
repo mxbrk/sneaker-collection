@@ -1,3 +1,4 @@
+// src/app/profile/page.tsx
 'use client';
 
 import { Button } from '@/components/ui';
@@ -5,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Sneaker } from '@/types/sneakers';
+import SneakerCard from '@/components/SneakerCard';
+import Notification from '@/components/Notification';
 
 interface User {
   id: string;
@@ -13,36 +17,88 @@ interface User {
   createdAt: string;
 }
 
+interface CollectionItem {
+  id: string;
+  sneakerId: string;
+  sku: string;
+  brand: string;
+  title: string;
+  colorway: string;
+  image: string | null;
+  sizeUS: string;
+  sizeEU: string | null;
+  sizeUK: string | null;
+  condition: string;
+  purchaseDate: string | null;
+  retailPrice: number | null;
+  purchasePrice: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface WishlistItem {
+  id: string;
+  sneakerId: string;
+  sku: string;
+  brand: string;
+  title: string;
+  colorway: string;
+  image: string | null;
+  createdAt: string;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [collection, setCollection] = useState<CollectionItem[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch('/api/user');
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            router.push('/login');
-            return;
-          }
-          throw new Error('Failed to fetch user data');
-        }
-
-        const data = await response.json();
-        setUser(data.user);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUser();
+    fetchData();
   }, [router]);
+
+  const fetchData = async () => {
+    try {
+      // Fetch user data
+      const userResponse = await fetch('/api/user');
+      
+      if (!userResponse.ok) {
+        if (userResponse.status === 401) {
+          router.push('/login');
+          return;
+        }
+        throw new Error('Failed to fetch user data');
+      }
+
+      const userData = await userResponse.json();
+      setUser(userData.user);
+
+      // Fetch collection data
+      const collectionResponse = await fetch('/api/collection');
+      if (collectionResponse.ok) {
+        const collectionData = await collectionResponse.json();
+        setCollection(collectionData.collection || []);
+      }
+
+      // Fetch wishlist data
+      const wishlistResponse = await fetch('/api/wishlist');
+      if (wishlistResponse.ok) {
+        const wishlistData = await wishlistResponse.json();
+        setWishlist(wishlistData.wishlist || []);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -56,6 +112,72 @@ export default function ProfilePage() {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       setIsLoading(false);
     }
+  };
+
+  const handleRemoveFromWishlist = async (id: string) => {
+    try {
+      const response = await fetch(`/api/wishlist?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Update the wishlist state by removing the deleted item
+        setWishlist(wishlist.filter(item => item.id !== id));
+        setNotification({
+          message: 'Removed from wishlist',
+          type: 'success'
+        });
+      } else {
+        setNotification({
+          message: 'Failed to remove from wishlist',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      setNotification({
+        message: 'Failed to remove from wishlist',
+        type: 'error'
+      });
+    }
+  };
+
+  const handleRemoveFromCollection = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this sneaker from your collection?")) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/collection/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Update the collection state by removing the deleted item
+        setCollection(collection.filter(item => item.id !== id));
+        setNotification({
+          message: 'Removed from collection',
+          type: 'success'
+        });
+      } else {
+        setNotification({
+          message: 'Failed to remove from collection',
+          type: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error removing from collection:', error);
+      setNotification({
+        message: 'Failed to remove from collection',
+        type: 'error'
+      });
+    }
+  };
+
+  const getTotalValue = () => {
+    return collection.reduce((total, item) => {
+      return total + (item.purchasePrice || 0);
+    }, 0);
   };
 
   if (isLoading && !user) {
@@ -175,7 +297,7 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="mt-4">
-              <span className="text-3xl font-bold">0</span>
+              <span className="text-3xl font-bold">{collection.length}</span>
               <p className="text-[#737373] mt-1 text-sm">Total sneakers</p>
             </div>
           </div>
@@ -190,7 +312,7 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="mt-4">
-              <span className="text-3xl font-bold">0</span>
+              <span className="text-3xl font-bold">{wishlist.length}</span>
               <p className="text-[#737373] mt-1 text-sm">Items in wishlist</p>
             </div>
           </div>
@@ -206,7 +328,7 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="mt-4">
-              <span className="text-3xl font-bold">$0</span>
+              <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
               <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
             </div>
           </div>
@@ -225,20 +347,124 @@ export default function ProfilePage() {
             </Link>
           </div>
           
-          {/* Empty Collection State */}
-          <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
-            <div className="mx-auto w-16 h-16 mb-4 text-[#d14124] opacity-70">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              </svg>
+          {collection.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {collection.map((item) => (
+                <SneakerCard
+                  key={item.id}
+                  sneaker={item}
+                  isCollectionItem={true}
+                  onNotification={(message, type) => {
+                    setNotification({ message, type });
+                  }}
+                  onRemove={() => handleRemoveFromCollection(item.id)}
+                  onEdit={() => fetchData()} // Reload data after edit
+                />
+              ))}
             </div>
-            <h3 className="text-xl font-medium text-[#171717] mb-2">Your collection is empty</h3>
-            <p className="text-[#737373] max-w-md mx-auto mb-6">Start building your sneaker collection by searching for your favorite kicks and adding them.</p>
-            <Link href="/search" className="inline-flex items-center justify-center px-6 py-3 bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition shadow-sm">
-              Find Sneakers
+          ) : (
+            <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
+              <div className="mx-auto w-16 h-16 mb-4 text-[#d14124] opacity-70">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium text-[#171717] mb-2">Your collection is empty</h3>
+              <p className="text-[#737373] max-w-md mx-auto mb-6">Start building your sneaker collection by searching for your favorite kicks and adding them.</p>
+              <Link href="/search" className="inline-flex items-center justify-center px-6 py-3 bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition shadow-sm">
+                Find Sneakers
+              </Link>
+            </div>
+          )}
+        </section>
+
+        {/* Wishlist Section */}
+        <section className="mb-10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-[#171717]">Your Wishlist</h2>
+            <Link href="/search" className="text-[#d14124] hover:text-[#b93a20] transition flex items-center gap-1 text-sm font-medium">
+              <span>Browse sneakers</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
             </Link>
           </div>
+          
+          {wishlist.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {wishlist.map((item) => (
+                <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow relative group">
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleRemoveFromWishlist(item.id)}
+                      className="w-8 h-8 rounded-full bg-white text-[#737373] hover:text-red-500 flex items-center justify-center shadow-sm"
+                      title="Remove from wishlist"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="relative h-40 bg-[#ffffff] overflow-hidden">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-contain p-2"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#d0d0d0]">
+                        No Image Available
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-medium text-[#171717] truncate">{item.title}</h3>
+                    <p className="text-xs text-[#737373] mt-1 truncate">{item.colorway}</p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-xs font-mono text-[#737373]">{item.sku}</span>
+                      <button
+                        onClick={() => {
+                          // Create a Sneaker object from the wishlist item
+                          const sneaker: Sneaker = {
+                            id: item.sneakerId,
+                            sku: item.sku,
+                            brand: item.brand,
+                            title: item.title,
+                            colorway: item.colorway,
+                            image: item.image || '',
+                          };
+                          
+                          // We'll implement this functionality later
+                          router.push(`/search?q=${encodeURIComponent(item.title)}`);
+                        }}
+                        className="px-3 py-1 bg-[#fae5e1] text-[#d14124] text-xs rounded-full hover:bg-[#d14124] hover:text-white transition-colors"
+                      >
+                        Find to Buy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
+              <div className="mx-auto w-16 h-16 mb-4 text-[#d14124] opacity-70">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium text-[#171717] mb-2">Your wishlist is empty</h3>
+              <p className="text-[#737373] max-w-md mx-auto mb-6">Add sneakers to your wishlist while browsing to keep track of what you want to buy next.</p>
+              <Link href="/search" className="inline-flex items-center justify-center px-6 py-3 bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition shadow-sm">
+                Find Sneakers
+              </Link>
+            </div>
+          )}
         </section>
 
         {/* Recent Activity Section (Coming Soon) */}
@@ -260,6 +486,15 @@ export default function ProfilePage() {
           </div>
         </section>
       </main>
+
+      {/* Notification */}
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onDismiss={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }
