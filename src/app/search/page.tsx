@@ -43,28 +43,41 @@ export default function SearchPage() {
     }
   }, [initialQuery]);
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+// In src/app/search/page.tsx
 
-    setIsLoading(true);
-    setError(null);
+// Update the handleSearch function to better handle null responses
+const handleSearch = async () => {
+  if (!searchQuery.trim()) return;
+
+  setIsLoading(true);
+  setError(null);
+  
+  try {
+    const result = await fetchSneakersData(searchQuery);
     
-    try {
-      const result = await fetchSneakersData(searchQuery);
+    // Add null checks here
+    if (result && result.data) {
       setSneakers(result.data);
-      setTotalResults(result.total);
-      
-      // Update URL with search query
-      const params = new URLSearchParams(window.location.search);
-      params.set('q', searchQuery);
-      router.push(`/search?${params.toString()}`, { scroll: false });
-    } catch (err) {
-      setError('Failed to fetch sneakers. Please try again.');
+      setTotalResults(result.total || 0);
+    } else {
+      // Handle case where result or result.data is null
       setSneakers([]);
-    } finally {
-      setIsLoading(false);
+      setTotalResults(0);
+      setError('No results found or invalid response format');
     }
-  };
+    
+    // Update URL with search query
+    const params = new URLSearchParams(window.location.search);
+    params.set('q', searchQuery);
+    router.push(`/search?${params.toString()}`, { scroll: false });
+  } catch (err) {
+    setError('Failed to fetch sneakers. Please try again.');
+    setSneakers([]);
+    setTotalResults(0);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const clearSearch = () => {
     setSearchQuery('');
@@ -145,8 +158,8 @@ export default function SearchPage() {
       <section className="pb-20 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Results header - only shown when there are results or searching */}
-          {(sneakers.length > 0 || isLoading) && (
-            <div className="flex justify-between items-center mb-6">
+          {((sneakers && sneakers.length > 0) || isLoading) && (
+                        <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-[#171717]">
                 {isLoading ? (
                   <div className="flex items-center">
@@ -193,8 +206,8 @@ export default function SearchPage() {
           )}
           
           {/* Empty state - shown when search returns no results */}
-          {!isLoading && sneakers.length === 0 && searchQuery && (
-            <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] p-8 text-center">
+          {!isLoading && sneakers && sneakers.length === 0 && searchQuery && (
+                        <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] p-8 text-center">
               <div className="h-20 w-20 mx-auto mb-4 text-[#d14124] opacity-70">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -208,8 +221,8 @@ export default function SearchPage() {
           )}
           
           {/* Initial empty state with search suggestions */}
-          {!isLoading && sneakers.length === 0 && !searchQuery && (
-            <div className="mt-8 bg-gradient-to-br from-[#fae5e1] to-white rounded-xl p-8 text-center shadow-sm">
+          {!isLoading && (!sneakers || sneakers.length === 0) && !searchQuery && (
+                        <div className="mt-8 bg-gradient-to-br from-[#fae5e1] to-white rounded-xl p-8 text-center shadow-sm">
               <h3 className="text-xl font-medium text-[#171717] mb-4">Start Your Search</h3>
               <p className="text-[#737373] max-w-md mx-auto mb-6">
                 Enter keywords like brand names, models, or colors to find your perfect sneakers.
