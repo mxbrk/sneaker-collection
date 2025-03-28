@@ -211,7 +211,7 @@ export default function CollectionModal({
         <div className="p-6">
           {/* Rest of the component code remains unchanged */}
           <div className="flex flex-col md:flex-row gap-6 mb-6">
-            <div className="relative w-full md:w-1/3 aspect-square bg-[#f7f7f7] rounded-lg overflow-hidden">
+            <div className="relative w-full md:w-1/3 aspect-square bg-[#ffffff] rounded-lg overflow-hidden">
               {sneaker.image ? (
                 <img
                   src={sneaker.image}

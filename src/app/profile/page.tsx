@@ -400,19 +400,19 @@ export default function ProfilePage() {
           
           {wishlist.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {wishlist.map((item) => (
-                <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow relative group">
-                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleRemoveFromWishlist(item.id)}
-                      className="w-8 h-8 rounded-full bg-white text-[#737373] hover:text-red-500 flex items-center justify-center shadow-sm"
-                      title="Remove from wishlist"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 6L6 18M6 6l12 12"/>
-                      </svg>
-                    </button>
-                  </div>
+{wishlist.map((item) => (
+  <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow relative group">
+    <div className="absolute top-2 right-2 z-10 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+      <button
+        onClick={() => handleRemoveFromWishlist(item.id)}
+        className="w-8 h-8 rounded-full bg-white text-[#737373] hover:text-red-500 flex items-center justify-center shadow-sm"
+        title="Remove from wishlist"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
                   <div className="relative h-40 bg-[#ffffff] overflow-hidden">
                     {item.image ? (
                       <Image
