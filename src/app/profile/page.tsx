@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Sneaker } from '@/types/sneakers';
 import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
+import ConfirmationModal from '@/components/ConfirmationModal';
 
 interface User {
   id: string;
@@ -55,6 +56,7 @@ export default function ProfilePage() {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -142,16 +144,17 @@ export default function ProfilePage() {
     }
   };
 
-  const handleRemoveFromCollection = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this sneaker from your collection?")) {
-      return;
-    }
-    
+  const handleRemoveFromCollection = (id: string) => {
+    // Instead of showing a confirm dialog, set the state to show our custom modal
+    setShowDeleteConfirmation(id);
+  };
+  
+  const confirmRemoveFromCollection = async (id: string) => {
     try {
       const response = await fetch(`/api/collection/${id}`, {
         method: 'DELETE',
       });
-
+  
       if (response.ok) {
         // Update the collection state by removing the deleted item
         setCollection(collection.filter(item => item.id !== id));
@@ -171,6 +174,9 @@ export default function ProfilePage() {
         message: 'Failed to remove from collection',
         type: 'error'
       });
+    } finally {
+      // Clear the confirmation state
+      setShowDeleteConfirmation(null);
     }
   };
 
@@ -485,16 +491,27 @@ export default function ProfilePage() {
             </p>
           </div>
         </section>
-      </main>
+        </main>
 
-      {/* Notification */}
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onDismiss={() => setNotification(null)}
-        />
-      )}
-    </div>
-  );
+{/* Notification */}
+{notification && (
+  <Notification
+    message={notification.message}
+    type={notification.type}
+    onDismiss={() => setNotification(null)}
+  />
+)}
+
+{/* Add the Delete Confirmation Modal HERE - right after the Notification component */}
+{showDeleteConfirmation && (
+  <ConfirmationModal
+    title="Remove Sneaker"
+    message="Are you sure you want to remove this sneaker from your collection?"
+    confirmLabel="Remove"
+    onConfirm={() => confirmRemoveFromCollection(showDeleteConfirmation)}
+    onCancel={() => setShowDeleteConfirmation(null)}
+  />
+)}
+</div>
+);
 }
