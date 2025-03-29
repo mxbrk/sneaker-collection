@@ -1,10 +1,11 @@
-// src/app/api/collection/route.ts
+// src/app/api/collection/route.ts (UPDATED)
 import { getCurrentUser } from '@/lib/auth';
+import { getValidLabelValues } from '@/lib/labels';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Validation schema for adding to collection
+// Validation schema for adding to collection (updated with labels)
 const addToCollectionSchema = z.object({
   sneakerId: z.string(),
   sku: z.string(),
@@ -20,6 +21,7 @@ const addToCollectionSchema = z.object({
   retailPrice: z.number().optional().nullable(),
   purchasePrice: z.number().optional(),
   notes: z.string().optional(),
+  labels: z.array(z.enum(getValidLabelValues() as [string, ...string[]])).optional(), // Add labels field
 });
 
 // GET - Get user's collection
@@ -95,42 +97,42 @@ export async function POST(request: NextRequest) {
     }
 
     // Add to collection
-// Add to collection
-try {
-  const collectionItem = await prisma.collection.create({
-    data: {
-      userId: user.id,
-      sneakerId: data.sneakerId,
-      sku: data.sku,
-      brand: data.brand,
-      title: data.title,
-      colorway: data.colorway,
-      image: data.image,
-      sizeUS: data.sizeUS,
-      sizeEU: data.sizeEU,
-      sizeUK: data.sizeUK,
-      condition: data.condition,
-      purchaseDate,
-      retailPrice: data.retailPrice ?? null,
-      purchasePrice: data.purchasePrice ?? null,
-      notes: data.notes ?? null,
-    },
-  });
-  console.log('Created collection item:', collectionItem);
-  return NextResponse.json(
-    { 
-      message: 'Added to collection successfully',
-      item: collectionItem
-    },
-    { status: 201 }
-  );
-} catch (dbError) {
-  console.error('Database error:', dbError);
-  return NextResponse.json(
-    { error: `Database error: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}` },
-    { status: 500 }
-  );
-}
+    try {
+      const collectionItem = await prisma.collection.create({
+        data: {
+          userId: user.id,
+          sneakerId: data.sneakerId,
+          sku: data.sku,
+          brand: data.brand,
+          title: data.title,
+          colorway: data.colorway,
+          image: data.image,
+          sizeUS: data.sizeUS,
+          sizeEU: data.sizeEU,
+          sizeUK: data.sizeUK,
+          condition: data.condition,
+          purchaseDate,
+          retailPrice: data.retailPrice ?? null,
+          purchasePrice: data.purchasePrice ?? null,
+          notes: data.notes ?? null,
+          labels: data.labels || [], // Add labels to the data
+        },
+      });
+      console.log('Created collection item:', collectionItem);
+      return NextResponse.json(
+        { 
+          message: 'Added to collection successfully',
+          item: collectionItem
+        },
+        { status: 201 }
+      );
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return NextResponse.json(
+        { error: `Database error: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}` },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Add to collection error:', error);
     return NextResponse.json(

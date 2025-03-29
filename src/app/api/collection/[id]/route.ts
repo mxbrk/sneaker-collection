@@ -1,10 +1,11 @@
-// src/app/api/collection/[id]/route.ts
+// src/app/api/collection/[id]/route.ts (UPDATED)
 import { getCurrentUser } from '@/lib/auth';
+import { getValidLabelValues } from '@/lib/labels';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Validation schema for updating collection items
+// Validation schema for updating collection items (updated with labels)
 const updateCollectionSchema = z.object({
   sizeUS: z.string(),
   sizeEU: z.string().optional(),
@@ -21,6 +22,7 @@ const updateCollectionSchema = z.object({
   colorway: z.string().optional().default(''),
   image: z.string().optional(),
   retailPrice: z.number().optional().nullable(),
+  labels: z.array(z.enum(getValidLabelValues() as [string, ...string[]])).optional(), // Add labels field
 });
 
 // GET - Get a specific collection item
@@ -134,6 +136,7 @@ export async function PUT(
           purchaseDate: purchaseDate || null,
           purchasePrice: data.purchasePrice || null,
           notes: data.notes || null,
+          labels: data.labels || [], // Update labels
         },
       });
 
@@ -160,7 +163,7 @@ export async function PUT(
   }
 }
 
-// DELETE - Remove from collection
+// DELETE - Remove from collection (unchanged)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }

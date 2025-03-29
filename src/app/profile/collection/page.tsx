@@ -7,6 +7,8 @@ import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import { sneakerLabels } from '@/lib/labels';
+import  Label  from '@/components/Label';
 
 interface CollectionItem {
   id: string;
@@ -24,6 +26,7 @@ interface CollectionItem {
   retailPrice: number | null;
   purchasePrice: number | null;
   notes: string | null;
+  labels: string[]; // Add labels field
   createdAt: string;
   updatedAt: string;
 }
@@ -42,6 +45,7 @@ export default function CollectionPage() {
   // Filter states
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedCondition, setSelectedCondition] = useState<string>('');
+  const [selectedLabel, setSelectedLabel] = useState<string>(''); // Add label filter
   const [sortOption, setSortOption] = useState<string>('newest');
   
   useEffect(() => {
@@ -107,10 +111,16 @@ export default function CollectionPage() {
   // Get unique brands for filter
   const uniqueBrands = Array.from(new Set(collection.map(item => item.brand))).sort();
   
+  // Get unique labels used in the collection
+  const usedLabels = Array.from(
+    new Set(collection.flatMap(item => item.labels || []))
+  ).sort();
+  
   // Filter and sort collection
   const filteredCollection = collection.filter(item => {
     if (selectedBrand && item.brand !== selectedBrand) return false;
     if (selectedCondition && item.condition !== selectedCondition) return false;
+    if (selectedLabel && !(item.labels || []).includes(selectedLabel)) return false;
     return true;
   });
   
@@ -220,58 +230,106 @@ export default function CollectionPage() {
         </div>
 
         {/* Filters and Sorting */}
-        <div className="bg-white rounded-lg p-4 mb-6 border border-[#f0f0f0] flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
-            <select
-              value={selectedBrand}
-              onChange={(e) => setSelectedBrand(e.target.value)}
-              className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-            >
-              <option value="">All Brands</option>
-              {uniqueBrands.map(brand => (
-                <option key={brand} value={brand}>{brand}</option>
-              ))}
-            </select>
+        <div className="bg-white rounded-lg p-4 mb-6 border border-[#f0f0f0] flex flex-col gap-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
+              <select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+              >
+                <option value="">All Brands</option>
+                {uniqueBrands.map(brand => (
+                  <option key={brand} value={brand}>{brand}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-[#737373] mb-1">Condition</label>
+              <select
+                value={selectedCondition}
+                onChange={(e) => setSelectedCondition(e.target.value)}
+                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+              >
+                <option value="">All Conditions</option>
+                <option value="DS">Deadstock (DS)</option>
+                <option value="VNDS">Very Near Deadstock (VNDS)</option>
+                <option value="10">10 - Like new</option>
+                <option value="9">9 - Excellent</option>
+                <option value="8">8 - Great</option>
+                <option value="7">7 - Good</option>
+                <option value="6">6 - Acceptable</option>
+                <option value="5">5 - Worn</option>
+                <option value="4">4 - Very worn</option>
+                <option value="3">3 - Heavily worn</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Very poor</option>
+              </select>
+            </div>
+            
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-[#737373] mb-1">Sort By</label>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="alphabetical">Alphabetical</option>
+                <option value="price-high">Price (High to Low)</option>
+                <option value="price-low">Price (Low to High)</option>
+              </select>
+            </div>
           </div>
           
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-[#737373] mb-1">Condition</label>
-            <select
-              value={selectedCondition}
-              onChange={(e) => setSelectedCondition(e.target.value)}
-              className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-            >
-              <option value="">All Conditions</option>
-              <option value="DS">Deadstock (DS)</option>
-              <option value="VNDS">Very Near Deadstock (VNDS)</option>
-              <option value="10">10 - Like new</option>
-              <option value="9">9 - Excellent</option>
-              <option value="8">8 - Great</option>
-              <option value="7">7 - Good</option>
-              <option value="6">6 - Acceptable</option>
-              <option value="5">5 - Worn</option>
-              <option value="4">4 - Very worn</option>
-              <option value="3">3 - Heavily worn</option>
-              <option value="2">2 - Poor</option>
-              <option value="1">1 - Very poor</option>
-            </select>
-          </div>
-          
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-[#737373] mb-1">Sort By</label>
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="alphabetical">Alphabetical</option>
-              <option value="price-high">Price (High to Low)</option>
-              <option value="price-low">Price (Low to High)</option>
-            </select>
-          </div>
+          {/* Label Filter Section */}
+          {usedLabels.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-[#737373] mb-2">Filter by Label</label>
+              <div className="flex flex-wrap gap-2">
+                {selectedLabel && (
+                  <button
+                    onClick={() => setSelectedLabel('')}
+                    className="px-3 py-1.5 text-sm bg-[#f5f5f5] border border-[#e5e5e5] rounded-full text-[#737373] hover:border-[#d14124] hover:text-[#d14124] transition-colors"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+                
+                {usedLabels.map(labelValue => {
+                  const labelInfo = sneakerLabels.find(l => l.value === labelValue);
+                  if (!labelInfo) return null;
+                  
+                  const isSelected = selectedLabel === labelValue;
+                  
+                  return (
+                    <button
+                      key={labelValue}
+                      onClick={() => setSelectedLabel(isSelected ? '' : labelValue)}
+                      className={`px-3 py-1.5 text-sm rounded-full transition-colors flex items-center gap-1 ${
+                        isSelected ? 'bg-opacity-20 border' : 'bg-white border border-[#e5e5e5]'
+                      }`}
+                      style={{
+                        backgroundColor: isSelected ? `${labelInfo.color}20` : undefined,
+                        color: isSelected ? labelInfo.color : '#555',
+                        borderColor: isSelected ? `${labelInfo.color}50` : undefined,
+                      }}
+                    >
+                      {labelInfo.label}
+                      {isSelected && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Collection Grid */}
@@ -282,6 +340,7 @@ export default function CollectionPage() {
                 Showing {sortedCollection.length} of {collection.length} sneakers
                 {selectedBrand && ` from ${selectedBrand}`}
                 {selectedCondition && ` in condition ${selectedCondition}`}
+                {selectedLabel && ` with label "${sneakerLabels.find(l => l.value === selectedLabel)?.label || selectedLabel}"`}
               </p>
             </div>
             
