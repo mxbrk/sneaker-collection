@@ -114,6 +114,9 @@ export default function SignupPage() {
             required
             disabled={isLoading}
           />
+          <div className="text-sm text-[#737373] mt-1 mb-2">
+  Password must be at least 8 characters long.
+</div>
 
           <Input
             label="Confirm Password"

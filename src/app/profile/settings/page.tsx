@@ -319,6 +319,9 @@ export default function SettingsPage() {
                       error={formErrors.newPassword}
                       disabled={isLoading}
                     />
+                    <div className="text-sm text-[#737373] mt-1 mb-2">
+  Password must be at least 8 characters long.
+</div>
                     
                     <Input
                       label="Confirm New Password"
