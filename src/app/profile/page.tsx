@@ -2,7 +2,6 @@
 'use client';
 
 import MainLayout from '@/components/MainLayout';
-import { Button } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -216,14 +215,6 @@ export default function ProfilePage() {
             <div className="relative">
               <div className="w-36 h-36 md:w-40 md:h-40 rounded-full bg-[#d14124] flex items-center justify-center text-white text-5xl font-bold shadow-lg ring-4 ring-white">
                 {user?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className="absolute bottom-0 right-0 bg-white text-[#d14124] rounded-full p-2 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <path d="M20 8v6"></path>
-                  <path d="M23 11h-6"></path>
-                </svg>
               </div>
             </div>
             
