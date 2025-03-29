@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { fetchSneakersData } from '@/lib/sneaker-service';
+import MainLayout from '@/components/MainLayout';
 import { Sneaker } from '@/types/sneakers';
 import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
@@ -132,32 +133,8 @@ export default function SearchPage() {
   };
 
   return (
+    <MainLayout>
     <div className="min-h-screen bg-white">
-      {/* Modern, minimalist navbar */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d14124] to-[#e87a64]">
-              Sneaker Collection
-            </Link>
-            <nav className="flex space-x-1">
-              <Link href="/" className="text-[#171717] px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#f5f5f5] transition-colors">
-                Home
-              </Link>
-              <Link 
-                href="/search" 
-                className="bg-[#fae5e1] text-[#d14124] px-3 py-2 rounded-lg text-sm font-medium"
-                onClick={clearSearch}
-              >
-                Search
-              </Link>
-              <Link href="/profile" className="text-[#171717] px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#f5f5f5] transition-colors">
-                Profile
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
 
       {/* Minimalist search section with large, prominent search bar */}
       <section className="pt-10 pb-6 px-4">
@@ -323,5 +300,6 @@ export default function SearchPage() {
         />
       )}
     </div>
+    </MainLayout>
   );
 }

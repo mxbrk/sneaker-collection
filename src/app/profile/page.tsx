@@ -1,6 +1,7 @@
 // src/app/profile/page.tsx
 'use client';
 
+import MainLayout from '@/components/MainLayout';
 import { Button } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -198,37 +199,8 @@ export default function ProfilePage() {
   }
 
   return (
+    <MainLayout>
     <div className="min-h-screen bg-[#fafafa]">
-      {/* Header/Navigation */}
-      <header className="bg-white border-b border-[#e5e5e5] sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-xl font-bold text-[#d14124]">
-              Sneaker Collection
-            </Link>
-            <nav className="flex space-x-4">
-              <Link
-                href="/"
-                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Home
-              </Link>
-              <Link
-                href="/search"
-                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Search
-              </Link>
-              <Link
-                href="/profile"
-                className="bg-[#fae5e1] text-[#d14124] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Profile
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -518,5 +490,6 @@ export default function ProfilePage() {
   />
 )}
 </div>
+</MainLayout>
 );
 }

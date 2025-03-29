@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, FormContainer, FormError, Input } from '@/components/ui';
+import MainLayout from '@/components/MainLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -70,77 +71,76 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#fafafa]">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#d14124]">Sneaker Collection</h1>
+    <MainLayout>
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4 py-12">
+        <div className="w-full max-w-md">
+          <FormContainer
+            title="Create an account"
+            subtitle="Sign up to get started"
+            onSubmit={handleSubmit}
+          >
+            <FormError message={error || undefined} />
+
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+
+            <Input
+              label="Username"
+              type="text"
+              name="username"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+            <div className="text-sm text-[#737373] mt-1 mb-2">
+              Password must be at least 8 characters long.
+            </div>
+
+            <Input
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Creating account...' : 'Sign up'}
+            </Button>
+
+            <p className="text-center text-sm mt-4">
+              Already have an account?{' '}
+              <Link href="/login" className="text-[#d14124] hover:underline">
+                Log in
+              </Link>
+            </p>
+          </FormContainer>
         </div>
-        <FormContainer
-          title="Create an account"
-          subtitle="Sign up to get started"
-          onSubmit={handleSubmit}
-        >
-          <FormError message={error || undefined} />
-
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-
-          <Input
-            label="Username"
-            type="text"
-            name="username"
-            placeholder="Enter your username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-
-          <Input
-            label="Password"
-            type="password"
-            name="password"
-            placeholder="Create a password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-          <div className="text-sm text-[#737373] mt-1 mb-2">
-  Password must be at least 8 characters long.
-</div>
-
-          <Input
-            label="Confirm Password"
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Sign up'}
-          </Button>
-
-          <p className="text-center text-sm mt-4">
-            Already have an account?{' '}
-            <Link href="/login" className="text-[#d14124] hover:underline">
-              Log in
-            </Link>
-          </p>
-        </FormContainer>
       </div>
-    </div>
+    </MainLayout>
   );
 }
