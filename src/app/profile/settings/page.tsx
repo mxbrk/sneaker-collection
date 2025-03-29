@@ -10,6 +10,7 @@ interface User {
   email: string;
   username: string | null;
   createdAt: string;
+  showKidsShoes: boolean;
 }
 
 export default function SettingsPage() {
@@ -26,6 +27,7 @@ export default function SettingsPage() {
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
+    showKidsShoes: true,
   });
   const [formErrors, setFormErrors] = useState({
     username: '',
@@ -56,6 +58,7 @@ export default function SettingsPage() {
           ...prevData,
           username: data.user.username || '',
           email: data.user.email || '',
+          showKidsShoes: data.user.showKidsShoes ?? true,
         }));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -140,19 +143,20 @@ export default function SettingsPage() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/user/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          currentPassword: formData.currentPassword || undefined,
-          newPassword: formData.newPassword || undefined,
-        }),
-      });
-      
+// Add showKidsShoes to the fetch body in handleSubmit
+const response = await fetch('/api/user/update', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    username: formData.username,
+    email: formData.email,
+    currentPassword: formData.currentPassword || undefined,
+    newPassword: formData.newPassword || undefined,
+    showKidsShoes: formData.showKidsShoes,  // Add this line
+  }),
+});      
       const data = await response.json();
       
       if (!response.ok) {
@@ -295,6 +299,26 @@ export default function SettingsPage() {
               </div>
               
               <div className="border-t border-[#f0f0f0] pt-6">
+                {/* Display Preferences */}
+<div className="border-t border-[#f0f0f0] pt-6 mt-6">
+  <h3 className="text-lg font-medium text-[#171717] mb-4">Display Preferences</h3>
+  
+  <div className="flex items-center justify-between p-4 bg-[#f9f9f9] rounded-lg">
+    <div>
+      <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
+      <p className="text-sm text-[#737373]">Display Infants, GS, TD, PS sizes in search results</p>
+    </div>
+    <label className="relative inline-flex items-center cursor-pointer">
+      <input 
+        type="checkbox" 
+        className="sr-only peer"
+        checked={formData.showKidsShoes}
+        onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
+      />
+      <div className={`w-11 h-6 bg-[#e5e5e5] rounded-full peer peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${formData.showKidsShoes ? 'bg-[#d14124]' : ''}`}></div>
+    </label>
+  </div>
+</div>
                 <h3 className="text-lg font-medium text-[#171717] mb-4">Change Password</h3>
                 <p className="text-sm text-[#737373] mb-4">Leave blank if you don't want to change your password</p>
                 

@@ -48,18 +48,19 @@ model Wishlist {
   @@index([sneakerId])
 }
 
+// prisma/schema.prisma
 model User {
-  id           String       @id @default(uuid())
-  email        String       @unique
-  passwordHash String
-  username     String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  sessions     Session[]
-  collections  Collection[]
-  wishlists    Wishlist[]
+  id             String       @id @default(uuid())
+  email          String       @unique
+  passwordHash   String
+  username       String?
+  showKidsShoes  Boolean      @default(true)  // Add this field with default true
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  sessions       Session[]
+  collections    Collection[]
+  wishlists      Wishlist[]
 }
-
 model Session {
   id        String   @id @default(uuid())
   userId    String

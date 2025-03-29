@@ -19,6 +19,7 @@ export async function GET() {
           email: user.email,
           username: user.username,
           createdAt: user.createdAt,
+          showKidsShoes: user.showKidsShoes,
         }
       },
       { status: 200 }

@@ -20,6 +20,14 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
   
+  // Add state for user
+  const [user, setUser] = useState<{
+    id: string;
+    email: string;
+    username: string | null;
+    showKidsShoes: boolean;
+  } | null>(null);
+  
   // Notification state
   const [notification, setNotification] = useState<{
     message: string;
@@ -37,47 +45,80 @@ export default function SearchPage() {
     }
   }, [pathname, searchParams]);
 
-  useEffect(() => {
-    if (initialQuery) {
-      handleSearch();
+  // Add function to fetch user with proper error handling
+  const fetchUser = async () => {
+    try {
+      console.log("Fetching user data..."); // Debug logging
+      const response = await fetch('/api/user');
+      if (response.ok) {
+        const data = await response.json();
+        console.log("User data:", data.user); // Debug logging including showKidsShoes
+        setUser(data.user);
+        return data.user;
+      } else {
+        console.log("Error fetching user data:", response.status);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      return null;
     }
+  };
+
+  // Update the effect to ensure user is loaded before search
+  useEffect(() => {
+    // Fetch user first
+    const initialLoad = async () => {
+      const userData = await fetchUser();
+      
+      // Only run search if there's an initial query
+      if (initialQuery) {
+        handleSearch(userData);
+      }
+    };
+    
+    initialLoad();
   }, [initialQuery]);
 
-// In src/app/search/page.tsx
+  // Update handleSearch to accept user data parameter
+  const handleSearch = async (userData = user) => {
+    if (!searchQuery.trim()) return;
 
-// Update the handleSearch function to better handle null responses
-const handleSearch = async () => {
-  if (!searchQuery.trim()) return;
-
-  setIsLoading(true);
-  setError(null);
-  
-  try {
-    const result = await fetchSneakersData(searchQuery);
+    setIsLoading(true);
+    setError(null);
     
-    // Add null checks here
-    if (result && result.data) {
-      setSneakers(result.data);
-      setTotalResults(result.total || 0);
-    } else {
-      // Handle case where result or result.data is null
+    try {
+      // Use the user preference for showing kids shoes
+      // Fall back to provided userData if state isn't updated yet
+      const showKidsShoes = userData?.showKidsShoes ?? user?.showKidsShoes ?? true;
+      console.log("Searching with showKidsShoes:", showKidsShoes); // Debug logging
+      
+      const result = await fetchSneakersData(searchQuery, showKidsShoes);
+      
+      // Add null checks here
+      if (result && result.data) {
+        console.log("Got search results:", result.data.length); // Debug logging
+        setSneakers(result.data);
+        setTotalResults(result.total || 0);
+      } else {
+        // Handle case where result or result.data is null
+        setSneakers([]);
+        setTotalResults(0);
+        setError('No results found or invalid response format, check for typos or misspelling.');
+      }
+      
+      // Update URL with search query
+      const params = new URLSearchParams(window.location.search);
+      params.set('q', searchQuery);
+      router.push(`/search?${params.toString()}`, { scroll: false });
+    } catch (err) {
+      setError('Failed to fetch sneakers. Please try again.');
       setSneakers([]);
       setTotalResults(0);
-      setError('No results found or invalid response format, check for typos or misspelling.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    // Update URL with search query
-    const params = new URLSearchParams(window.location.search);
-    params.set('q', searchQuery);
-    router.push(`/search?${params.toString()}`, { scroll: false });
-  } catch (err) {
-    setError('Failed to fetch sneakers. Please try again.');
-    setSneakers([]);
-    setTotalResults(0);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const clearSearch = () => {
     setSearchQuery('');
@@ -136,7 +177,7 @@ const handleSearch = async () => {
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
             <button
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               disabled={isLoading}
               className="absolute right-2 top-1/2 -translate-y-1/2 h-12 w-12 flex items-center justify-center bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition-colors disabled:opacity-70"
               aria-label="Search"
@@ -159,7 +200,7 @@ const handleSearch = async () => {
         <div className="max-w-7xl mx-auto">
           {/* Results header - only shown when there are results or searching */}
           {((sneakers && sneakers.length > 0) || isLoading) && (
-                        <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-[#171717]">
                 {isLoading ? (
                   <div className="flex items-center">
@@ -170,6 +211,20 @@ const handleSearch = async () => {
                   `Found ${totalResults} results for "${searchQuery}"`
                 )}
               </h2>
+              
+              {/* Add this part to show the filter status */}
+              {!isLoading && (
+                <div className="text-sm text-[#737373]">
+                  {user?.showKidsShoes === false && (
+                    <span className="inline-flex items-center px-2 py-1 bg-[#fae5e1] text-[#d14124] rounded-md">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                        <path d="M9 18l6-6-6-6"/>
+                      </svg>
+                      Excluding kids' sizes
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
           
@@ -207,7 +262,7 @@ const handleSearch = async () => {
           
           {/* Empty state - shown when search returns no results */}
           {!isLoading && sneakers && sneakers.length === 0 && searchQuery && (
-                        <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] p-8 text-center">
+            <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] p-8 text-center">
               <div className="h-20 w-20 mx-auto mb-4 text-[#d14124] opacity-70">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -222,7 +277,7 @@ const handleSearch = async () => {
           
           {/* Initial empty state with search suggestions */}
           {!isLoading && (!sneakers || sneakers.length === 0) && !searchQuery && (
-                        <div className="mt-8 bg-gradient-to-br from-[#fae5e1] to-white rounded-xl p-8 text-center shadow-sm">
+            <div className="mt-8 bg-gradient-to-br from-[#fae5e1] to-white rounded-xl p-8 text-center shadow-sm">
               <h3 className="text-xl font-medium text-[#171717] mb-4">Start Your Search</h3>
               <p className="text-[#737373] max-w-md mx-auto mb-6">
                 Enter keywords like brand names, models, or colors to find your sneakers.

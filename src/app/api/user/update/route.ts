@@ -10,6 +10,7 @@ const updateUserSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   currentPassword: z.string().optional(),
   newPassword: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  showKidsShoes: z.boolean().optional(),
 });
 
 export async function PUT(request: NextRequest) {
@@ -86,6 +87,10 @@ export async function PUT(request: NextRequest) {
       username,
       email,
     };
+    // Add the showKidsShoes field if provided
+if (typeof result.data.showKidsShoes === 'boolean') {
+  updateData.showKidsShoes = result.data.showKidsShoes;
+}
     
     // Handle password change if requested
     if (newPassword && currentPassword) {
