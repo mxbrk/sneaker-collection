@@ -290,56 +290,61 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium text-[#171717]">Collection</h3>
-              <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                </svg>
-              </span>
-            </div>
-            <div className="mt-4">
-              <span className="text-3xl font-bold">{collection.length}</span>
-              <p className="text-[#737373] mt-1 text-sm">Total sneakers</p>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium text-[#171717]">Wishlist</h3>
-              <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </span>
-            </div>
-            <div className="mt-4">
-              <span className="text-3xl font-bold">{wishlist.length}</span>
-              <p className="text-[#737373] mt-1 text-sm">Items in wishlist</p>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium text-[#171717]">Value</h3>
-              <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="1" x2="12" y2="23"/>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
-              </span>
-            </div>
-            <div className="mt-4">
-              <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
-              <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
-            </div>
-          </div>
-        </div>
-
+{/* Stats Cards */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+  <Link 
+    href="/profile/collection"
+    className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
+  >
+    <div className="flex justify-between items-center">
+      <h3 className="text-lg font-medium text-[#171717]">Collection</h3>
+      <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+      </span>
+    </div>
+    <div className="mt-4">
+      <span className="text-3xl font-bold">{collection.length}</span>
+      <p className="text-[#737373] mt-1 text-sm">Total sneakers</p>
+    </div>
+  </Link>
+  
+  <Link 
+    href="/profile/wishlist"
+    className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
+  >
+    <div className="flex justify-between items-center">
+      <h3 className="text-lg font-medium text-[#171717]">Wishlist</h3>
+      <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </span>
+    </div>
+    <div className="mt-4">
+      <span className="text-3xl font-bold">{wishlist.length}</span>
+      <p className="text-[#737373] mt-1 text-sm">Items in wishlist</p>
+    </div>
+  </Link>
+  
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-center">
+      <h3 className="text-lg font-medium text-[#171717]">Value</h3>
+      <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </span>
+    </div>
+    <div className="mt-4">
+      <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
+      <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
+    </div>
+  </div>
+</div>
         {/* Collection Section */}
         <section className="mb-10">
           <div className="flex justify-between items-center mb-6">

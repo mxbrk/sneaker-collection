@@ -63,7 +63,7 @@ const handleSearch = async () => {
       // Handle case where result or result.data is null
       setSneakers([]);
       setTotalResults(0);
-      setError('No results found or invalid response format');
+      setError('No results found or invalid response format, check for typos or misspelling.');
     }
     
     // Update URL with search query
@@ -122,7 +122,7 @@ const handleSearch = async () => {
       <section className="pt-10 pb-6 px-4">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold text-[#171717] mb-6 text-center">
-            Find Your Perfect Sneakers
+            Find Your Sneakers
           </h1>
           
           {/* Large search input with integrated button */}
@@ -225,7 +225,7 @@ const handleSearch = async () => {
                         <div className="mt-8 bg-gradient-to-br from-[#fae5e1] to-white rounded-xl p-8 text-center shadow-sm">
               <h3 className="text-xl font-medium text-[#171717] mb-4">Start Your Search</h3>
               <p className="text-[#737373] max-w-md mx-auto mb-6">
-                Enter keywords like brand names, models, or colors to find your perfect sneakers.
+                Enter keywords like brand names, models, or colors to find your sneakers.
               </p>
               <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
                 {["Nike Air Max", "Jordan 1", "Adidas Yeezy", "New Balance", "Ultra Boost", "Nike Dunk", "Converse"].map((term) => (
