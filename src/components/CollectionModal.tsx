@@ -228,7 +228,6 @@ export default function CollectionModal({
               <h3 className="text-lg font-medium text-[#171717] mb-1">
                 {sneaker.title}
               </h3>
-              <p className="text-[#737373] text-sm mb-1">{sneaker.colorway || 'N/A'}</p>
               <p className="text-[#737373] text-sm font-mono mb-3">{sneaker.sku}</p>
               {isSneaker(sneaker) && sneaker.retailPrice && (
                 <p className="font-medium text-[#d14124]">
