@@ -12,6 +12,7 @@ interface User {
   username: string | null;
   createdAt: string;
   showKidsShoes: boolean;
+  genderFilter: string; // Add this line
 }
 
 export default function SettingsPage() {
@@ -29,7 +30,9 @@ export default function SettingsPage() {
     newPassword: '',
     confirmPassword: '',
     showKidsShoes: true,
+    genderFilter: 'both', // Add this line
   });
+
   const [formErrors, setFormErrors] = useState({
     username: '',
     email: '',
@@ -60,6 +63,7 @@ export default function SettingsPage() {
           username: data.user.username || '',
           email: data.user.email || '',
           showKidsShoes: data.user.showKidsShoes ?? true,
+          genderFilter: data.user.genderFilter || 'both', // Add this line
         }));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -155,6 +159,7 @@ export default function SettingsPage() {
           currentPassword: formData.currentPassword || undefined,
           newPassword: formData.newPassword || undefined,
           showKidsShoes: formData.showKidsShoes,
+          genderFilter: formData.genderFilter,
         }),
       });
       
@@ -209,9 +214,38 @@ export default function SettingsPage() {
   }
 
   return (
-    <MainLayout>
     <div className="min-h-screen bg-[#fafafa]">
-
+      {/* Header/Navigation */}
+      <header className="bg-white border-b border-[#e5e5e5] sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="text-xl font-bold text-[#d14124]">
+              Sneaker Collection
+            </Link>
+            <nav className="flex space-x-4">
+              <Link
+                href="/"
+                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Home
+              </Link>
+              <Link
+                href="/search"
+                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Search
+              </Link>
+              <Link
+                href="/profile"
+                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Profile
+              </Link>
+            </nav>
+          </div>
+        </div>
+      </header>
+  
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-10">
         <div className="mb-8 flex items-center">
@@ -274,20 +308,87 @@ export default function SettingsPage() {
               <div className="border-t border-[#f0f0f0] pt-8 mt-8">
                 <h3 className="text-lg font-medium text-[#171717] mb-5">Display Preferences</h3>
                 
-                <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
-                  <div>
-                    <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
-                    <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
+                <div className="space-y-5">
+                  {/* Kids' Shoes preference */}
+                  <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
+                    <div>
+                      <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
+                      <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer"
+                        checked={formData.showKidsShoes}
+                        onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
+                      />
+                      <div className="w-12 h-6 bg-[#e5e5e5] rounded-full peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d14124]"></div>
+                    </label>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={formData.showKidsShoes}
-                      onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
-                    />
-                    <div className="w-12 h-6 bg-[#e5e5e5] rounded-full peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d14124]"></div>
-                  </label>
+                  
+                  {/* Gender Filter preference - NEW */}
+                  <div className="flex flex-col p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
+                    <div className="mb-4">
+                      <h4 className="font-medium text-[#171717]">Gender Filter</h4>
+                      <p className="text-sm text-[#737373] mt-1">Choose which types of sneakers to display in search results</p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="genderFilter"
+                          value="both"
+                          checked={formData.genderFilter === 'both'}
+                          onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'both' }))}
+                          className="sr-only"
+                        />
+                        <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                          formData.genderFilter === 'both' 
+                            ? 'bg-[#d14124] text-white border-[#d14124]' 
+                            : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
+                        }`}>
+                          All Sneakers
+                        </div>
+                      </label>
+                      
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="genderFilter"
+                          value="men"
+                          checked={formData.genderFilter === 'men'}
+                          onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'men' }))}
+                          className="sr-only"
+                        />
+                        <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                          formData.genderFilter === 'men' 
+                            ? 'bg-[#d14124] text-white border-[#d14124]' 
+                            : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
+                        }`}>
+                          Men's Only
+                        </div>
+                      </label>
+                      
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="genderFilter"
+                          value="women"
+                          checked={formData.genderFilter === 'women'}
+                          onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'women' }))}
+                          className="sr-only"
+                        />
+                        <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                          formData.genderFilter === 'women' 
+                            ? 'bg-[#d14124] text-white border-[#d14124]' 
+                            : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
+                        }`}>
+                          Women's Only
+                        </div>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -350,6 +451,4 @@ export default function SettingsPage() {
         </div>
       </main>
     </div>
-    </MainLayout>
-  );
-}
+  );}

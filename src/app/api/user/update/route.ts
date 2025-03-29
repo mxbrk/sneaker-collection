@@ -11,6 +11,7 @@ const updateUserSchema = z.object({
   currentPassword: z.string().optional(),
   newPassword: z.string().min(8, 'Password must be at least 8 characters').optional(),
   showKidsShoes: z.boolean().optional(),
+  genderFilter: z.enum(['men', 'women', 'both']).optional(),
 });
 
 export async function PUT(request: NextRequest) {
@@ -88,9 +89,13 @@ export async function PUT(request: NextRequest) {
       email,
     };
     // Add the showKidsShoes field if provided
-if (typeof result.data.showKidsShoes === 'boolean') {
-  updateData.showKidsShoes = result.data.showKidsShoes;
-}
+    if (typeof result.data.showKidsShoes === 'boolean') {
+      updateData.showKidsShoes = result.data.showKidsShoes;
+    }
+
+    if (result.data.genderFilter) {
+      updateData.genderFilter = result.data.genderFilter;
+    }
     
     // Handle password change if requested
     if (newPassword && currentPassword) {

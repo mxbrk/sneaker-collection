@@ -27,6 +27,7 @@ export default function SearchPage() {
     email: string;
     username: string | null;
     showKidsShoes: boolean;
+    genderFilter: string;
   } | null>(null);
   
   // Notification state
@@ -92,10 +93,10 @@ export default function SearchPage() {
       // Use the user preference for showing kids shoes
       // Fall back to provided userData if state isn't updated yet
       const showKidsShoes = userData?.showKidsShoes ?? user?.showKidsShoes ?? true;
-      console.log("Searching with showKidsShoes:", showKidsShoes); // Debug logging
-      
-      const result = await fetchSneakersData(searchQuery, showKidsShoes);
-      
+      const genderFilter = userData?.genderFilter ?? user?.genderFilter ?? 'both';
+      console.log("Searching with showKidsShoes:", showKidsShoes, "genderFilter:", genderFilter); // Update log
+
+      const result = await fetchSneakersData(searchQuery, showKidsShoes, genderFilter);      
       // Add null checks here
       if (result && result.data) {
         console.log("Got search results:", result.data.length); // Debug logging
@@ -191,17 +192,25 @@ export default function SearchPage() {
               
               {/* Add this part to show the filter status */}
               {!isLoading && (
-                <div className="text-sm text-[#737373]">
-                  {user?.showKidsShoes === false && (
-                    <span className="inline-flex items-center px-2 py-1 bg-[#fae5e1] text-[#d14124] rounded-md">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                        <path d="M9 18l6-6-6-6"/>
-                      </svg>
-                      Excluding kids' sizes
-                    </span>
-                  )}
-                </div>
-              )}
+  <div className="text-sm text-[#737373] flex flex-wrap gap-2">
+    {user?.showKidsShoes === false && (
+      <span className="inline-flex items-center px-2 py-1 bg-[#fae5e1] text-[#d14124] rounded-md">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+        Excluding kids' sizes
+      </span>
+    )}
+    {user?.genderFilter !== 'both' && (
+      <span className="inline-flex items-center px-2 py-1 bg-[#fae5e1] text-[#d14124] rounded-md">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+        {user?.genderFilter === 'men' ? "Men's shoes only" : "Women's shoes only"}
+      </span>
+    )}
+  </div>
+)}
             </div>
           )}
           

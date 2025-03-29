@@ -1,6 +1,8 @@
 import { getCurrentUser } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
+// In src/app/api/user/route.ts, modify the GET function:
+
 export async function GET() {
   try {
     const user = await getCurrentUser();
@@ -20,6 +22,7 @@ export async function GET() {
           username: user.username,
           createdAt: user.createdAt,
           showKidsShoes: user.showKidsShoes,
+          genderFilter: user.genderFilter || 'both', // Add this line
         }
       },
       { status: 200 }
