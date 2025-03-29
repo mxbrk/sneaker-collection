@@ -143,20 +143,20 @@ export default function SettingsPage() {
     setIsLoading(true);
     
     try {
-// Add showKidsShoes to the fetch body in handleSubmit
-const response = await fetch('/api/user/update', {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    username: formData.username,
-    email: formData.email,
-    currentPassword: formData.currentPassword || undefined,
-    newPassword: formData.newPassword || undefined,
-    showKidsShoes: formData.showKidsShoes,  // Add this line
-  }),
-});      
+      const response = await fetch('/api/user/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          currentPassword: formData.currentPassword || undefined,
+          newPassword: formData.newPassword || undefined,
+          showKidsShoes: formData.showKidsShoes,
+        }),
+      });
+      
       const data = await response.json();
       
       if (!response.ok) {
@@ -241,8 +241,8 @@ const response = await fetch('/api/user/update', {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center">
+      <main className="max-w-4xl mx-auto px-4 py-10">
+        <div className="mb-8 flex items-center">
           <Link 
             href="/profile"
             className="text-[#737373] hover:text-[#d14124] flex items-center gap-2"
@@ -257,22 +257,22 @@ const response = await fetch('/api/user/update', {
         
         <div className="bg-white rounded-lg shadow-sm border border-[#f0f0f0] overflow-hidden">
           {/* Content Area */}
-          <div className="p-6 sm:p-8">
+          <div className="p-8">
             {/* Success/Error Messages */}
             {successMessage && (
-              <div className="mb-6 bg-green-50 text-green-700 p-4 rounded-md">
+              <div className="mb-8 bg-green-50 text-green-700 p-4 rounded-md">
                 {successMessage}
               </div>
             )}
             
             {error && (
-              <div className="mb-6 bg-red-50 text-red-700 p-4 rounded-md">
+              <div className="mb-8 bg-red-50 text-red-700 p-4 rounded-md">
                 {error}
               </div>
             )}
             
             {/* Edit Profile Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <FormError message={error || undefined} />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -298,31 +298,33 @@ const response = await fetch('/api/user/update', {
                 />
               </div>
               
-              <div className="border-t border-[#f0f0f0] pt-6">
-                {/* Display Preferences */}
-<div className="border-t border-[#f0f0f0] pt-6 mt-6">
-  <h3 className="text-lg font-medium text-[#171717] mb-4">Display Preferences</h3>
-  
-  <div className="flex items-center justify-between p-4 bg-[#f9f9f9] rounded-lg">
-    <div>
-      <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
-      <p className="text-sm text-[#737373]">Display Infants, GS, TD, PS sizes in search results</p>
-    </div>
-    <label className="relative inline-flex items-center cursor-pointer">
-      <input 
-        type="checkbox" 
-        className="sr-only peer"
-        checked={formData.showKidsShoes}
-        onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
-      />
-      <div className={`w-11 h-6 bg-[#e5e5e5] rounded-full peer peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${formData.showKidsShoes ? 'bg-[#d14124]' : ''}`}></div>
-    </label>
-  </div>
-</div>
-                <h3 className="text-lg font-medium text-[#171717] mb-4">Change Password</h3>
-                <p className="text-sm text-[#737373] mb-4">Leave blank if you don't want to change your password</p>
+              {/* Display Preferences - with improved spacing and styling */}
+              <div className="border-t border-[#f0f0f0] pt-8 mt-8">
+                <h3 className="text-lg font-medium text-[#171717] mb-5">Display Preferences</h3>
                 
-                <div className="space-y-4">
+                <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
+                  <div>
+                    <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
+                    <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer"
+                      checked={formData.showKidsShoes}
+                      onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
+                    />
+                    <div className="w-12 h-6 bg-[#e5e5e5] rounded-full peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d14124]"></div>
+                  </label>
+                </div>
+              </div>
+              
+              {/* Change Password Section */}
+              <div className="border-t border-[#f0f0f0] pt-8 mt-8">
+                <h3 className="text-lg font-medium text-[#171717] mb-3">Change Password</h3>
+                <p className="text-sm text-[#737373] mb-5">Leave blank if you don't want to change your password</p>
+                
+                <div className="space-y-5">
                   <Input
                     label="Current Password"
                     type="password"
@@ -333,19 +335,21 @@ const response = await fetch('/api/user/update', {
                     disabled={isLoading}
                   />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input
-                      label="New Password"
-                      type="password"
-                      name="newPassword"
-                      value={formData.newPassword}
-                      onChange={handleChange}
-                      error={formErrors.newPassword}
-                      disabled={isLoading}
-                    />
-                    <div className="text-sm text-[#737373] mt-1 mb-2">
-  Password must be at least 8 characters long.
-</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Input
+                        label="New Password"
+                        type="password"
+                        name="newPassword"
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        error={formErrors.newPassword}
+                        disabled={isLoading}
+                      />
+                      <div className="text-xs text-[#737373] mt-2">
+                        Password must be at least 8 characters long.
+                      </div>
+                    </div>
                     
                     <Input
                       label="Confirm New Password"
@@ -360,7 +364,7 @@ const response = await fetch('/api/user/update', {
                 </div>
               </div>
               
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-4 mt-8 border-t border-[#f0f0f0]">
                 <Button 
                   type="submit" 
                   disabled={isLoading}
