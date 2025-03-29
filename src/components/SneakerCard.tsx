@@ -254,35 +254,35 @@ export default function SneakerCard({
           )}
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="font-medium text-[#171717] line-clamp-2 mb-1">
-          {sneaker.title || "Unnamed Sneaker"}
-        </h3>
-        <div className="flex justify-between items-center mt-2">
-          <span className="text-xs font-mono text-[#737373]">
-            {sneaker.sku}
-          </span>
-          {'retailPrice' in sneaker && sneaker.retailPrice ? (
-            <span className="text-[#d14124] font-medium">
-              ${sneaker.retailPrice}
-            </span>
-          ) : 'purchasePrice' in sneaker && sneaker.purchasePrice ? (
-            <span className="text-[#d14124] font-medium">
-              ${sneaker.purchasePrice}
-            </span>
-          ) : null}
-        </div>
-        
-        {/* Show size and condition for collection items */}
-        {'sizeUS' in sneaker && 'condition' in sneaker && (
-          <div className="mt-2 flex items-center text-xs text-[#737373]">
-            <span className="px-2 py-1 bg-[#f5f5f5] rounded-full mr-2">
-              US {sneaker.sizeUS}
-            </span>
-            <span>{sneaker.condition}</span>
-          </div>
-        )}
-      </div>
+      <div className="p-4 grid grid-rows-[auto_1fr_auto] h-[150px]">
+  <h3 className="font-medium text-[#171717]">
+    {sneaker.title || "Unnamed Sneaker"}
+  </h3>
+  
+  {/* Size and condition info, only shown for collection items */}
+  {'sizeUS' in sneaker && 'condition' in sneaker && (
+    <div className="self-end mt-2 flex items-center text-xs text-[#737373]">
+      <span className="px-2 py-1 bg-[#f5f5f5] rounded-full mr-2">
+        US {sneaker.sizeUS}
+      </span>
+    </div>
+  )}
+  
+  <div className="flex justify-between items-center self-end border-t border-[#f5f5f5] pt-3 mt-2">
+    <span className="text-xs font-mono text-[#737373]">
+      {sneaker.sku}
+    </span>
+    {'retailPrice' in sneaker && sneaker.retailPrice ? (
+      <span className="text-[#d14124] font-medium">
+        ${sneaker.retailPrice}
+      </span>
+    ) : 'purchasePrice' in sneaker && sneaker.purchasePrice ? (
+      <span className="text-[#d14124] font-medium">
+        ${sneaker.purchasePrice}
+      </span>
+    ) : null}
+  </div>
+</div>
       
       {/* Collection Modal */}
       {showCollectionModal && (
