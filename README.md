@@ -114,17 +114,17 @@ src/
 
 ## Screenshots
 
-### Home Page
-![Home Page](https://i.imgur.com/placeholder-home.jpg)
-
 ### Profile Page
-![Profile Page](https://i.imgur.com/placeholder-profile.jpg)
+![Profile Page](/public/screenshots/profile-page.png)
 
 ### Search Page
-![Search Page](https://i.imgur.com/placeholder-search.jpg)
+![Search Page](/public/screenshots/search-page.png)
 
-### Collection Page
-![Collection Page](https://i.imgur.com/placeholder-collection.jpg)
+### Settings Page
+![Search Page](/public/screenshots/settings-page.png)
+
+### Add Sneaker to collection
+![Search Page](/public/screenshots/add-to-collection.png)
 
 ## Contributing
 
