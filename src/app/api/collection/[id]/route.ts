@@ -1,28 +1,30 @@
-// src/app/api/collection/[id]/route.ts (UPDATED)
+// This is the fixed version of src/app/api/collection/[id]/route.ts
+
 import { getCurrentUser } from '@/lib/auth';
 import { getValidLabelValues } from '@/lib/labels';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Validation schema for updating collection items (updated with labels)
+// Modified validation schema to better handle arrays and null values
 const updateCollectionSchema = z.object({
   sizeUS: z.string(),
-  sizeEU: z.string().optional(),
-  sizeUK: z.string().optional(),
+  sizeEU: z.string().nullable().optional(),
+  sizeUK: z.string().nullable().optional(),
   condition: z.string(),
-  purchaseDate: z.string().optional(),
-  purchasePrice: z.number().optional(),
-  notes: z.string().optional(),
+  purchaseDate: z.string().nullable().optional(),
+  purchasePrice: z.number().nullable().optional(),
+  notes: z.string().nullable().optional(),
   // Include these for the update payload
   sneakerId: z.string(),
   sku: z.string(),
   brand: z.string(),
   title: z.string(),
   colorway: z.string().optional().default(''),
-  image: z.string().optional(),
-  retailPrice: z.number().optional().nullable(),
-  labels: z.array(z.enum(getValidLabelValues() as [string, ...string[]])).optional(), // Add labels field
+  image: z.string().nullable().optional(),
+  retailPrice: z.number().nullable().optional(),
+  // Fix the labels validation to accept any string array instead of strict enum
+  labels: z.array(z.string()).optional(),
 });
 
 // GET - Get a specific collection item
@@ -95,12 +97,16 @@ export async function PUT(
     }
 
     const body = await request.json();
-    console.log('Update request body:', body);
+    console.log('Update request body:', {
+      ...body,
+      purchaseDate: body.purchaseDate ? 'date present' : 'null/undefined',
+      labels: Array.isArray(body.labels) ? `${body.labels.length} labels` : 'not an array',
+    });
     
     // Validate the request body
     const result = updateCollectionSchema.safeParse(body);
     if (!result.success) {
-      console.log('Validation error:', result.error.format());
+      console.log('Validation error details:', result.error.format());
       return NextResponse.json(
         { error: 'Validation failed', details: result.error.format() },
         { status: 400 }
@@ -110,11 +116,12 @@ export async function PUT(
     const data = result.data;
     
     // Convert purchase date string to Date if provided
-    let purchaseDate;
+    let purchaseDate = null;
     if (data.purchaseDate) {
       try {
         purchaseDate = new Date(data.purchaseDate);
       } catch (dateError) {
+        console.error('Date conversion error:', dateError);
         return NextResponse.json(
           { error: 'Invalid date format' },
           { status: 400 }
@@ -124,20 +131,32 @@ export async function PUT(
 
     // Update the collection item
     try {
+      // Ensure labels is properly handled
+      const labels = Array.isArray(data.labels) ? data.labels : [];
+      
+      // Create update data with proper null handling
+      const updateData = {
+        sizeUS: data.sizeUS,
+        sizeEU: data.sizeEU || null,
+        sizeUK: data.sizeUK || null,
+        condition: data.condition,
+        purchaseDate,
+        purchasePrice: data.purchasePrice || null,
+        notes: data.notes || null,
+        labels,
+      };
+
+      console.log('Final update data:', {
+        ...updateData,
+        purchaseDate: updateData.purchaseDate ? 'date present' : 'null',
+        labels: `${updateData.labels.length} labels`,
+      });
+
       const updatedItem = await prisma.collection.update({
         where: {
           id: params.id,
         },
-        data: {
-          sizeUS: data.sizeUS,
-          sizeEU: data.sizeEU || null,
-          sizeUK: data.sizeUK || null,
-          condition: data.condition,
-          purchaseDate: purchaseDate || null,
-          purchasePrice: data.purchasePrice || null,
-          notes: data.notes || null,
-          labels: data.labels || [], // Update labels
-        },
+        data: updateData,
       });
 
       return NextResponse.json(
@@ -149,6 +168,8 @@ export async function PUT(
       );
     } catch (dbError) {
       console.error('Database error:', dbError);
+      console.error('Error details:', dbError instanceof Error ? dbError.message : 'Unknown error');
+      
       return NextResponse.json(
         { error: `Database error: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}` },
         { status: 500 }
@@ -163,7 +184,7 @@ export async function PUT(
   }
 }
 
-// DELETE - Remove from collection (unchanged)
+// DELETE - Remove from collection
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }

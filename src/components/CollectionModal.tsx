@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Button, FormError, Input } from './ui';
 import { conditionOptions, shoeSizes } from '@/lib/size-conversion';
 import { sneakerLabels } from '@/lib/labels';
-import Label, { LabelGroup } from './Label';
+
 // Add a CollectionItem type for existing items
 export interface CollectionItem {
   id: string;
@@ -22,7 +22,7 @@ export interface CollectionItem {
   retailPrice: number | null;
   purchasePrice: number | null;
   notes: string | null;
-  labels: string[]; // Add labels field
+  labels?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -60,10 +60,8 @@ export default function CollectionModal({
     purchaseDate: '',
     purchasePrice: '',
     notes: '',
+    labels: [] as string[], // Add labels to form state
   });
-  
-  // Add labels state
-  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 
   // Load existing data when in edit mode
   useEffect(() => {
@@ -76,12 +74,8 @@ export default function CollectionModal({
           : '',
         purchasePrice: existingItem.purchasePrice ? existingItem.purchasePrice.toString() : '',
         notes: existingItem.notes || '',
+        labels: existingItem.labels || [], // Load existing labels
       });
-      
-      // Set labels if available
-      if (existingItem.labels) {
-        setSelectedLabels(existingItem.labels);
-      }
     } else {
       // Initialize form for add mode
       // Use isSneaker type guard to safely access releaseDate and retailPrice
@@ -91,6 +85,7 @@ export default function CollectionModal({
         purchaseDate: isSneaker(sneaker) && sneaker.releaseDate ? sneaker.releaseDate : '',
         purchasePrice: isSneaker(sneaker) && sneaker.retailPrice ? sneaker.retailPrice.toString() : '',
         notes: '',
+        labels: [], // Initialize empty labels array for new items
       });
     }
   }, [mode, existingItem, sneaker]);
@@ -104,97 +99,117 @@ export default function CollectionModal({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  
-  const handleLabelToggle = (labelValue: string) => {
-    setSelectedLabels(prev => {
-      if (prev.includes(labelValue)) {
-        return prev.filter(value => value !== labelValue);
+
+  // Add label toggle function
+  const toggleLabel = (labelValue: string) => {
+    setFormData(prev => {
+      const currentLabels = [...prev.labels];
+      const index = currentLabels.indexOf(labelValue);
+      
+      if (index >= 0) {
+        // Remove label if it exists
+        currentLabels.splice(index, 1);
       } else {
-        return [...prev, labelValue];
+        // Add label if it doesn't exist
+        currentLabels.push(labelValue);
       }
+      
+      return {
+        ...prev,
+        labels: currentLabels
+      };
     });
   };
-  
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
 
-    try {
-      // Validate required fields
-      if (!formData.sizeUS || !formData.condition) {
-        throw new Error('Please fill in all required fields');
-      }
+// Replace just the handleSubmit function in your CollectionModal.tsx
 
-      // Create the sneaker data using type guards
-      let sneakerId: string;
-      if (isSneaker(sneaker)) {
-        sneakerId = sneaker.id;
-      } else if (isCollectionItem(sneaker)) {
-        sneakerId = sneaker.sneakerId;
-      } else {
-        throw new Error('Invalid sneaker data');
-      }
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
 
-      // Create the request payload
-      const payload = {
-        sneakerId,
-        sku: sneaker.sku,
-        brand: sneaker.brand,
-        title: sneaker.title,
-        colorway: sneaker.colorway || '',
-        image: sneaker.image || '',
-        sizeUS: formData.sizeUS,
-        sizeEU: selectedSize?.eu,
-        sizeUK: selectedSize?.uk,
-        condition: formData.condition,
-        purchaseDate: formData.purchaseDate || undefined,
-        retailPrice: isSneaker(sneaker) ? sneaker.retailPrice : null,
-        purchasePrice: formData.purchasePrice
-          ? parseFloat(formData.purchasePrice)
-          : undefined,
-        notes: formData.notes || undefined,
-        labels: selectedLabels, // Add selected labels to payload
-      };
+  try {
+    // Validate required fields
+    if (!formData.sizeUS || !formData.condition) {
+      throw new Error('Please fill in all required fields');
+    }
 
-      // Log the payload for debugging
-      console.log(`${mode === 'add' ? 'Adding' : 'Updating'} sneaker:`, payload);
+    // Create the sneaker data using type guards
+    let sneakerId: string;
+    if (isSneaker(sneaker)) {
+      sneakerId = sneaker.id;
+    } else if (isCollectionItem(sneaker)) {
+      sneakerId = sneaker.sneakerId;
+    } else {
+      throw new Error('Invalid sneaker data');
+    }
 
-      let url = '/api/collection';
-      let method = 'POST';
+    // Create the request payload with proper handling of null values
+    const payload = {
+      sneakerId,
+      sku: sneaker.sku,
+      brand: sneaker.brand,
+      title: sneaker.title,
+      colorway: sneaker.colorway || '',
+      image: sneaker.image || null,
+      sizeUS: formData.sizeUS,
+      sizeEU: selectedSize?.eu || null,
+      sizeUK: selectedSize?.uk || null,
+      condition: formData.condition,
+      // Ensure purchaseDate is a string or null, not undefined
+      purchaseDate: formData.purchaseDate || null,
+      // Ensure retailPrice is a number or null, not undefined
+      retailPrice: isSneaker(sneaker) && sneaker.retailPrice 
+        ? Number(sneaker.retailPrice) 
+        : null,
+      // Ensure purchasePrice is a number or null, not undefined
+      purchasePrice: formData.purchasePrice && formData.purchasePrice.trim() !== ''
+        ? parseFloat(formData.purchasePrice)
+        : null,
+      // Ensure notes is a string or null, not undefined
+      notes: formData.notes || null,
+      // Make sure labels is an array (using existing label values)
+      labels: formData.labels || [],
+    };
 
-      // For edit mode, use PUT with the item ID
-      if (mode === 'edit' && existingItem) {
-        url = `/api/collection/${existingItem.id}`;
-        method = 'PUT';
-      }
+    // Log the payload for debugging
+    console.log(`${mode === 'add' ? 'Adding' : 'Updating'} sneaker:`, payload);
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+    let url = '/api/collection';
+    let method = 'POST';
 
+    // For edit mode, use PUT with the item ID
+    if (mode === 'edit' && existingItem) {
+      url = `/api/collection/${existingItem.id}`;
+      method = 'PUT';
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
       const data = await response.json();
       console.log('Response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to ${mode === 'add' ? 'add to' : 'update'} collection`);
-      }
-
-      // Success
-      onSuccess();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setIsLoading(false);
+      throw new Error(data.error || `Failed to ${mode === 'add' ? 'add to' : 'update'} collection`);
     }
-  };
 
+    // Success
+    onSuccess();
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Something went wrong');
+    console.error('Error:', err);
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      {/* Backdrop for closing */}
       <div
         className="absolute inset-0 bg-transparent"
         onClick={onClose}
@@ -227,6 +242,7 @@ export default function CollectionModal({
           </button>
         </div>
 
+        {/* Form content */}
         <div className="p-6">
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             <div className="relative w-full md:w-1/3 aspect-square bg-[#ffffff] rounded-lg overflow-hidden">
@@ -251,13 +267,6 @@ export default function CollectionModal({
                 <p className="font-medium text-[#d14124]">
                   Retail: ${sneaker.retailPrice}
                 </p>
-              )}
-              
-              {/* Display labels if this is an edit mode and the sneaker has labels */}
-              {mode === 'edit' && isCollectionItem(sneaker) && sneaker.labels && sneaker.labels.length > 0 && (
-                <div className="mt-3">
-                  <LabelGroup labels={sneaker.labels} />
-                </div>
               )}
             </div>
           </div>
@@ -358,6 +367,48 @@ export default function CollectionModal({
               </div>
             </div>
 
+            {/* Labels selection */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-2">
+                Labels
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {sneakerLabels.map((labelOption) => {
+                  const isSelected = formData.labels.includes(labelOption.value);
+                  return (
+                    <button
+                      key={labelOption.value}
+                      type="button"
+                      onClick={() => toggleLabel(labelOption.value)}
+                      className={`px-3 py-1.5 rounded-full text-xs transition-colors ${
+                        isSelected 
+                          ? 'bg-opacity-20 border' 
+                          : 'bg-white border border-[#e5e5e5]'
+                      }`}
+                      style={{
+                        backgroundColor: isSelected ? `${labelOption.color}20` : undefined,
+                        color: isSelected ? labelOption.color : '#555',
+                        borderColor: isSelected ? `${labelOption.color}50` : undefined,
+                      }}
+                    >
+                      <span className="flex items-center gap-1">
+                        <span 
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: labelOption.color }}
+                        />
+                        {labelOption.label}
+                        {isSelected && (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Notes */}
             <div>
               <label htmlFor="notes" className="block text-sm font-medium mb-1">
@@ -372,57 +423,6 @@ export default function CollectionModal({
                 className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d14124] focus:border-[#d14124] bg-white"
                 placeholder="Add any personal notes about this sneaker..."
               ></textarea>
-            </div>
-            
-            {/* Labels Section */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Labels
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {sneakerLabels.map((labelOption) => {
-                  const isSelected = selectedLabels.includes(labelOption.value);
-                  return (
-                    <button
-                      key={labelOption.value}
-                      type="button"
-                      onClick={() => handleLabelToggle(labelOption.value)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                        isSelected 
-                          ? 'bg-opacity-10 border'
-                          : 'bg-[#f5f5f5] border border-[#e5e5e5] hover:border-[#d5d5d5]'
-                      }`}
-                      style={{
-                        backgroundColor: isSelected ? `${labelOption.color}1A` : undefined,
-                        color: isSelected ? labelOption.color : '#555',
-                        borderColor: isSelected ? `${labelOption.color}40` : undefined
-                      }}
-                    >
-                      <span className="w-4 h-4 flex-shrink-0">
-                        {isSelected ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                        ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                          </svg>
-                        )}
-                      </span>
-                      {labelOption.label}
-                    </button>
-                  );
-                })}
-              </div>
-              {selectedLabels.length > 0 && (
-                <div className="mt-3">
-                  <div className="text-sm text-[#737373] mb-1">Selected labels:</div>
-                  <LabelGroup 
-                    labels={selectedLabels} 
-                    onRemoveLabel={(label) => handleLabelToggle(label)}
-                  />
-                </div>
-              )}
             </div>
 
             <div className="flex justify-end gap-3 pt-2">

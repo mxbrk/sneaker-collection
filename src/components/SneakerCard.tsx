@@ -1,11 +1,12 @@
-// src/components/SneakerCard.tsx (UPDATED)
+// Replace src/components/SneakerCard.tsx with this code:
+
 import { Sneaker } from '@/types/sneakers';
 import Image from 'next/image';
 import { useState } from 'react';
 import CollectionModal from './CollectionModal';
 import { LabelGroup } from './Label';
 
-// Updated CollectionItem interface with labels
+// Add the CollectionItem interface definition
 interface CollectionItem {
   id: string;
   sneakerId: string;
@@ -22,7 +23,7 @@ interface CollectionItem {
   retailPrice: number | null;
   purchasePrice: number | null;
   notes: string | null;
-  labels: string[]; // Add labels field
+  labels?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -48,6 +49,9 @@ export default function SneakerCard({
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Get labels if this is a collection item
+  const labels = isCollectionItem && 'labels' in sneaker ? sneaker.labels || [] : [];
+
   const handleAddToWishlist = async () => {
     if (addedToWishlist || isAddingToWishlist) return;
     
@@ -69,8 +73,6 @@ export default function SneakerCard({
         image: sneaker.image || '',
       };
       
-      console.log('Sending wishlist payload:', payload);
-      
       const response = await fetch('/api/wishlist', {
         method: 'POST',
         headers: {
@@ -80,7 +82,6 @@ export default function SneakerCard({
       });
 
       const data = await response.json();
-      console.log('Wishlist response:', data);
       
       if (response.ok) {
         setAddedToWishlist(true);
@@ -132,11 +133,18 @@ export default function SneakerCard({
     }
   };
 
-  // Check if the sneaker has labels (only collection items will have this)
-  const hasLabels = isCollectionItem && 'labels' in sneaker && sneaker.labels && sneaker.labels.length > 0;
+  // Format price display for collection items or sneakers
+  const getPriceDisplay = () => {
+    if ('retailPrice' in sneaker && sneaker.retailPrice) {
+      return `$${sneaker.retailPrice}`;
+    } else if ('purchasePrice' in sneaker && sneaker.purchasePrice) {
+      return `$${sneaker.purchasePrice}`;
+    }
+    return null;
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#f0f0f0] relative">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#f0f0f0] relative h-full flex flex-col">
       {/* Success message toast (only used if no onNotification prop) */}
       {successMessage && !onNotification && (
         <div className="absolute top-2 right-2 z-10 bg-green-100 text-green-800 text-sm py-1 px-3 rounded-full">
@@ -259,45 +267,46 @@ export default function SneakerCard({
           )}
         </div>
       </div>
-      <div className="p-4 grid grid-rows-[auto_auto_1fr_auto] h-[170px]">
-        <h3 className="font-medium text-[#171717]">
+
+      {/* Card content with fixed height structure */}
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Title section - always visible */}
+        <h3 className="font-medium text-[#171717] line-clamp-2 mb-1 min-h-[48px]">
           {sneaker.title || "Unnamed Sneaker"}
         </h3>
         
-        {/* Display Labels */}
-        {hasLabels && (
-          <div className="mt-1 mb-1">
-            <LabelGroup labels={(sneaker as CollectionItem).labels} size="sm" />
-          </div>
-        )}
+        {/* Labels section - circle dots instead of text */}
+        <div className="my-1 h-6 flex items-center">
+          {labels.length > 0 && <LabelGroup labels={labels} size="sm" />}
+        </div>
         
-        {/* Size and condition info, only shown for collection items */}
-        {'sizeUS' in sneaker && 'condition' in sneaker && (
-          <div className="self-end mt-2 flex items-center text-xs text-[#737373]">
-            <span className="px-2 py-1 bg-[#f5f5f5] rounded-full mr-2">
-              US {sneaker.sizeUS}
-            </span>
-            <span className="px-2 py-1 bg-[#f5f5f5] rounded-full">
-              {sneaker.condition === 'DS' ? 'Deadstock' : 
-               sneaker.condition === 'VNDS' ? 'Very Near Deadstock' : 
-               `Condition: ${sneaker.condition}`}
-            </span>
+        {/* Fixed-height bottom section to ensure consistent alignment */}
+        <div className="mt-auto">
+          {/* Size and condition section */}
+          <div className="flex flex-wrap items-center gap-2 text-xs text-[#737373] h-8">
+            {isCollectionItem && 'sizeUS' in sneaker && 'condition' in sneaker && (
+              <>
+                <span className="px-2 py-1 bg-[#f5f5f5] rounded-full">
+                  US {sneaker.sizeUS}
+                </span>
+                <span className="px-2 py-1 bg-[#f5f5f5] rounded-full">
+                  Condition: {sneaker.condition}
+                </span>
+              </>
+            )}
           </div>
-        )}
-        
-        <div className="flex justify-between items-center self-end border-t border-[#f5f5f5] pt-3 mt-2">
-          <span className="text-xs font-mono text-[#737373]">
-            {sneaker.sku}
-          </span>
-          {'retailPrice' in sneaker && sneaker.retailPrice ? (
-            <span className="text-[#d14124] font-medium">
-              ${sneaker.retailPrice}
+          
+          {/* Bottom info bar with SKU and price - always aligned */}
+          <div className="flex justify-between items-center border-t border-[#f5f5f5] pt-3 mt-2">
+            <span className="text-xs font-mono text-[#737373] truncate max-w-[60%]">
+              {sneaker.sku}
             </span>
-          ) : 'purchasePrice' in sneaker && sneaker.purchasePrice ? (
-            <span className="text-[#d14124] font-medium">
-              ${sneaker.purchasePrice}
-            </span>
-          ) : null}
+            {getPriceDisplay() && (
+              <span className="text-[#d14124] font-medium ml-auto">
+                {getPriceDisplay()}
+              </span>
+            )}
+          </div>
         </div>
       </div>
       
