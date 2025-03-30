@@ -435,25 +435,6 @@ export default function ProfilePage() {
               </div>
             )}
           </section>
-
-          {/* Recent Activity Section (Coming Soon) */}
-          <section className="mb-10">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[#171717]">Recent Activity</h2>
-            </div>
-            
-            <div className="bg-[#fae5e1] rounded-xl p-8 text-center">
-              <div className="mx-auto w-16 h-16 mb-4 text-[#d14124] opacity-70">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium text-[#171717] mb-2">Coming Soon</h3>
-              <p className="text-[#737373] max-w-md mx-auto">
-                Activity tracking and statistics will be available in a future update. Stay tuned!
-              </p>
-            </div>
-          </section>
         </div>
 
         {/* Notification */}
