@@ -1,7 +1,4 @@
 import { SneakerApiResponse } from '@/types/sneakers';
-
-// In src/lib/sneaker-service.ts, modify the fetchSneakersData function:
-
 export const fetchSneakersData = async (
   query: string, 
   showKidsShoes: boolean = true,
@@ -25,8 +22,9 @@ export const fetchSneakersData = async (
     // If filtering, fetch more items initially to compensate for filtered results
     const limit = (!showKidsShoes || genderFilter !== 'both') ? 36 : 12;
     
+    // New endpoint!
     const response = await fetch(
-      `https://api.sneakersapi.dev/api/v3/stockx/products?category=sneakers&query=${encodeURIComponent(query)}&limit=${limit}`, 
+      `https://api.sneakersapi.dev/api/v3/goat/products?query=${encodeURIComponent(query)}&limit=${limit}`, 
       options
     );
 
@@ -34,10 +32,26 @@ export const fetchSneakersData = async (
       throw new Error('Error fetching data');
     }
 
-    const data: SneakerApiResponse = await response.json();   
-    console.log(`Received ${data.data?.length || 0} results from API`);
+    const apiResponse = await response.json();   
+    console.log(`Received ${apiResponse.data?.length || 0} results from API`);
     
-    let filteredData = data.data || [];
+    // Transform the GOAT API response to match our application's expected format
+    const transformedData = apiResponse.data.map(item => ({
+      id: item.id.toString(),
+      title: item.name,
+      sku: item.sku || '',
+      brand: item.brand,
+      colorway: item.colorway || '',
+      image: item.image_url,
+      retailPrice: item.retail_prices?.retail_price_cents_usd 
+        ? Math.round(item.retail_prices.retail_price_cents_usd / 100) 
+        : null,
+      releaseDate: item.release_date ? formatReleaseDate(item.release_date) : null,
+      model: item.model || '',
+      description: item.description || '',
+    }));
+    
+    let filteredData = transformedData || [];
     
     // Filter out kids' shoes if needed
     if (!showKidsShoes && filteredData.length > 0) {
@@ -117,12 +131,24 @@ export const fetchSneakersData = async (
     
     // Return filtered data with updated counts
     return {
-      ...data,
-      data: limitedData,
       total: filteredData.length,
+      page: apiResponse.meta?.current_page || 1,
+      pages: Math.ceil(filteredData.length / 12),
+      data: limitedData,
     };
   } catch (err) {
     console.error('Error:', err);
     return { total: 0, page: 1, pages: 0, data: [] };
   }
 };
+
+// Helper function to format release date from YYYYMMDD to YYYY-MM-DD
+function formatReleaseDate(dateString: string): string {
+  if (!dateString || dateString.length !== 8) return '';
+  
+  const year = dateString.substring(0, 4);
+  const month = dateString.substring(4, 6);
+  const day = dateString.substring(6, 8);
+  
+  return `${year}-${month}-${day}`;
+}
