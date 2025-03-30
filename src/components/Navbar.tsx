@@ -42,7 +42,7 @@ export default function Navbar() {
               Home
             </Link>
             
-            {/* Only show Search link for logged-in users */}
+            {/* Only show Add Sneaker link for logged-in users */}
             {user && (
               <Link
                 href="/search"
@@ -52,7 +52,7 @@ export default function Navbar() {
                     : 'text-[#171717] hover:bg-[#f5f5f5]'
                 }`}
               >
-                Search
+                Add Sneaker
               </Link>
             )}
             
@@ -141,7 +141,7 @@ export default function Navbar() {
             >
               Home
             </Link>
-            {/* Only show Search link for logged-in users in mobile menu */}
+            {/* Only show Add Sneaker link for logged-in users in mobile menu */}
             {user && (
               <Link
                 href="/search"
@@ -152,7 +152,7 @@ export default function Navbar() {
                     : 'text-[#171717] hover:bg-[#f5f5f5]'
                 }`}
               >
-                Search
+                Add Sneaker
               </Link>
             )}
             

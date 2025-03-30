@@ -27,7 +27,7 @@ export default function Home() {
                 href="/search"
                 className="rounded-lg bg-[#d14124] text-white px-4 py-2 hover:bg-[#b93a20] transition-colors"
               >
-                Search Sneakers
+                Add Sneakers
               </Link>
             </>
           ) : (
@@ -70,7 +70,7 @@ export default function Home() {
                 href="/search"
                 className="rounded-lg border border-solid border-[#e5e5e5] transition-colors flex items-center justify-center hover:bg-[#fdf1f0] font-medium text-sm sm:text-base h-12 px-6"
               >
-                Search Sneakers
+                Add Sneakers
               </Link>
             </>
           ) : (

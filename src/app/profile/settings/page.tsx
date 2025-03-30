@@ -233,7 +233,7 @@ export default function SettingsPage() {
                 href="/search"
                 className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
               >
-                Search
+                Add Sneaker
               </Link>
               <Link
                 href="/profile"
