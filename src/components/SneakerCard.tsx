@@ -1,10 +1,11 @@
-// src/components/SneakerCard.tsx
+// src/components/SneakerCard.tsx (UPDATED)
 import { Sneaker } from '@/types/sneakers';
 import Image from 'next/image';
 import { useState } from 'react';
 import CollectionModal from './CollectionModal';
+import { LabelGroup } from './Label';
 
-// Add the CollectionItem interface definition
+// Updated CollectionItem interface with labels
 interface CollectionItem {
   id: string;
   sneakerId: string;
@@ -21,6 +22,7 @@ interface CollectionItem {
   retailPrice: number | null;
   purchasePrice: number | null;
   notes: string | null;
+  labels: string[]; // Add labels field
   createdAt: string;
   updatedAt: string;
 }
@@ -129,6 +131,9 @@ export default function SneakerCard({
       onEdit();
     }
   };
+
+  // Check if the sneaker has labels (only collection items will have this)
+  const hasLabels = isCollectionItem && 'labels' in sneaker && sneaker.labels && sneaker.labels.length > 0;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#f0f0f0] relative">
@@ -254,16 +259,28 @@ export default function SneakerCard({
           )}
         </div>
       </div>
-      <div className="p-4 grid grid-rows-[auto_1fr_auto] h-[150px]">
+      <div className="p-4 grid grid-rows-[auto_auto_1fr_auto] h-[170px]">
         <h3 className="font-medium text-[#171717]">
           {sneaker.title || "Unnamed Sneaker"}
         </h3>
+        
+        {/* Display Labels */}
+        {hasLabels && (
+          <div className="mt-1 mb-1">
+            <LabelGroup labels={(sneaker as CollectionItem).labels} size="sm" />
+          </div>
+        )}
         
         {/* Size and condition info, only shown for collection items */}
         {'sizeUS' in sneaker && 'condition' in sneaker && (
           <div className="self-end mt-2 flex items-center text-xs text-[#737373]">
             <span className="px-2 py-1 bg-[#f5f5f5] rounded-full mr-2">
               US {sneaker.sizeUS}
+            </span>
+            <span className="px-2 py-1 bg-[#f5f5f5] rounded-full">
+              {sneaker.condition === 'DS' ? 'Deadstock' : 
+               sneaker.condition === 'VNDS' ? 'Very Near Deadstock' : 
+               `Condition: ${sneaker.condition}`}
             </span>
           </div>
         )}
