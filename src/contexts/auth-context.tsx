@@ -2,10 +2,14 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
+// Updated User interface with all properties
 interface User {
   id: string;
   email: string;
   username: string | null;
+  showKidsShoes?: boolean; // Add this property
+  genderFilter?: string;    // Add this property
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -107,10 +111,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
-      await fetch('/api/auth/logout', {
+      const response = await fetch('/api/auth/logout', {
         method: 'POST',
       });
+      
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      
+      // Explicitly set user to null
       setUser(null);
+      
+      // No need to return or redirect here, let the component handle that
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       throw err;

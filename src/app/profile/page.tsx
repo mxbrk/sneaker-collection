@@ -104,17 +104,21 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/auth/logout', {
+      // Call the logout API endpoint
+      const response = await fetch('/api/auth/logout', {
         method: 'POST',
       });
-      router.push('/login');
-      router.refresh();
+      
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      
+      window.location.href = '/login';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       setIsLoading(false);
     }
   };
-
   const handleRemoveFromWishlist = async (id: string) => {
     try {
       const response = await fetch(`/api/wishlist?id=${id}`, {

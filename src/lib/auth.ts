@@ -90,9 +90,26 @@ export async function logout() {
   const sessionId = cookieStore.get(COOKIE_NAME)?.value;
   
   if (sessionId) {
-    await prisma.session.delete({ where: { id: sessionId } });
+    try {
+      await prisma.session.delete({ where: { id: sessionId } });
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      // Continue with cookie deletion even if session deletion fails
+    }
   }
   
+  // Explicitly set cookie with expired date to ensure it's removed
+  cookieStore.set({
+    name: COOKIE_NAME,
+    value: '',
+    expires: new Date(0), // Set to epoch time to ensure immediate expiration
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+  
+  // Also use the delete method as a fallback
   cookieStore.delete(COOKIE_NAME);
 }
 

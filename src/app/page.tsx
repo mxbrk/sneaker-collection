@@ -1,9 +1,12 @@
+'use client';
+
 import { getCurrentUser } from '@/lib/auth';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
 
-export default async function Home() {
-  const user = await getCurrentUser();
+export default function Home() {
+  const { user } = useAuth(); // Use Auth context to access user state client-side
   
   return (
     <div className="grid grid-rows-[auto_1fr_auto] items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -79,10 +82,10 @@ export default async function Home() {
                 Get Started
               </Link>
               <Link
-                href="/search"
+                href="/login"
                 className="rounded-lg border border-solid border-[#e5e5e5] transition-colors flex items-center justify-center hover:bg-[#fdf1f0] font-medium text-sm sm:text-base h-12 px-6"
               >
-                Search Sneakers
+                Login
               </Link>
             </>
           )}

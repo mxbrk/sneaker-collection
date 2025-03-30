@@ -4,10 +4,12 @@ import { Button, FormContainer, FormError, Input } from '@/components/ui';
 import MainLayout from '@/components/MainLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { user, loading, signup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -16,6 +18,16 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
   });
+
+  // Redirect if user is already logged in - but use a state to prevent redirecting multiple times
+  const [redirecting, setRedirecting] = useState(false);
+  
+  useEffect(() => {
+    if (user && !loading && !redirecting) {
+      setRedirecting(true);
+      router.push('/profile');
+    }
+  }, [user, loading, router, redirecting]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,33 +54,38 @@ export default function SignupPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          username: formData.username,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong');
-      }
-
-      // Redirect to profile page
+      await signup(formData.email, formData.password, formData.username);
+      // After successful signup, manually redirect instead of waiting for useEffect
       router.push('/profile');
-      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
       setIsLoading(false);
     }
   };
+
+  // Only show loading state when loading auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d14124] border-r-transparent"></div>
+          <p className="mt-2 text-[#737373]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If user is logged in, show redirecting state
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d14124] border-r-transparent"></div>
+          <p className="mt-2 text-[#737373]">Already logged in. Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <MainLayout>

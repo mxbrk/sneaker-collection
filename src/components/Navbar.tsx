@@ -7,9 +7,8 @@ import { useAuth } from '@/contexts/auth-context';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -21,31 +20,12 @@ export default function Navbar() {
     return false;
   };
 
-  // Add scroll event listener
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
   return (
-    <header className={`bg-white border-b border-[#e5e5e5] sticky top-0 z-50 transition-shadow ${
-      isScrolled ? 'shadow-md' : ''
-    }`}>
+    <header className="bg-white border-b border-[#e5e5e5] sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-[#d14124] flex items-center">
+          <Link href="/" className="text-xl font-bold text-[#d14124]">
             Sneaker Collection
           </Link>
           
@@ -61,16 +41,20 @@ export default function Navbar() {
             >
               Home
             </Link>
-            <Link
-              href="/search"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/search') 
-                  ? 'bg-[#fae5e1] text-[#d14124]' 
-                  : 'text-[#171717] hover:bg-[#f5f5f5]'
-              }`}
-            >
-              Search
-            </Link>
+            
+            {/* Only show Search link for logged-in users */}
+            {user && (
+              <Link
+                href="/search"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/search') 
+                    ? 'bg-[#fae5e1] text-[#d14124]' 
+                    : 'text-[#171717] hover:bg-[#f5f5f5]'
+                }`}
+              >
+                Search
+              </Link>
+            )}
             
             {user ? (
               // User is logged in
@@ -84,10 +68,9 @@ export default function Navbar() {
               >
                 Profile
               </Link>
-            ) : (
-              // User is not logged in or auth is still loading
-              <div className="opacity-0 transition-opacity duration-300" 
-                   style={{ opacity: user === null ? '1' : '0' }}>
+            ) : !loading ? (
+              // User is not logged in and auth is not loading
+              <>
                 <Link
                   href="/login"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -108,8 +91,8 @@ export default function Navbar() {
                 >
                   Sign Up
                 </Link>
-              </div>
-            )}
+              </>
+            ) : null /* Show nothing while loading */}
           </nav>
           
           {/* Mobile Menu Button */}
@@ -145,7 +128,7 @@ export default function Navbar() {
       
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden p-4 border-t border-[#e5e5e5] bg-white absolute w-full shadow-md">
+        <div className="md:hidden p-4 border-t border-[#e5e5e5] bg-white">
           <nav className="flex flex-col space-y-2">
             <Link
               href="/"
@@ -158,17 +141,20 @@ export default function Navbar() {
             >
               Home
             </Link>
-            <Link
-              href="/search"
-              onClick={closeMenu}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/search') 
-                  ? 'bg-[#fae5e1] text-[#d14124]' 
-                  : 'text-[#171717] hover:bg-[#f5f5f5]'
-              }`}
-            >
-              Search
-            </Link>
+            {/* Only show Search link for logged-in users in mobile menu */}
+            {user && (
+              <Link
+                href="/search"
+                onClick={closeMenu}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/search') 
+                    ? 'bg-[#fae5e1] text-[#d14124]' 
+                    : 'text-[#171717] hover:bg-[#f5f5f5]'
+                }`}
+              >
+                Search
+              </Link>
+            )}
             
             {user ? (
               // User is logged in
@@ -183,10 +169,9 @@ export default function Navbar() {
               >
                 Profile
               </Link>
-            ) : (
-              // User is not logged in or auth is still loading
-              <div className="opacity-0 transition-opacity duration-300"
-                   style={{ opacity: user === null ? '1' : '0' }}>
+            ) : !loading ? (
+              // User is not logged in and auth is not loading
+              <>
                 <Link
                   href="/login"
                   onClick={closeMenu}
@@ -209,8 +194,8 @@ export default function Navbar() {
                 >
                   Sign Up
                 </Link>
-              </div>
-            )}
+              </>
+            ) : null /* Show nothing while loading */}
           </nav>
         </div>
       )}
