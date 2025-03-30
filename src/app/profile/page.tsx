@@ -358,7 +358,7 @@ export default function ProfilePage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-[#171717]">Your Wishlist</h2>
             <Link href="/search" className="text-[#d14124] hover:text-[#b93a20] transition flex items-center gap-1 text-sm font-medium">
-              <span>Browse sneakers</span>
+              <span>Add sneakers</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/>
                 <polyline points="12 5 19 12 12 19"/>

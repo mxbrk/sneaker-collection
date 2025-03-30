@@ -335,15 +335,21 @@ export default function CollectionPage() {
         {/* Collection Grid */}
         {collection.length > 0 ? (
           <>
-            <div className="mb-4">
+            <div className="mb-4 flex justify-between">
               <p className="text-[#737373]">
                 Showing {sortedCollection.length} of {collection.length} sneakers
                 {selectedBrand && ` from ${selectedBrand}`}
                 {selectedCondition && ` in condition ${selectedCondition}`}
                 {selectedLabel && ` with label "${sneakerLabels.find(l => l.value === selectedLabel)?.label || selectedLabel}"`}
               </p>
+              <Link href="/search" className="text-[#d14124] hover:text-[#b93a20] transition flex items-center gap-1 text-sm font-medium">
+              <span>Add sneakers</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </Link>
             </div>
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedCollection.map((item) => (
                 <SneakerCard

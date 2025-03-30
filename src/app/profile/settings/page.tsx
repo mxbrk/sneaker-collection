@@ -248,8 +248,7 @@ export default function SettingsPage() {
   
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-10">
-        <div className="mb-8 flex items-center">
-          <Link 
+      <Link 
             href="/profile"
             className="text-[#737373] hover:text-[#d14124] flex items-center gap-2"
           >
@@ -258,6 +257,8 @@ export default function SettingsPage() {
             </svg>
             Back to Profile
           </Link>
+
+        <div className="mb-8 flex items-center">
           <h1 className="text-2xl font-bold ml-4">Account Settings</h1>
         </div>
         
@@ -306,7 +307,7 @@ export default function SettingsPage() {
               
               {/* Display Preferences - with improved spacing and styling */}
               <div className="border-t border-[#f0f0f0] pt-8 mt-8">
-                <h3 className="text-lg font-medium text-[#171717] mb-5">Display Preferences</h3>
+                <h3 className="text-lg font-medium text-[#171717] mb-5">Search Preferences</h3>
                 
                 <div className="space-y-5">
                   {/* Kids' Shoes preference */}
