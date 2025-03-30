@@ -123,62 +123,72 @@ export default function CollectionModal({
 
 // Replace just the handleSubmit function in your CollectionModal.tsx
 
+// Replace just the handleSubmit function in your CollectionModal.tsx component
+
+// Ersetze die handleSubmit-Funktion in deiner CollectionModal.tsx mit dieser Version
+
+// Ersetze die handleSubmit-Funktion in deiner CollectionModal.tsx mit dieser Version
+
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setIsLoading(true);
   setError(null);
 
   try {
-    // Validate required fields
+    // Validiere Pflichtfelder
     if (!formData.sizeUS || !formData.condition) {
-      throw new Error('Please fill in all required fields');
+      throw new Error('Bitte fülle alle Pflichtfelder aus');
     }
 
-    // Create the sneaker data using type guards
+    // Ermittle sneakerId mit Type Guards
     let sneakerId: string;
     if (isSneaker(sneaker)) {
       sneakerId = sneaker.id;
     } else if (isCollectionItem(sneaker)) {
       sneakerId = sneaker.sneakerId;
     } else {
-      throw new Error('Invalid sneaker data');
+      throw new Error('Ungültige Sneaker-Daten');
     }
 
-    // Create the request payload with proper handling of null values
-    const payload = {
+    // Erstelle ein grundlegendes Payload mit den Pflichtfeldern
+    // Wichtig: nur Felder einschließen, die wirklich benötigt werden
+    const payload: any = {
       sneakerId,
       sku: sneaker.sku,
       brand: sneaker.brand,
       title: sneaker.title,
       colorway: sneaker.colorway || '',
-      image: sneaker.image || null,
+      image: sneaker.image || '',
       sizeUS: formData.sizeUS,
-      sizeEU: selectedSize?.eu || null,
-      sizeUK: selectedSize?.uk || null,
+      sizeEU: selectedSize?.eu || '',
+      sizeUK: selectedSize?.uk || '',
       condition: formData.condition,
-      // Ensure purchaseDate is a string or null, not undefined
-      purchaseDate: formData.purchaseDate || null,
-      // Ensure retailPrice is a number or null, not undefined
-      retailPrice: isSneaker(sneaker) && sneaker.retailPrice 
-        ? Number(sneaker.retailPrice) 
-        : null,
-      // Ensure purchasePrice is a number or null, not undefined
-      purchasePrice: formData.purchasePrice && formData.purchasePrice.trim() !== ''
-        ? parseFloat(formData.purchasePrice)
-        : null,
-      // Ensure notes is a string or null, not undefined
-      notes: formData.notes || null,
-      // Make sure labels is an array (using existing label values)
       labels: formData.labels || [],
     };
 
-    // Log the payload for debugging
-    console.log(`${mode === 'add' ? 'Adding' : 'Updating'} sneaker:`, payload);
+    // Nur Werte hinzufügen, wenn sie tatsächlich vorhanden sind
+    // Lasse die optionalen Felder komplett weg, wenn sie nicht vorhanden sind
+    if (formData.purchaseDate && formData.purchaseDate.trim() !== '') {
+      payload.purchaseDate = formData.purchaseDate;
+    }
+
+    if (formData.purchasePrice && formData.purchasePrice.trim() !== '') {
+      payload.purchasePrice = parseFloat(formData.purchasePrice);
+    }
+
+    if (formData.notes && formData.notes.trim() !== '') {
+      payload.notes = formData.notes;
+    }
+
+    if (isSneaker(sneaker) && sneaker.retailPrice) {
+      payload.retailPrice = Number(sneaker.retailPrice);
+    }
+
+    console.log(`${mode === 'add' ? 'Füge hinzu' : 'Aktualisiere'} Sneaker:`, payload);
 
     let url = '/api/collection';
     let method = 'POST';
 
-    // For edit mode, use PUT with the item ID
     if (mode === 'edit' && existingItem) {
       url = `/api/collection/${existingItem.id}`;
       method = 'PUT';
@@ -192,17 +202,24 @@ const handleSubmit = async (e: FormEvent) => {
       body: JSON.stringify(payload),
     });
 
+    const data = await response.json();
+    
     if (!response.ok) {
-      const data = await response.json();
-      console.log('Response:', data);
-      throw new Error(data.error || `Failed to ${mode === 'add' ? 'add to' : 'update'} collection`);
+      console.log('Server-Antwort:', data);
+      
+      if (data.details) {
+        console.error('Validierungsdetails:', data.details);
+        throw new Error(data.error || `Validierungsfehler`);
+      }
+      
+      throw new Error(data.error || `Fehler beim ${mode === 'add' ? 'Hinzufügen zum' : 'Aktualisieren des'} Collection`);
     }
 
-    // Success
+    // Erfolg
     onSuccess();
   } catch (err) {
-    setError(err instanceof Error ? err.message : 'Something went wrong');
-    console.error('Error:', err);
+    setError(err instanceof Error ? err.message : 'Etwas ist schiefgelaufen');
+    console.error('Fehler:', err);
   } finally {
     setIsLoading(false);
   }
