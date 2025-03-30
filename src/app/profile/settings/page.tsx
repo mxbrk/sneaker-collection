@@ -12,7 +12,7 @@ interface User {
   username: string | null;
   createdAt: string;
   showKidsShoes: boolean;
-  genderFilter: string; // Add this line
+  genderFilter: string;
 }
 
 export default function SettingsPage() {
@@ -30,7 +30,7 @@ export default function SettingsPage() {
     newPassword: '',
     confirmPassword: '',
     showKidsShoes: true,
-    genderFilter: 'both', // Add this line
+    genderFilter: 'both',
   });
 
   const [formErrors, setFormErrors] = useState({
@@ -63,7 +63,7 @@ export default function SettingsPage() {
           username: data.user.username || '',
           email: data.user.email || '',
           showKidsShoes: data.user.showKidsShoes ?? true,
-          genderFilter: data.user.genderFilter || 'both', // Add this line
+          genderFilter: data.user.genderFilter || 'both',
         }));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -214,242 +214,214 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      {/* Header/Navigation */}
-      <header className="bg-white border-b border-[#e5e5e5] sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-xl font-bold text-[#d14124]">
-              Sneaker Collection
+    <MainLayout>
+      <div className="min-h-screen bg-[#fafafa]">
+        {/* Main Content */}
+        <main className="max-w-4xl mx-auto px-4 py-10">
+        <Link 
+              href="/profile"
+              className="text-[#737373] hover:text-[#d14124] flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+              Back to Profile
             </Link>
-            <nav className="flex space-x-4">
-              <Link
-                href="/"
-                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Home
-              </Link>
-              <Link
-                href="/search"
-                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Add Sneaker
-              </Link>
-              <Link
-                href="/profile"
-                className="text-[#171717] px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Profile
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-  
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-10">
-      <Link 
-            href="/profile"
-            className="text-[#737373] hover:text-[#d14124] flex items-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Back to Profile
-          </Link>
 
-        <div className="mb-8 flex items-center">
-          <h1 className="text-2xl font-bold ml-4">Account Settings</h1>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-sm border border-[#f0f0f0] overflow-hidden">
-          {/* Content Area */}
-          <div className="p-8">
-            {/* Success/Error Messages */}
-            {successMessage && (
-              <div className="mb-8 bg-green-50 text-green-700 p-4 rounded-md">
-                {successMessage}
-              </div>
-            )}
-            
-            {error && (
-              <div className="mb-8 bg-red-50 text-red-700 p-4 rounded-md">
-                {error}
-              </div>
-            )}
-            
-            {/* Edit Profile Form */}
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <FormError message={error || undefined} />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input
-                  label="Username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  error={formErrors.username}
-                  disabled={isLoading}
-                  required
-                />
-                
-                <Input
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={formErrors.email}
-                  disabled={isLoading}
-                  required
-                />
-              </div>
-              
-              {/* Display Preferences - with improved spacing and styling */}
-              <div className="border-t border-[#f0f0f0] pt-8 mt-8">
-                <h3 className="text-lg font-medium text-[#171717] mb-5">Search Preferences</h3>
-                
-                <div className="space-y-5">
-                  {/* Kids' Shoes preference */}
-                  <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
-                    <div>
-                      <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
-                      <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only peer"
-                        checked={formData.showKidsShoes}
-                        onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
-                      />
-                      <div className="w-12 h-6 bg-[#e5e5e5] rounded-full peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d14124]"></div>
-                    </label>
-                  </div>
-                  
-                  {/* Gender Filter preference - NEW */}
-                  <div className="flex flex-col p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
-                    <div className="mb-4">
-                      <h4 className="font-medium text-[#171717]">Gender Filter</h4>
-                      <p className="text-sm text-[#737373] mt-1">Choose which types of sneakers to display in search results</p>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-4">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="genderFilter"
-                          value="both"
-                          checked={formData.genderFilter === 'both'}
-                          onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'both' }))}
-                          className="sr-only"
-                        />
-                        <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
-                          formData.genderFilter === 'both' 
-                            ? 'bg-[#d14124] text-white border-[#d14124]' 
-                            : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
-                        }`}>
-                          All Sneakers
-                        </div>
-                      </label>
-                      
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="genderFilter"
-                          value="men"
-                          checked={formData.genderFilter === 'men'}
-                          onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'men' }))}
-                          className="sr-only"
-                        />
-                        <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
-                          formData.genderFilter === 'men' 
-                            ? 'bg-[#d14124] text-white border-[#d14124]' 
-                            : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
-                        }`}>
-                          Men's Only
-                        </div>
-                      </label>
-                      
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="genderFilter"
-                          value="women"
-                          checked={formData.genderFilter === 'women'}
-                          onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'women' }))}
-                          className="sr-only"
-                        />
-                        <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
-                          formData.genderFilter === 'women' 
-                            ? 'bg-[#d14124] text-white border-[#d14124]' 
-                            : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
-                        }`}>
-                          Women's Only
-                        </div>
-                      </label>
-                    </div>
-                  </div>
+          <div className="mb-8 flex items-center">
+            <h1 className="text-2xl font-bold ml-4">Account Settings</h1>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm border border-[#f0f0f0] overflow-hidden">
+            {/* Content Area */}
+            <div className="p-8">
+              {/* Success/Error Messages */}
+              {successMessage && (
+                <div className="mb-8 bg-green-50 text-green-700 p-4 rounded-md">
+                  {successMessage}
                 </div>
-              </div>
+              )}
               
-              {/* Change Password Section */}
-              <div className="border-t border-[#f0f0f0] pt-8 mt-8">
-                <h3 className="text-lg font-medium text-[#171717] mb-3">Change Password</h3>
-                <p className="text-sm text-[#737373] mb-5">Leave blank if you don't want to change your password</p>
+              {error && (
+                <div className="mb-8 bg-red-50 text-red-700 p-4 rounded-md">
+                  {error}
+                </div>
+              )}
+              
+              {/* Edit Profile Form */}
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <FormError message={error || undefined} />
                 
-                <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Input
-                    label="Current Password"
-                    type="password"
-                    name="currentPassword"
-                    value={formData.currentPassword}
+                    label="Username"
+                    name="username"
+                    value={formData.username}
                     onChange={handleChange}
-                    error={formErrors.currentPassword}
+                    error={formErrors.username}
                     disabled={isLoading}
+                    required
                   />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Input
-                        label="New Password"
-                        type="password"
-                        name="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleChange}
-                        error={formErrors.newPassword}
-                        disabled={isLoading}
-                      />
-                      <div className="text-xs text-[#737373] mt-2">
-                        Password must be at least 8 characters long.
+                  <Input
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={formErrors.email}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+                
+                {/* Display Preferences - with improved spacing and styling */}
+                <div className="border-t border-[#f0f0f0] pt-8 mt-8">
+                  <h3 className="text-lg font-medium text-[#171717] mb-5">Search Preferences</h3>
+                  
+                  <div className="space-y-5">
+                    {/* Kids' Shoes preference */}
+                    <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
+                      <div>
+                        <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
+                        <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
                       </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer"
+                          checked={formData.showKidsShoes}
+                          onChange={e => setFormData(prev => ({ ...prev, showKidsShoes: e.target.checked }))}
+                        />
+                        <div className="w-12 h-6 bg-[#e5e5e5] rounded-full peer-focus:ring-2 peer-focus:ring-[#fae5e1] peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d14124]"></div>
+                      </label>
                     </div>
                     
-                    <Input
-                      label="Confirm New Password"
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      error={formErrors.confirmPassword}
-                      disabled={isLoading}
-                    />
+                    {/* Gender Filter preference - NEW */}
+                    <div className="flex flex-col p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
+                      <div className="mb-4">
+                        <h4 className="font-medium text-[#171717]">Gender Filter</h4>
+                        <p className="text-sm text-[#737373] mt-1">Choose which types of sneakers to display in search results</p>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-4">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="genderFilter"
+                            value="both"
+                            checked={formData.genderFilter === 'both'}
+                            onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'both' }))}
+                            className="sr-only"
+                          />
+                          <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                            formData.genderFilter === 'both' 
+                              ? 'bg-[#d14124] text-white border-[#d14124]' 
+                              : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
+                          }`}>
+                            All Sneakers
+                          </div>
+                        </label>
+                        
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="genderFilter"
+                            value="men"
+                            checked={formData.genderFilter === 'men'}
+                            onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'men' }))}
+                            className="sr-only"
+                          />
+                          <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                            formData.genderFilter === 'men' 
+                              ? 'bg-[#d14124] text-white border-[#d14124]' 
+                              : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
+                          }`}>
+                            Men's Only
+                          </div>
+                        </label>
+                        
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="genderFilter"
+                            value="women"
+                            checked={formData.genderFilter === 'women'}
+                            onChange={() => setFormData(prev => ({ ...prev, genderFilter: 'women' }))}
+                            className="sr-only"
+                          />
+                          <div className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                            formData.genderFilter === 'women' 
+                              ? 'bg-[#d14124] text-white border-[#d14124]' 
+                              : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
+                          }`}>
+                            Women's Only
+                          </div>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex justify-end pt-4 mt-8 border-t border-[#f0f0f0]">
-                <Button 
-                  type="submit" 
-                  disabled={isLoading}
-                  className="px-6 py-2 w-auto inline-block"
-                >
-                  {isLoading ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </form>
+                
+                {/* Change Password Section */}
+                <div className="border-t border-[#f0f0f0] pt-8 mt-8">
+                  <h3 className="text-lg font-medium text-[#171717] mb-3">Change Password</h3>
+                  <p className="text-sm text-[#737373] mb-5">Leave blank if you don't want to change your password</p>
+                  
+                  <div className="space-y-5">
+                    <Input
+                      label="Current Password"
+                      type="password"
+                      name="currentPassword"
+                      value={formData.currentPassword}
+                      onChange={handleChange}
+                      error={formErrors.currentPassword}
+                      disabled={isLoading}
+                    />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Input
+                          label="New Password"
+                          type="password"
+                          name="newPassword"
+                          value={formData.newPassword}
+                          onChange={handleChange}
+                          error={formErrors.newPassword}
+                          disabled={isLoading}
+                        />
+                        <div className="text-xs text-[#737373] mt-2">
+                          Password must be at least 8 characters long.
+                        </div>
+                      </div>
+                      
+                      <Input
+                        label="Confirm New Password"
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        error={formErrors.confirmPassword}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end pt-4 mt-8 border-t border-[#f0f0f0]">
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading}
+                    className="px-6 py-2 w-auto inline-block"
+                  >
+                    {isLoading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );}
+        </main>
+      </div>
+    </MainLayout>
+  );
+}
