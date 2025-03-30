@@ -304,15 +304,14 @@ export default function WishlistPage() {
                     </button>
                   </div>
                   
-                  <div className="relative h-40 bg-[#ffffff] overflow-hidden">
+                  <div className="relative h-52 bg-[#ffffff] overflow-hidden">
                     {item.image ? (
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        className="object-contain p-2"
-                      />
+                        className="object-contain scale-125 p-2"                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#d0d0d0]">
                         No Image Available

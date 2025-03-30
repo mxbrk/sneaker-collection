@@ -1,4 +1,4 @@
-// Replace src/components/SneakerCard.tsx with this code:
+// src/components/SneakerCard.tsx:
 
 import { Sneaker } from '@/types/sneakers';
 import Image from 'next/image';
@@ -151,15 +151,15 @@ export default function SneakerCard({
           {successMessage}
         </div>
       )}
-      
-      <div className="relative h-48 bg-[#ffffff] overflow-hidden p-2">
+      {/*um größe anzupassen muss jeweils scale in classname angepasst werden*/}
+      <div className="relative h-64 bg-[#ffffff] overflow-hidden p-2">
         {sneaker.image ? (
           <Image
             src={sneaker.image}
             alt={`${sneaker.title} - ${sneaker.sku || 'Sneaker'}`}
             fill={true}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-contain hover:scale-105 transition-transform duration-300"
+            className="object-contain scale-115 hover:scale-130 transition-transform duration-300"
             style={{ objectPosition: 'center' }}
             quality={85}
             loading="eager"
