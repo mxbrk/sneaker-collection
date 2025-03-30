@@ -8,7 +8,7 @@ import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { sneakerLabels } from '@/lib/labels';
-import  Label  from '@/components/Label';
+import Label from '@/components/Label';
 
 interface CollectionItem {
   id: string;
@@ -47,6 +47,7 @@ export default function CollectionPage() {
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [selectedLabel, setSelectedLabel] = useState<string>(''); // Add label filter
   const [sortOption, setSortOption] = useState<string>('newest');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   
   useEffect(() => {
     fetchCollection();
@@ -121,6 +122,15 @@ export default function CollectionPage() {
     if (selectedBrand && item.brand !== selectedBrand) return false;
     if (selectedCondition && item.condition !== selectedCondition) return false;
     if (selectedLabel && !(item.labels || []).includes(selectedLabel)) return false;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        item.title.toLowerCase().includes(query) ||
+        item.sku.toLowerCase().includes(query) ||
+        item.colorway.toLowerCase().includes(query) ||
+        (item.notes && item.notes.toLowerCase().includes(query))
+      );
+    }
     return true;
   });
   
@@ -164,8 +174,7 @@ export default function CollectionPage() {
     <div className="min-h-screen bg-[#fafafa]">
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center">
-          <Link 
+      <Link 
             href="/profile"
             className="text-[#737373] hover:text-[#d14124] flex items-center gap-2"
           >
@@ -174,6 +183,7 @@ export default function CollectionPage() {
             </svg>
             Back to Profile
           </Link>
+        <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-bold ml-4">Your Collection</h1>
         </div>
 
@@ -231,6 +241,36 @@ export default function CollectionPage() {
 
         {/* Filters and Sorting */}
         <div className="bg-white rounded-lg p-4 mb-6 border border-[#f0f0f0] flex flex-col gap-4">
+          <div className="flex-1 w-full mb-4">
+            <label className="block text-sm font-medium text-[#737373] mb-1">Search</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name, SKU, or colorway..."
+                className="w-full border border-[#e5e5e5] rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#737373] hover:text-[#d14124]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+          
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
@@ -290,15 +330,6 @@ export default function CollectionPage() {
             <div>
               <label className="block text-sm font-medium text-[#737373] mb-2">Filter by Label</label>
               <div className="flex flex-wrap gap-2">
-                {selectedLabel && (
-                  <button
-                    onClick={() => setSelectedLabel('')}
-                    className="px-3 py-1.5 text-sm bg-[#f5f5f5] border border-[#e5e5e5] rounded-full text-[#737373] hover:border-[#d14124] hover:text-[#d14124] transition-colors"
-                  >
-                    Clear Filter
-                  </button>
-                )}
-                
                 {usedLabels.map(labelValue => {
                   const labelInfo = sneakerLabels.find(l => l.value === labelValue);
                   if (!labelInfo) return null;
@@ -335,21 +366,16 @@ export default function CollectionPage() {
         {/* Collection Grid */}
         {collection.length > 0 ? (
           <>
-            <div className="mb-4 flex justify-between">
+            <div className="mb-4">
               <p className="text-[#737373]">
                 Showing {sortedCollection.length} of {collection.length} sneakers
                 {selectedBrand && ` from ${selectedBrand}`}
                 {selectedCondition && ` in condition ${selectedCondition}`}
                 {selectedLabel && ` with label "${sneakerLabels.find(l => l.value === selectedLabel)?.label || selectedLabel}"`}
+                {searchQuery && ` matching "${searchQuery}"`}
               </p>
-              <Link href="/search" className="text-[#d14124] hover:text-[#b93a20] transition flex items-center gap-1 text-sm font-medium">
-              <span>Add sneakers</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"/>
-                <polyline points="12 5 19 12 12 19"/>
-              </svg>
-            </Link>
             </div>
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedCollection.map((item) => (
                 <SneakerCard
