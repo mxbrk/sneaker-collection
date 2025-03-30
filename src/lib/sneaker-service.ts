@@ -1,4 +1,5 @@
-import { SneakerApiResponse } from '@/types/sneakers';
+import { SneakerApiResponse, Sneaker, GoatSneaker } from '@/types/sneakers';
+
 export const fetchSneakersData = async (
   query: string, 
   showKidsShoes: boolean = true,
@@ -36,7 +37,7 @@ export const fetchSneakersData = async (
     console.log(`Received ${apiResponse.data?.length || 0} results from API`);
     
     // Transform the GOAT API response to match our application's expected format
-    const transformedData = apiResponse.data.map(item => ({
+    const transformedData = apiResponse.data.map((item: GoatSneaker) => ({
       id: item.id.toString(),
       title: item.name,
       sku: item.sku || '',
@@ -61,7 +62,7 @@ export const fetchSneakersData = async (
         ' C)', ' C ', '(C)', 'GRADE SCHOOL'
       ];
       
-      filteredData = filteredData.filter(sneaker => {
+      filteredData = filteredData.filter((sneaker: Sneaker) => {
         const title = sneaker.title ? sneaker.title.toUpperCase() : '';
         const colorway = sneaker.colorway ? sneaker.colorway.toUpperCase() : '';
         const sku = sneaker.sku ? sneaker.sku.toUpperCase() : '';
@@ -94,7 +95,7 @@ export const fetchSneakersData = async (
         'MENS', 'MEN', 'MAN', 'M)', '(M)', ' M '
       ];
       
-      filteredData = filteredData.filter(sneaker => {
+      filteredData = filteredData.filter((sneaker: Sneaker) => {
         const title = sneaker.title ? sneaker.title.toUpperCase() : '';
         const colorway = sneaker.colorway ? sneaker.colorway.toUpperCase() : '';
         const sku = sneaker.sku ? sneaker.sku.toUpperCase() : '';
