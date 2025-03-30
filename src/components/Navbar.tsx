@@ -9,6 +9,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -20,17 +21,31 @@ export default function Navbar() {
     return false;
   };
 
-  // By using the useAuth hook, we can access the user state directly
-  // This ensures the navbar and auth state are always in sync
-  // We don't show either authenticated or unauthenticated links
-  // until the auth context has loaded
+  // Add scroll event listener
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
-    <header className="bg-white border-b border-[#e5e5e5] sticky top-0 z-10">
+    <header className={`bg-white border-b border-[#e5e5e5] sticky top-0 z-50 transition-shadow ${
+      isScrolled ? 'shadow-md' : ''
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-[#d14124]">
+          <Link href="/" className="text-xl font-bold text-[#d14124] flex items-center">
             Sneaker Collection
           </Link>
           
@@ -71,31 +86,29 @@ export default function Navbar() {
               </Link>
             ) : (
               // User is not logged in or auth is still loading
-              <>
-                <div className="opacity-0 transition-opacity duration-300" 
-                     style={{ opacity: user === null ? '0' : '1' }}>
-                  <Link
-                    href="/login"
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive('/login') 
-                        ? 'bg-[#fae5e1] text-[#d14124]' 
-                        : 'text-[#171717] hover:bg-[#f5f5f5]'
-                    }`}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive('/signup') 
-                        ? 'bg-[#fae5e1] text-[#d14124]' 
-                        : 'text-[#171717] hover:bg-[#f5f5f5]'
-                    }`}
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </>
+              <div className="opacity-0 transition-opacity duration-300" 
+                   style={{ opacity: user === null ? '1' : '0' }}>
+                <Link
+                  href="/login"
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/login') 
+                      ? 'bg-[#fae5e1] text-[#d14124]' 
+                      : 'text-[#171717] hover:bg-[#f5f5f5]'
+                  }`}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/signup') 
+                      ? 'bg-[#fae5e1] text-[#d14124]' 
+                      : 'text-[#171717] hover:bg-[#f5f5f5]'
+                  }`}
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </nav>
           
@@ -132,7 +145,7 @@ export default function Navbar() {
       
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden p-4 border-t border-[#e5e5e5] bg-white">
+        <div className="md:hidden p-4 border-t border-[#e5e5e5] bg-white absolute w-full shadow-md">
           <nav className="flex flex-col space-y-2">
             <Link
               href="/"
@@ -173,7 +186,7 @@ export default function Navbar() {
             ) : (
               // User is not logged in or auth is still loading
               <div className="opacity-0 transition-opacity duration-300"
-                   style={{ opacity: user === null ? '0' : '1' }}>
+                   style={{ opacity: user === null ? '1' : '0' }}>
                 <Link
                   href="/login"
                   onClick={closeMenu}
