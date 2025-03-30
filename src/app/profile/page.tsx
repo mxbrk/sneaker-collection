@@ -296,8 +296,10 @@ export default function ProfilePage() {
               </div>
             </Link>
             
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-center">
+            <Link 
+  href="/profile/statistics"
+  className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
+>              <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-[#171717]">Value</h3>
                 <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -310,7 +312,8 @@ export default function ProfilePage() {
                 <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
                 <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
               </div>
-            </div>
+            </Link>
+
           </div>
 
           {/* Collection Section */}
