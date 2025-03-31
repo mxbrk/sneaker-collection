@@ -1,12 +1,10 @@
 'use client';
 
-import { getCurrentUser } from '@/lib/auth';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 
 export default function Home() {
-  const { user } = useAuth(); // Use Auth context to access user state client-side
+  const { user } = useAuth();
   
   return (
     <div className="grid grid-rows-[auto_1fr_auto] items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">

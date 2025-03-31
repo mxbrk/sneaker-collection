@@ -8,7 +8,6 @@ import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { sneakerLabels } from '@/lib/labels';
-import Label from '@/components/Label';
 
 interface CollectionItem {
   id: string;

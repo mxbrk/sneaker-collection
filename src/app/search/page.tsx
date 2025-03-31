@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { fetchSneakersData } from '@/lib/sneaker-service';
 import MainLayout from '@/components/MainLayout';
 import { Sneaker } from '@/types/sneakers';
-import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Notification from '@/components/Notification';
@@ -158,12 +157,6 @@ export default function SearchPage() {
     }
   };
 
-  const clearSearch = () => {
-    setSearchQuery('');
-    setSneakers([]);
-    setTotalResults(0);
-    router.push('/search', { scroll: false });
-  };
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     setNotification({ message, type });

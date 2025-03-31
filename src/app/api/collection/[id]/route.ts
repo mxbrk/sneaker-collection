@@ -1,7 +1,4 @@
-// This is the fixed version of src/app/api/collection/[id]/route.ts
-
 import { getCurrentUser } from '@/lib/auth';
-import { getValidLabelValues } from '@/lib/labels';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -15,7 +12,6 @@ const updateCollectionSchema = z.object({
   purchaseDate: z.string().nullable().optional(),
   purchasePrice: z.number().nullable().optional(),
   notes: z.string().nullable().optional(),
-  // Include these for the update payload
   sneakerId: z.string(),
   sku: z.string(),
   brand: z.string(),
@@ -23,7 +19,6 @@ const updateCollectionSchema = z.object({
   colorway: z.string().optional().default(''),
   image: z.string().nullable().optional(),
   retailPrice: z.number().nullable().optional(),
-  // Fix the labels validation to accept any string array instead of strict enum
   labels: z.array(z.string()).optional(),
 });
 

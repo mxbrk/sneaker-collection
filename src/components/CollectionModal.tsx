@@ -1,7 +1,7 @@
 // src/components/CollectionModal.tsx
 import { Sneaker } from '@/types/sneakers';
 import { FormEvent, useEffect, useState } from 'react';
-import { Button, FormError, Input } from './ui';
+import { Button, FormError} from './ui';
 import { conditionOptions, shoeSizes } from '@/lib/size-conversion';
 import { sneakerLabels } from '@/lib/labels';
 

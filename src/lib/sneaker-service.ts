@@ -74,13 +74,11 @@ export const fetchSneakersData = async (
         );
         
         if (isKidsShoe) {
-          console.log(`Filtered out kids shoe: "${sneaker.title}"`);
         }
         
         return !isKidsShoe;
       });
       
-      console.log(`After kids filtering: ${filteredData.length} results kept`);
     }
     
     // Filter by gender if needed
@@ -118,13 +116,11 @@ export const fetchSneakersData = async (
         
         // For debugging
         if ((genderFilter === 'women' && !isWomensShoe) || (genderFilter === 'men' && !isMensShoe)) {
-          console.log(`Filtered out ${isWomensShoe ? "women's" : "men's"} shoe: "${sneaker.title}"`);
         }
         
         return genderFilter === 'women' ? isWomensShoe : isMensShoe;
       });
       
-      console.log(`After gender filtering: ${filteredData.length} results kept`);
     }
     
     // Limit to 12 results for display
