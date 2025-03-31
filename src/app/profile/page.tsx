@@ -297,7 +297,7 @@ export default function ProfilePage() {
             </Link>
             
             <Link 
-  href="/profile/statistics"
+  href=""
   className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
 >              <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-[#171717]">Value</h3>

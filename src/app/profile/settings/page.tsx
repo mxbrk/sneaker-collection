@@ -407,8 +407,247 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex justify-end pt-4 mt-8 border-t border-[#f0f0f0]">
+{/* Privacy Policy Section - Collapsible */}
+<div className="border-t border-[#f0f0f0] pt-8 mt-8" id="privacy-policy">
+  <details className="group">
+    <summary className="flex justify-between items-center cursor-pointer">
+      <h3 className="text-lg font-medium text-[#171717]">Privacy Policy</h3>
+      <div className="ml-2 text-[#d14124]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-open:rotate-180">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+    </summary>
+    
+    <div className="mt-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6] p-6">
+      <div className="space-y-6">
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">Preamble</h4>
+          <p className="text-[#737373]">
+            With the following privacy policy, we would like to inform you about what types of your personal data (hereinafter also referred to as "data") we process, for what purposes, and to what extent in connection with providing our application.
+          </p>
+          <p className="text-[#737373] mt-2">
+            The terms used are not gender-specific.
+          </p>
+          <p className="text-[#737373] mt-2">
+            Last updated: March 31, 2025
+          </p>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">1. Controller</h4>
+          <p className="text-[#737373]">
+            Maximilian Bronkhorst<br />
+            13351 Berlin
+          </p>
+          <p className="text-[#737373] mt-2">
+            Email address: <a href="mailto:info@soleup.de" className="text-[#d14124]">info@soleup.de</a>
+          </p>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">2. Overview of Processing</h4>
+          <p className="text-[#737373]">
+            The following overview summarizes the types of data processed and the purposes of their processing and refers to the persons concerned.
+          </p>
+          
+          <h5 className="text-[#171717] mt-4 mb-2">Types of data processed</h5>
+          <ul className="list-disc pl-5 text-[#737373] space-y-1">
+            <li>Inventory data</li>
+            <li>Contact data</li>
+            <li>Content data</li>
+            <li>Usage data</li>
+            <li>Meta, communication, and procedural data</li>
+            <li>Log data</li>
+          </ul>
+          
+          <h5 className="text-[#171717] mt-4 mb-2">Categories of persons concerned</h5>
+          <ul className="list-disc pl-5 text-[#737373] space-y-1">
+            <li>Communication partners</li>
+            <li>Users</li>
+          </ul>
+          
+          <h5 className="text-[#171717] mt-4 mb-2">Purposes of processing</h5>
+          <ul className="list-disc pl-5 text-[#737373] space-y-1">
+            <li>Communication</li>
+            <li>Security measures</li>
+            <li>Organizational and administrative procedures</li>
+            <li>Feedback</li>
+            <li>Provision of our online services and user-friendliness</li>
+            <li>Information technology infrastructure</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">3. Relevant Legal Bases</h4>
+          <p className="text-[#737373] mb-2">
+            <strong>Relevant legal bases under the GDPR:</strong> Below you will find an overview of the legal bases of the GDPR on which we process personal data. Please note that in addition to the regulations of the GDPR, national data protection regulations may apply in your or our country of residence or domicile. Should more specific legal bases be relevant in individual cases, we will inform you of these in the privacy policy.
+          </p>
+          <ul className="list-disc pl-5 text-[#737373] space-y-1">
+            <li><strong>Consent (Art. 6(1)(a) GDPR)</strong> - The data subject has given consent to the processing of their personal data for one or more specific purposes.</li>
+            <li><strong>Performance of a contract and pre-contractual inquiries (Art. 6(1)(b) GDPR)</strong> - Processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract.</li>
+            <li><strong>Legitimate interests (Art. 6(1)(f) GDPR)</strong> - Processing is necessary for the purposes of the legitimate interests pursued by the controller or by a third party, except where such interests are overridden by the interests or fundamental rights and freedoms of the data subject which require protection of personal data.</li>
+          </ul>
+          <p className="text-[#737373] mt-2">
+            <strong>National data protection regulations in Germany:</strong> In addition to the data protection regulations of the GDPR, national regulations on data protection apply in Germany. These include, in particular, the Federal Data Protection Act (Bundesdatenschutzgesetz – BDSG). The BDSG contains special provisions on the right to information, the right to erasure, the right to object, the processing of special categories of personal data, processing for other purposes, and transmission, as well as automated individual decision-making, including profiling. Furthermore, state data protection laws of the individual federal states may apply.
+          </p>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">4. General Information on Data Storage and Deletion</h4>
+          <p className="text-[#737373]">
+            We delete personal data that we process in accordance with legal requirements as soon as the underlying consents are revoked or other legal grounds for processing no longer exist. This applies to cases where the original purpose of processing no longer applies or the data is no longer needed. Exceptions to this rule exist if statutory obligations or special interests require longer retention or archiving of the data.
+          </p>
+          <p className="text-[#737373] mt-2">
+            In particular, data that must be retained for commercial or tax law reasons or whose storage is necessary for legal prosecution or for the protection of the rights of other natural or legal persons must be archived accordingly.
+          </p>
+          <p className="text-[#737373] mt-2">
+            Our data protection notices contain additional information on the retention and deletion of data that specifically apply to certain processing processes.
+          </p>
+          <p className="text-[#737373] mt-2">
+            If there are multiple retention periods or deletion deadlines for a piece of data, the longest deadline always applies.
+          </p>
+          <p className="text-[#737373] mt-2">
+            If a deadline does not explicitly begin on a specific date and is at least one year, it automatically starts at the end of the calendar year in which the triggering event occurred. In the case of ongoing contractual relationships in which data is stored, the triggering event is the time when the termination or other end of the legal relationship becomes effective.
+          </p>
+          <p className="text-[#737373] mt-2">
+            Data that is no longer needed for the originally intended purpose but is retained due to legal requirements or other reasons is processed exclusively for the reasons that justify its retention.
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Additional information on processing processes, procedures, and services:</strong>
+          </p>
+          <h5 className="text-[#171717] mt-4 mb-2">Retention and deletion of data:</h5>
+          <p className="text-[#737373] mb-2">
+            The following general deadlines apply to the retention and archiving according to German law:
+          </p>
+          <ul className="list-disc pl-5 text-[#737373] space-y-1">
+            <li>10 years - Retention period for books and records, annual financial statements, inventories, management reports, opening balance sheets, and the work instructions and other organizational documents required for their understanding.</li>
+            <li>8 years - Accounting documents, such as invoices and expense receipts.</li>
+            <li>6 years - Other business documents: received commercial or business letters, reproductions of sent commercial or business letters, other documents insofar as they are relevant for taxation.</li>
+            <li>3 years - Data required to take into account potential warranty and compensation claims or similar contractual claims and rights and to process related inquiries, based on previous business experience and common industry practices, is stored for the duration of the regular statutory limitation period of three years.</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">5. Provision of Online Services and Web Hosting</h4>
+          <p className="text-[#737373]">
+            We process users' data in order to provide them with our online services. For this purpose, we process the IP address of the user, which is necessary to transmit the content and functions of our online services to the user's browser or end device.
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Types of data processed:</strong> Usage data (e.g. page views and dwell time, click paths, usage intensity and frequency, device types and operating systems used, interactions with content and functions); meta, communication, and procedural data (e.g. IP addresses, time information, identification numbers, persons involved); log data (e.g. log files concerning logins or the retrieval of data or access times).
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Data subjects:</strong> Users (e.g. website visitors, users of online services).
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Purposes of processing:</strong> Provision of our online services and user-friendliness; information technology infrastructure (operation and provision of information systems and technical devices); security measures.
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR).
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Additional information on processing processes, procedures, and services:</strong>
+          </p>
+          <h5 className="text-[#171717] mt-4 mb-2">Provision of online services on rented storage space:</h5>
+          <p className="text-[#737373] mb-2">
+            For the provision of our online services, we use storage space, computing capacity, and software that we rent or otherwise obtain from a corresponding server provider (also called a "web host").
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR).
+          </p>
+          <h5 className="text-[#171717] mt-4 mb-2">Collection of access data and log files:</h5>
+          <p className="text-[#737373] mb-2">
+            Access to our online service is logged in the form of "server log files". The server log files may include the address and name of the web pages and files accessed, date and time of access, data volumes transferred, notification of successful access, browser type and version, the user's operating system, referrer URL (the previously visited page), and, as a rule, IP addresses and the requesting provider.
+          </p>
+          <p className="text-[#737373] mb-2">
+            The server log files can be used for security purposes, e.g., to avoid overloading the servers (especially in case of abusive attacks, so-called DDoS attacks) and to ensure the servers' load and stability.
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR).
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Deletion of data:</strong> Log file information is stored for a maximum of 30 days and then deleted or anonymized. Data whose further storage is necessary for evidentiary purposes is exempt from deletion until the respective incident is finally clarified.
+          </p>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">6. Use of Cookies</h4>
+          <p className="text-[#737373]">
+            The term "cookies" refers to functions that store information on users' devices and read information from them. Cookies can further be used for various purposes, such as for the functionality, security, and comfort of online services as well as for the creation of analyses of visitor flows. We use cookies in accordance with legal regulations. If required, we obtain the prior consent of users. This is not necessary if the storing and reading of information, including cookies, is essential for providing explicitly requested content and functions. In such cases, we rely on our legitimate interests.
+          </p>
+          <p className="text-[#737373] mt-2">
+            <strong>Notes on legal bases for data protection:</strong> Whether we process personal data using cookies depends on consent. If consent is given, it serves as the legal basis. Without consent, we rely on our legitimate interests, which are explained above in this section and in the context of the respective services and procedures.
+          </p>
+          <p className="text-[#737373] mt-2">
+            <strong>Storage duration:</strong> With regard to storage duration, the following types of cookies are distinguished:
+          </p>
+          <ul className="list-disc pl-5 text-[#737373] space-y-1">
+            <li><strong>Temporary cookies (also: session or session cookies):</strong> Temporary cookies are deleted at the latest after a user has left an online service and closed their end device (e.g. browser or mobile application).</li>
+            <li><strong>Permanent cookies:</strong> Permanent cookies remain stored even after the end device is closed. For example, the login status can be saved and preferred content can be displayed directly when the user visits a website again. Likewise, user data collected with cookies can be used for reach measurement. If we do not provide users with explicit information about the type and storage duration of cookies (e.g. when obtaining consent), they should assume that the cookies are permanent and the storage duration can be up to two years.</li>
+          </ul>
+          <p className="text-[#737373] mt-2">
+            <strong>General information on withdrawal and objection (opt-out):</strong> Users can withdraw consent they have given at any time and also object to processing in accordance with legal requirements, including via their browser's privacy settings.
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Types of data processed:</strong> Meta, communication, and procedural data (e.g. IP addresses, time information, identification numbers, persons involved).
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Data subjects:</strong> Users (e.g. website visitors, users of online services).
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR), Consent (Art. 6(1)(a) GDPR).
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Additional information on processing processes, procedures, and services:</strong>
+          </p>
+          <h5 className="text-[#171717] mt-4 mb-2">Processing of cookie data based on consent:</h5>
+          <p className="text-[#737373] mb-2">
+            We use a consent management solution to obtain, record, manage, and revoke user consent for the use of cookies or for the procedures and providers mentioned in the consent management solution. This process serves to obtain, record, manage, and revoke consent, particularly with regard to the use of cookies and similar technologies used to store, read, and process information on users' devices.
+          </p>
+          <p className="text-[#737373] mb-2">
+            As part of this process, users' consent for the use of cookies and the associated processing of information, including the specific processing and providers mentioned in the consent management process, is obtained. Users also have the option to manage and revoke their consent. The consent declarations are stored to avoid having to repeat the query and to be able to prove consent in accordance with legal requirements. The storage takes place on the server side and/or in a cookie (so-called opt-in cookie) or by means of comparable technologies in order to be able to assign the consent to a specific user or their device.
+          </p>
+          <p className="text-[#737373] mb-2">
+            If no specific information about the providers of consent management services is available, the following general information applies: The duration of the consent storage is up to two years. A pseudonymous user identifier is created, which is stored together with the time of consent, information about the scope of consent (e.g. concerning categories of cookies and/or service providers), and information about the browser, system, and end device used.
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Consent (Art. 6(1)(a) GDPR).
+          </p>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-[#171717] mb-3">7. Contact and Inquiry Management</h4>
+          <p className="text-[#737373]">
+            When contacting us (e.g. by mail, contact form, email, telephone, or via social media) and in the context of existing user and business relationships, the information provided by the inquiring persons is processed insofar as this is necessary to respond to the contact inquiries and any requested measures.
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Types of data processed:</strong> Inventory data (e.g. full name, address, customer number); contact data (e.g. postal and email addresses or telephone numbers); content data (e.g. text or image messages and posts, as well as information relating to them, such as authorship or creation time); usage data (e.g. page views and dwell time, click paths, usage intensity and frequency, device types and operating systems used, interactions with content and functions); meta, communication, and procedural data (e.g. IP addresses, time information, identification numbers, persons involved).
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Data subjects:</strong> Communication partners.
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Purposes of processing:</strong> Communication; organizational and administrative procedures; feedback (e.g. collecting feedback via online forms); provision of our online services and user-friendliness.
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR), Performance of a contract and pre-contractual inquiries (Art. 6(1)(b) GDPR).
+          </p>
+          <p className="text-[#737373] mt-4 mb-2">
+            <strong>Additional information on processing processes, procedures, and services:</strong>
+          </p>
+          <h5 className="text-[#171717] mt-4 mb-2">Contact form:</h5>
+          <p className="text-[#737373] mb-2">
+            When contacting us via our contact form, by email, or other communication channels, we process the personal data transmitted to us to respond to and process the respective request. This usually includes information such as name, contact information, and potentially other information that is communicated to us and is necessary for appropriate processing. We use this data exclusively for the stated purpose of contact and communication.
+          </p>
+          <p className="text-[#737373] mb-2">
+            <strong>Legal basis:</strong> Performance of a contract and pre-contractual inquiries (Art. 6(1)(b) GDPR), Legitimate interests (Art. 6(1)(f) GDPR).
+          </p>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>           
+  <div className="flex justify-end pt-4 mt-8 border-t border-[#f0f0f0]">
                   <Button 
                     type="submit" 
                     disabled={isLoading}
