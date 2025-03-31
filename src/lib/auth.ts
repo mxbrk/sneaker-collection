@@ -47,9 +47,9 @@ export async function createSession(userId: string) {
     value: session.id,
     httpOnly: true,
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
     maxAge: MAX_AGE,
-    sameSite: 'lax',
+    sameSite: 'strict',
   });
 
   return session;

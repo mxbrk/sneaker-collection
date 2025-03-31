@@ -57,13 +57,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    console.log('Wishlist request body:', body);
-    
+    const body = await request.json();  
     // Validate the request body
     const result = addToWishlistSchema.safeParse(body);
     if (!result.success) {
-      console.log('Wishlist validation error:', result.error.format());
       return NextResponse.json(
         { error: 'Validation failed', details: result.error.format() },
         { status: 400 }
@@ -71,8 +68,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = result.data;
-    console.log('Parsed wishlist data:', data);
-    
     // Check if already in wishlist
     const existing = await prisma.wishlist.findFirst({
       where: {
@@ -101,7 +96,6 @@ export async function POST(request: NextRequest) {
           image: data.image,
         },
       });
-      console.log('Created wishlist item:', wishlistItem);
       
       return NextResponse.json(
         { 
@@ -111,14 +105,12 @@ export async function POST(request: NextRequest) {
         { status: 201 }
       );
     } catch (dbError) {
-      console.error('Wishlist database error:', dbError);
       return NextResponse.json(
         { error: `Database error: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}` },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Add to wishlist error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
