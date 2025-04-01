@@ -149,7 +149,7 @@ export default function SearchPage() {
       params.set('q', searchQuery);
       router.push(`/search?${params.toString()}`, { scroll: false });
     } catch (err) {
-      setError('Failed to fetch sneakers. Please try again.');
+      setError('Failed to fetch sneakers. Please try again.' + (err));
       setSneakers([]);
       setTotalResults(0);
     } finally {
@@ -226,7 +226,7 @@ export default function SearchPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                           <path d="M9 18l6-6-6-6"/>
                         </svg>
-                        Excluding kids' sizes
+                        {"Excluding kids' sizes"}
                       </span>
                     )}
                     {userData?.genderFilter !== 'both' && (
@@ -284,7 +284,7 @@ export default function SearchPage() {
                 </div>
                 <h3 className="text-xl font-medium text-[#171717] mb-2">No sneakers found</h3>
                 <p className="text-[#737373] max-w-md mx-auto">
-                  We couldn't find any sneakers matching your search. Try using different keywords or check back later.
+                {"We couldn't find any sneakers matching your search. Try using different keywords or check back later."}
                 </p>
               </div>
             )}

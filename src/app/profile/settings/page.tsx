@@ -283,7 +283,7 @@ export default function SettingsPage() {
                     {/* Kids' Shoes preference */}
                     <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
                       <div>
-                        <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
+                        <h4 className="font-medium text-[#171717]">{"Show Kids' Shoes"}</h4>
                         <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">

@@ -23,7 +23,7 @@ export default function WishlistPage() {
   const router = useRouter();
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;

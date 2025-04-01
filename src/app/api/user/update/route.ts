@@ -12,6 +12,13 @@ const updateUserSchema = z.object({
   showKidsShoes: z.boolean().optional(),
   genderFilter: z.enum(['men', 'women', 'both']).optional(),
 });
+interface UserUpdateData {
+  username: string;
+  email: string;
+  passwordHash?: string;
+  showKidsShoes?: boolean;
+  genderFilter?: string;
+}
 
 export async function PUT(request: NextRequest) {
   
@@ -73,7 +80,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Prepare update data
-    const updateData: any = {
+    const updateData: UserUpdateData = {
       username,
       email,
     };
@@ -124,7 +131,7 @@ export async function PUT(request: NextRequest) {
     );
   } catch (error) {
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error: ' + error },
       { status: 500 }
     );
   }

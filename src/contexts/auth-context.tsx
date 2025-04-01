@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setUser(null);
         }
-      } catch (err) {
+      } catch (_err) {
         setError('Failed to fetch user data');
         setUser(null);
       } finally {

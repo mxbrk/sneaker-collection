@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Button, FormError} from './ui';
 import { conditionOptions, shoeSizes } from '@/lib/size-conversion';
 import { sneakerLabels } from '@/lib/labels';
+import Image from 'next/image';
 
 // Add a CollectionItem type for existing items
 export interface CollectionItem {
@@ -152,7 +153,7 @@ const handleSubmit = async (e: FormEvent) => {
 
     // Erstelle ein grundlegendes Payload mit den Pflichtfeldern
     // Wichtig: nur Felder einschließen, die wirklich benötigt werden
-    const payload: any = {
+    const payload: CollectionItem = {
       sneakerId,
       sku: sneaker.sku,
       brand: sneaker.brand,
@@ -164,6 +165,13 @@ const handleSubmit = async (e: FormEvent) => {
       sizeUK: selectedSize?.uk || '',
       condition: formData.condition,
       labels: formData.labels || [],
+      id: '',
+      purchaseDate: null,
+      retailPrice: null,
+      purchasePrice: null,
+      notes: null,
+      createdAt: '',
+      updatedAt: ''
     };
 
     // Nur Werte hinzufügen, wenn sie tatsächlich vorhanden sind
@@ -264,7 +272,7 @@ const handleSubmit = async (e: FormEvent) => {
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             <div className="relative w-full md:w-1/3 aspect-square bg-[#ffffff] rounded-lg overflow-hidden">
               {sneaker.image ? (
-                <img
+                <Image
                   src={sneaker.image}
                   alt={sneaker.title}
                   className="object-contain w-full h-full p-2"
