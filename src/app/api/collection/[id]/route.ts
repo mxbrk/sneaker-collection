@@ -22,8 +22,14 @@ const collectionItemSchema = z.object({
   labels: z.array(z.string()).optional().default([])
 });
 
+// Type for the route handler function
+type RouteHandler = (
+  request: NextRequest, 
+  context: { params: { id: string } }
+) => Promise<NextResponse>;
+
 // Centralized error handling
-function handleError(error: unknown, context: string) {
+function handleError(error: unknown, context: string): NextResponse {
   console.error(`${context} error:`, error);
   
   if (error instanceof z.ZodError) {
@@ -43,12 +49,12 @@ function handleError(error: unknown, context: string) {
 }
 
 // Async wrapper for route handlers to ensure consistent error handling
-function withErrorHandling<T extends (...args: any[]) => Promise<NextResponse>>(
-  handler: T
-) {
-  return async (...args: Parameters<T>): Promise<NextResponse> => {
+function withErrorHandling(
+  handler: RouteHandler
+): RouteHandler {
+  return async (request, context) => {
     try {
-      return await handler(...args);
+      return await handler(request, context);
     } catch (error) {
       return handleError(error, 'Route handler');
     }
