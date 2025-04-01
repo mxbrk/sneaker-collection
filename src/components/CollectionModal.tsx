@@ -270,19 +270,22 @@ const handleSubmit = async (e: FormEvent) => {
         {/* Form content */}
         <div className="p-6">
           <div className="flex flex-col md:flex-row gap-6 mb-6">
-            <div className="relative w-full md:w-1/3 aspect-square bg-[#ffffff] rounded-lg overflow-hidden">
-              {sneaker.image ? (
-                <img
-                  src={sneaker.image}
-                  alt={sneaker.title}
-                  className="object-contain w-full h-full p-2"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-[#d0d0d0]">
-                  No Image
-                </div>
-              )}
-            </div>
+          <div className="relative w-full md:w-1/3 aspect-square bg-[#ffffff] rounded-lg overflow-hidden">
+  {sneaker.image ? (
+    <Image
+      src={sneaker.image}
+      alt={sneaker.title}
+      fill={true}
+      sizes="(max-width: 768px) 100vw, 33vw"
+      className="object-contain p-2"
+    />
+  ) : (
+    <div className="flex items-center justify-center h-full text-[#d0d0d0]">
+      No Image
+    </div>
+  )}
+</div>
+ 
             <div className="w-full md:w-2/3">
               <h3 className="text-lg font-medium text-[#171717] mb-1">
                 {sneaker.title}
