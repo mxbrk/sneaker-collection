@@ -23,7 +23,7 @@ export default function WishlistPage() {
   const router = useRouter();
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
@@ -55,8 +55,8 @@ export default function WishlistPage() {
 
       const data = await response.json();
       setWishlist(data.wishlist || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }

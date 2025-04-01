@@ -70,9 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(data.user);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-      throw err;
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Something went wrong');
+      throw error;
     } finally {
       setLoading(false);
     }

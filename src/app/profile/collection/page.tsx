@@ -34,7 +34,7 @@ export default function CollectionPage() {
   const router = useRouter();
   const [collection, setCollection] = useState<CollectionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
@@ -68,8 +68,8 @@ export default function CollectionPage() {
 
       const data = await response.json();
       setCollection(data.collection || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }

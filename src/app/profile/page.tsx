@@ -53,7 +53,7 @@ export default function ProfilePage() {
   const [collection, setCollection] = useState<CollectionItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
@@ -93,8 +93,8 @@ export default function ProfilePage() {
         const wishlistData = await wishlistResponse.json();
         setWishlist(wishlistData.wishlist || []);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }

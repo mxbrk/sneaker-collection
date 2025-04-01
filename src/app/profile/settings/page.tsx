@@ -283,7 +283,7 @@ export default function SettingsPage() {
                     {/* Kids' Shoes preference */}
                     <div className="flex items-center justify-between p-5 bg-[#faf8f8] rounded-lg border border-[#f8e9e6]">
                       <div>
-                        <h4 className="font-medium text-[#171717]">{"Show Kids' Shoes"}</h4>
+                        <h4 className="font-medium text-[#171717]">Show Kids' Shoes</h4>
                         <p className="text-sm text-[#737373] mt-1">Display Infants, GS, TD, PS sizes in search results</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -337,7 +337,7 @@ export default function SettingsPage() {
                               ? 'bg-[#d14124] text-white border-[#d14124]' 
                               : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
                           }`}>
-                            Men's Only
+                            Men&apos;s Only
                           </div>
                         </label>
                         
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                               ? 'bg-[#d14124] text-white border-[#d14124]' 
                               : 'bg-white text-[#737373] border-[#e5e5e5] hover:border-[#d14124]'
                           }`}>
-                            Women's Only
+                            Women&apos;s Only
                           </div>
                         </label>
                       </div>
@@ -366,7 +366,7 @@ export default function SettingsPage() {
                 {/* Change Password Section */}
                 <div className="border-t border-[#f0f0f0] pt-8 mt-8">
                   <h3 className="text-lg font-medium text-[#171717] mb-3">Change Password</h3>
-                  <p className="text-sm text-[#737373] mb-5">Leave blank if you don't want to change your password</p>
+                  <p className="text-sm text-[#737373] mb-5">Leave blank if you don&apos;t want to change your password</p>
                   
                   <div className="space-y-5">
                     <Input
@@ -424,7 +424,7 @@ export default function SettingsPage() {
         <div>
           <h4 className="font-medium text-[#171717] mb-3">Preamble</h4>
           <p className="text-[#737373]">
-            With the following privacy policy, we would like to inform you about what types of your personal data (hereinafter also referred to as "data") we process, for what purposes, and to what extent in connection with providing our application.
+            With the following privacy policy, we would like to inform you about what types of your personal data (hereinafter also referred to as &quot;data&quot;) we process, for what purposes, and to what extent in connection with providing our application.
           </p>
           <p className="text-[#737373] mt-2">
             The terms used are not gender-specific.
@@ -531,7 +531,7 @@ export default function SettingsPage() {
         <div>
           <h4 className="font-medium text-[#171717] mb-3">5. Provision of Online Services and Web Hosting</h4>
           <p className="text-[#737373]">
-            We process users' data in order to provide them with our online services. For this purpose, we process the IP address of the user, which is necessary to transmit the content and functions of our online services to the user's browser or end device.
+            We process users&apos; data in order to provide them with our online services. For this purpose, we process the IP address of the user, which is necessary to transmit the content and functions of our online services to the user&apos;s browser or end device.
           </p>
           <p className="text-[#737373] mt-4 mb-2">
             <strong>Types of data processed:</strong> Usage data (e.g. page views and dwell time, click paths, usage intensity and frequency, device types and operating systems used, interactions with content and functions); meta, communication, and procedural data (e.g. IP addresses, time information, identification numbers, persons involved); log data (e.g. log files concerning logins or the retrieval of data or access times).
@@ -550,17 +550,17 @@ export default function SettingsPage() {
           </p>
           <h5 className="text-[#171717] mt-4 mb-2">Provision of online services on rented storage space:</h5>
           <p className="text-[#737373] mb-2">
-            For the provision of our online services, we use storage space, computing capacity, and software that we rent or otherwise obtain from a corresponding server provider (also called a "web host").
+            For the provision of our online services, we use storage space, computing capacity, and software that we rent or otherwise obtain from a corresponding server provider (also called a &quot;web host&quot;).
           </p>
           <p className="text-[#737373] mb-2">
             <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR).
           </p>
           <h5 className="text-[#171717] mt-4 mb-2">Collection of access data and log files:</h5>
           <p className="text-[#737373] mb-2">
-            Access to our online service is logged in the form of "server log files". The server log files may include the address and name of the web pages and files accessed, date and time of access, data volumes transferred, notification of successful access, browser type and version, the user's operating system, referrer URL (the previously visited page), and, as a rule, IP addresses and the requesting provider.
+            Access to our online service is logged in the form of &quot;server log files&quot;. The server log files may include the address and name of the web pages and files accessed, date and time of access, data volumes transferred, notification of successful access, browser type and version, the user&apos;s operating system, referrer URL (the previously visited page), and, as a rule, IP addresses and the requesting provider.
           </p>
           <p className="text-[#737373] mb-2">
-            The server log files can be used for security purposes, e.g., to avoid overloading the servers (especially in case of abusive attacks, so-called DDoS attacks) and to ensure the servers' load and stability.
+            The server log files can be used for security purposes, e.g., to avoid overloading the servers (especially in case of abusive attacks, so-called DDoS attacks) and to ensure the servers&apos; load and stability.
           </p>
           <p className="text-[#737373] mb-2">
             <strong>Legal basis:</strong> Legitimate interests (Art. 6(1)(f) GDPR).
@@ -573,7 +573,7 @@ export default function SettingsPage() {
         <div>
           <h4 className="font-medium text-[#171717] mb-3">6. Use of Cookies</h4>
           <p className="text-[#737373]">
-            The term "cookies" refers to functions that store information on users' devices and read information from them. Cookies can further be used for various purposes, such as for the functionality, security, and comfort of online services as well as for the creation of analyses of visitor flows. We use cookies in accordance with legal regulations. If required, we obtain the prior consent of users. This is not necessary if the storing and reading of information, including cookies, is essential for providing explicitly requested content and functions. In such cases, we rely on our legitimate interests.
+            The term &quot;cookies&quot; refers to functions that store information on users&apos; devices and read information from them. Cookies can further be used for various purposes, such as for the functionality, security, and comfort of online services as well as for the creation of analyses of visitor flows. We use cookies in accordance with legal regulations. If required, we obtain the prior consent of users. This is not necessary if the storing and reading of information, including cookies, is essential for providing explicitly requested content and functions. In such cases, we rely on our legitimate interests.
           </p>
           <p className="text-[#737373] mt-2">
             <strong>Notes on legal bases for data protection:</strong> Whether we process personal data using cookies depends on consent. If consent is given, it serves as the legal basis. Without consent, we rely on our legitimate interests, which are explained above in this section and in the context of the respective services and procedures.
@@ -586,7 +586,7 @@ export default function SettingsPage() {
             <li><strong>Permanent cookies:</strong> Permanent cookies remain stored even after the end device is closed. For example, the login status can be saved and preferred content can be displayed directly when the user visits a website again. Likewise, user data collected with cookies can be used for reach measurement. If we do not provide users with explicit information about the type and storage duration of cookies (e.g. when obtaining consent), they should assume that the cookies are permanent and the storage duration can be up to two years.</li>
           </ul>
           <p className="text-[#737373] mt-2">
-            <strong>General information on withdrawal and objection (opt-out):</strong> Users can withdraw consent they have given at any time and also object to processing in accordance with legal requirements, including via their browser's privacy settings.
+            <strong>General information on withdrawal and objection (opt-out):</strong> Users can withdraw consent they have given at any time and also object to processing in accordance with legal requirements, including via their browser&apos;s privacy settings.
           </p>
           <p className="text-[#737373] mt-4 mb-2">
             <strong>Types of data processed:</strong> Meta, communication, and procedural data (e.g. IP addresses, time information, identification numbers, persons involved).
@@ -602,10 +602,10 @@ export default function SettingsPage() {
           </p>
           <h5 className="text-[#171717] mt-4 mb-2">Processing of cookie data based on consent:</h5>
           <p className="text-[#737373] mb-2">
-            We use a consent management solution to obtain, record, manage, and revoke user consent for the use of cookies or for the procedures and providers mentioned in the consent management solution. This process serves to obtain, record, manage, and revoke consent, particularly with regard to the use of cookies and similar technologies used to store, read, and process information on users' devices.
+            We use a consent management solution to obtain, record, manage, and revoke user consent for the use of cookies or for the procedures and providers mentioned in the consent management solution. This process serves to obtain, record, manage, and revoke consent, particularly with regard to the use of cookies and similar technologies used to store, read, and process information on users&apos; devices.
           </p>
           <p className="text-[#737373] mb-2">
-            As part of this process, users' consent for the use of cookies and the associated processing of information, including the specific processing and providers mentioned in the consent management process, is obtained. Users also have the option to manage and revoke their consent. The consent declarations are stored to avoid having to repeat the query and to be able to prove consent in accordance with legal requirements. The storage takes place on the server side and/or in a cookie (so-called opt-in cookie) or by means of comparable technologies in order to be able to assign the consent to a specific user or their device.
+            As part of this process, users&apos; consent for the use of cookies and the associated processing of information, including the specific processing and providers mentioned in the consent management process, is obtained. Users also have the option to manage and revoke their consent. The consent declarations are stored to avoid having to repeat the query and to be able to prove consent in accordance with legal requirements. The storage takes place on the server side and/or in a cookie (so-called opt-in cookie) or by means of comparable technologies in order to be able to assign the consent to a specific user or their device.
           </p>
           <p className="text-[#737373] mb-2">
             If no specific information about the providers of consent management services is available, the following general information applies: The duration of the consent storage is up to two years. A pseudonymous user identifier is created, which is stored together with the time of consent, information about the scope of consent (e.g. concerning categories of cookies and/or service providers), and information about the browser, system, and end device used.
