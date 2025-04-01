@@ -272,7 +272,7 @@ const handleSubmit = async (e: FormEvent) => {
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             <div className="relative w-full md:w-1/3 aspect-square bg-[#ffffff] rounded-lg overflow-hidden">
               {sneaker.image ? (
-                <Image
+                <img
                   src={sneaker.image}
                   alt={sneaker.title}
                   className="object-contain w-full h-full p-2"
