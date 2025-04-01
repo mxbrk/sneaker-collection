@@ -25,7 +25,7 @@ const updateCollectionSchema = z.object({
 // GET - Get a specific collection item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const user = await getCurrentUser();
@@ -39,7 +39,7 @@ export async function GET(
 
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: params.id,
+        id: context.params.id,
         userId: user.id,
       },
     });
