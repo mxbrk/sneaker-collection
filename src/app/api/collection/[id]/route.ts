@@ -22,11 +22,11 @@ const updateCollectionSchema = z.object({
   labels: z.array(z.string()).optional(),
 });
 
-export async function GET(
-  request: NextRequest,
-  // Diese Typisierung ist entscheidend und muss genau so aussehen:
-  { params }: { params: { id: string; } }
-) {
+export async function GET(request: NextRequest,{ params }: { 
+    params: { 
+      id: string; 
+    }; 
+  }) {
   try {
     const user = await getCurrentUser();
     
