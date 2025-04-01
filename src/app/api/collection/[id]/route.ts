@@ -22,10 +22,15 @@ const updateCollectionSchema = z.object({
   labels: z.array(z.string()).optional(),
 });
 
-// GET - Get a specific collection item
+type RouteParams = {
+  params: {
+    id: string;
+  };
+};
+
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     const user = await getCurrentUser();
@@ -39,7 +44,7 @@ export async function GET(
 
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: context.params.id,
+        id: params.id,
         userId: user.id,
       },
     });
