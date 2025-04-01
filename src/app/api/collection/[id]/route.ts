@@ -23,13 +23,14 @@ const updateCollectionSchema = z.object({
 });
 
 // GET - Get a specific collection item
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const user = await getCurrentUser();
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
@@ -39,7 +40,7 @@ export async function GET(
 
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: params.id,
+        id: context.params.id,
         userId: user.id,
       },
     });
@@ -60,7 +61,6 @@ export async function GET(
     );
   }
 }
-
 // PUT - Update a collection item
 export async function PUT(
   request: NextRequest,
