@@ -22,11 +22,18 @@ const updateCollectionSchema = z.object({
   labels: z.array(z.string()).optional(),
 });
 
-export async function GET(request: NextRequest,{ params }: { 
-    params: { 
-      id: string; 
-    }; 
-  }) {
+type ApiRoute<TContext extends Record<string, unknown>, TResponse> = (
+  req: NextRequest,
+  context: {
+    params: TContext;
+  },
+) => Promise<NextResponse<TResponse>>;
+
+// GET-Route
+export const GET: ApiRoute<{ id: string }, { item: any } | { error: string }> = async (
+  request,
+  { params }
+) => {
   try {
     const user = await getCurrentUser();
     
@@ -59,8 +66,7 @@ export async function GET(request: NextRequest,{ params }: {
       { status: 500 }
     );
   }
-}
-
+};
 // PUT - Update a collection item
 export async function PUT(
   request: NextRequest,
