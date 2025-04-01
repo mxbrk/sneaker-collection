@@ -1,232 +1,200 @@
-import { getCurrentUser } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { type NextRequest, NextResponse } from 'next/server';
+import { getPrismaClient } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
 
-// Modified validation schema to better handle arrays and null values
-const updateCollectionSchema = z.object({
-  sizeUS: z.string(),
-  sizeEU: z.string().nullable().optional(),
-  sizeUK: z.string().nullable().optional(),
-  condition: z.string(),
-  purchaseDate: z.string().nullable().optional(),
-  purchasePrice: z.number().nullable().optional(),
-  notes: z.string().nullable().optional(),
-  sneakerId: z.string(),
-  sku: z.string(),
-  brand: z.string(),
-  title: z.string(),
+// Enhanced validation schema with more robust type checking
+const collectionItemSchema = z.object({
+  sizeUS: z.string().min(1, 'Size is required'),
+  sizeEU: z.string().optional().nullable(),
+  sizeUK: z.string().optional().nullable(),
+  condition: z.string().min(1, 'Condition is required'),
+  purchaseDate: z.string().datetime().optional().nullable(),
+  purchasePrice: z.number().positive().optional().nullable(),
+  notes: z.string().max(500, 'Notes are too long').optional().nullable(),
+  sneakerId: z.string().min(1, 'Sneaker ID is required'),
+  sku: z.string().min(1, 'SKU is required'),
+  brand: z.string().min(1, 'Brand is required'),
+  title: z.string().min(1, 'Title is required'),
   colorway: z.string().optional().default(''),
-  image: z.string().nullable().optional(),
-  retailPrice: z.number().nullable().optional(),
-  labels: z.array(z.string()).optional(),
+  image: z.string().url().optional().nullable(),
+  retailPrice: z.number().positive().optional().nullable(),
+  labels: z.array(z.string()).optional().default([])
 });
 
-// GET - Get a specific collection item
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
-
-  try {
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    const collectionItem = await prisma.collection.findFirst({
-      where: {
-        id,
-        userId: user.id,
-      },
-    });
-
-    if (!collectionItem) {
-      return NextResponse.json(
-        { error: 'Collection item not found or not authorized' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ item: collectionItem }, { status: 200 });
-  } catch (error) {
-    console.error('Get collection item error:', error);
+// Centralized error handling
+function handleError(error: unknown, context: string) {
+  console.error(`${context} error:`, error);
+  
+  if (error instanceof z.ZodError) {
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { 
+        error: 'Validation failed', 
+        details: error.flatten().fieldErrors 
+      }, 
+      { status: 400 }
     );
   }
+  
+  return NextResponse.json(
+    { error: 'Internal server error', details: String(error) },
+    { status: 500 }
+  );
 }
 
-// PUT - Update a collection item
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+// Async wrapper for route handlers to ensure consistent error handling
+function withErrorHandling<T extends (...args: any[]) => Promise<NextResponse>>(
+  handler: T
 ) {
-  try {
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    // First check if the item exists and belongs to the user
-    const collectionItem = await prisma.collection.findFirst({
-      where: {
-        id: params.id,
-        userId: user.id,
-      },
-    });
-
-    if (!collectionItem) {
-      return NextResponse.json(
-        { error: 'Collection item not found or not authorized' },
-        { status: 404 }
-      );
-    }
-
-    const body = await request.json();
-    console.log('Update request body:', {
-      ...body,
-      purchaseDate: body.purchaseDate ? 'date present' : 'null/undefined',
-      labels: Array.isArray(body.labels) ? `${body.labels.length} labels` : 'not an array',
-    });
-    
-    // Validate the request body
-    const result = updateCollectionSchema.safeParse(body);
-    if (!result.success) {
-      console.log('Validation error details:', result.error.format());
-      return NextResponse.json(
-        { error: 'Validation failed', details: result.error.format() },
-        { status: 400 }
-      );
-    }
-
-    const data = result.data;
-    
-    // Convert purchase date string to Date if provided
-    let purchaseDate = null;
-    if (data.purchaseDate) {
-      try {
-        purchaseDate = new Date(data.purchaseDate);
-      } catch (dateError) {
-        console.error('Date conversion error:', dateError);
-        return NextResponse.json(
-          { error: 'Invalid date format' },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Update the collection item
+  return async (...args: Parameters<T>): Promise<NextResponse> => {
     try {
-      // Ensure labels is properly handled
-      const labels = Array.isArray(data.labels) ? data.labels : [];
-      
-      // Create update data with proper null handling
-      const updateData = {
-        sizeUS: data.sizeUS,
-        sizeEU: data.sizeEU || null,
-        sizeUK: data.sizeUK || null,
-        condition: data.condition,
-        purchaseDate,
-        purchasePrice: data.purchasePrice || null,
-        notes: data.notes || null,
-        labels,
-      };
-
-      console.log('Final update data:', {
-        ...updateData,
-        purchaseDate: updateData.purchaseDate ? 'date present' : 'null',
-        labels: `${updateData.labels.length} labels`,
-      });
-
-      const updatedItem = await prisma.collection.update({
-        where: {
-          id: params.id,
-        },
-        data: updateData,
-      });
-
-      return NextResponse.json(
-        { 
-          message: 'Collection item updated successfully',
-          item: updatedItem
-        },
-        { status: 200 }
-      );
-    } catch (dbError) {
-      console.error('Database error:', dbError);
-      console.error('Error details:', dbError instanceof Error ? dbError.message : 'Unknown error');
-      
-      return NextResponse.json(
-        { error: `Database error: ${dbError instanceof Error ? dbError.message : 'Unknown database error'}` },
-        { status: 500 }
-      );
+      return await handler(...args);
+    } catch (error) {
+      return handleError(error, 'Route handler');
     }
-  } catch (error) {
-    console.error('Update collection item error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  };
 }
 
-// DELETE - Remove from collection
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    // First check if the item exists and belongs to the user
-    const collectionItem = await prisma.collection.findFirst({
-      where: {
-        id: params.id,
-        userId: user.id,
-      },
-    });
-
-    if (!collectionItem) {
-      return NextResponse.json(
-        { error: 'Collection item not found or not authorized' },
-        { status: 404 }
-      );
-    }
-
-    // Delete the item
-    await prisma.collection.delete({
-      where: {
-        id: params.id,
-      },
-    });
-
+// GET handler for fetching a specific collection item
+export const GET = withErrorHandling(async (
+  _request: NextRequest, 
+  context: { params: { id: string } }
+) => {
+  const user = await getCurrentUser();
+  
+  if (!user) {
     return NextResponse.json(
-      { message: 'Removed from collection successfully' },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('Remove from collection error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Not authenticated' },
+      { status: 401 }
     );
   }
-}
+
+  const prisma = getPrismaClient();
+  const collectionItem = await prisma.collection.findUnique({
+    where: {
+      id: context.params.id,
+      userId: user.id
+    }
+  });
+
+  if (!collectionItem) {
+    return NextResponse.json(
+      { error: 'Collection item not found' },
+      { status: 404 }
+    );
+  }
+
+  return NextResponse.json({ item: collectionItem });
+});
+
+// PUT handler for updating a collection item
+export const PUT = withErrorHandling(async (
+  request: NextRequest, 
+  context: { params: { id: string } }
+) => {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    return NextResponse.json(
+      { error: 'Not authenticated' },
+      { status: 401 }
+    );
+  }
+
+  const prisma = getPrismaClient();
+  
+  // Validate ownership first
+  const existingItem = await prisma.collection.findUnique({
+    where: {
+      id: context.params.id,
+      userId: user.id
+    }
+  });
+
+  if (!existingItem) {
+    return NextResponse.json(
+      { error: 'Collection item not found or not authorized' },
+      { status: 404 }
+    );
+  }
+
+  // Parse and validate request body
+  const body = await request.json();
+  const validationResult = collectionItemSchema.safeParse(body);
+
+  if (!validationResult.success) {
+    return NextResponse.json(
+      { 
+        error: 'Validation failed', 
+        details: validationResult.error.flatten().fieldErrors 
+      },
+      { status: 400 }
+    );
+  }
+
+  const data = validationResult.data;
+
+  // Prepare update data with null handling
+  const updateData = {
+    sizeUS: data.sizeUS,
+    sizeEU: data.sizeEU || null,
+    sizeUK: data.sizeUK || null,
+    condition: data.condition,
+    purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : null,
+    purchasePrice: data.purchasePrice || null,
+    notes: data.notes || null,
+    labels: data.labels || [],
+  };
+
+  // Perform update
+  const updatedItem = await prisma.collection.update({
+    where: { id: context.params.id },
+    data: updateData
+  });
+
+  return NextResponse.json({ 
+    message: 'Collection item updated successfully',
+    item: updatedItem 
+  });
+});
+
+// DELETE handler for removing a collection item
+export const DELETE = withErrorHandling(async (
+  _request: NextRequest, 
+  context: { params: { id: string } }
+) => {
+  const user = await getCurrentUser();
+  
+  if (!user) {
+    return NextResponse.json(
+      { error: 'Not authenticated' },
+      { status: 401 }
+    );
+  }
+
+  const prisma = getPrismaClient();
+  
+  // Validate ownership first
+  const existingItem = await prisma.collection.findUnique({
+    where: {
+      id: context.params.id,
+      userId: user.id
+    }
+  });
+
+  if (!existingItem) {
+    return NextResponse.json(
+      { error: 'Collection item not found or not authorized' },
+      { status: 404 }
+    );
+  }
+
+  // Delete the item
+  await prisma.collection.delete({
+    where: { id: context.params.id }
+  });
+
+  return NextResponse.json({ 
+    message: 'Removed from collection successfully' 
+  });
+});
