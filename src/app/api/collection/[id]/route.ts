@@ -22,15 +22,10 @@ const updateCollectionSchema = z.object({
   labels: z.array(z.string()).optional(),
 });
 
-interface RouteContext {
-  params: {
-    id: string;
-  }
-}
-
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  // Diese Typisierung ist entscheidend und muss genau so aussehen:
+  { params }: { params: { id: string } }
 ) {
   try {
     const user = await getCurrentUser();
@@ -44,7 +39,7 @@ export async function GET(
 
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: context.params.id,
+        id: params.id,
         userId: user.id,
       },
     });
