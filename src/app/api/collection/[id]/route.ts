@@ -26,7 +26,7 @@ const updateCollectionSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  Interface context { params: { id: string } }
 ) {
   try {
     const user = await getCurrentUser();
