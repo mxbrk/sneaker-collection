@@ -1,6 +1,6 @@
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // Modified validation schema to better handle arrays and null values
@@ -23,7 +23,6 @@ const updateCollectionSchema = z.object({
 });
 
 // GET - Get a specific collection item
-
 export async function GET(request: Request) {
   const pathname = new URL(request.url).pathname;
   const id = pathname.split('/').pop()!;
@@ -63,10 +62,10 @@ export async function GET(request: Request) {
 }
 
 // PUT - Update a collection item
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request) {
+  const pathname = new URL(request.url).pathname;
+  const id = pathname.split('/').pop()!;
+
   try {
     const user = await getCurrentUser();
     
@@ -80,7 +79,7 @@ export async function PUT(
     // First check if the item exists and belongs to the user
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     });
@@ -150,7 +149,7 @@ export async function PUT(
 
       const updatedItem = await prisma.collection.update({
         where: {
-          id: params.id,
+          id,
         },
         data: updateData,
       });
@@ -181,10 +180,10 @@ export async function PUT(
 }
 
 // DELETE - Remove from collection
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
+  const pathname = new URL(request.url).pathname;
+  const id = pathname.split('/').pop()!;
+  
   try {
     const user = await getCurrentUser();
     
@@ -198,7 +197,7 @@ export async function DELETE(
     // First check if the item exists and belongs to the user
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     });
@@ -213,7 +212,7 @@ export async function DELETE(
     // Delete the item
     await prisma.collection.delete({
       where: {
-        id: params.id,
+        id,
       },
     });
 
