@@ -24,10 +24,10 @@ const updateCollectionSchema = z.object({
 
 // GET - Get a specific collection item
 
-export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(request: Request) {
+  const pathname = new URL(request.url).pathname;
+  const id = pathname.split('/').pop()!;
+
   try {
     const user = await getCurrentUser();
 
@@ -40,7 +40,7 @@ export async function GET(
 
     const collectionItem = await prisma.collection.findFirst({
       where: {
-        id: context.params.id,
+        id,
         userId: user.id,
       },
     });
@@ -61,6 +61,7 @@ export async function GET(
     );
   }
 }
+
 // PUT - Update a collection item
 export async function PUT(
   request: NextRequest,
