@@ -24,10 +24,17 @@ const updateCollectionSchema = z.object({
 
 // GET - Get a specific collection item
 
+<<<<<<< HEAD
 export async function GET(request: Request) {
   const pathname = new URL(request.url).pathname;
   const id = pathname.split('/').pop()!;
 
+=======
+export async function GET(
+  request: NextRequest,
+  interface context { params: { id: string } }
+) {
+>>>>>>> 6108abe9dbbd7d71ad72c18f063458d935100892
   try {
     const user = await getCurrentUser();
 
