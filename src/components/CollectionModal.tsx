@@ -124,6 +124,7 @@ export default function CollectionModal({
 
 
 // In src/components/CollectionModal.tsx, etwa Zeile 170-230
+// In src/components/CollectionModal.tsx, etwa Zeile 170-230
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setIsLoading(true);
@@ -146,7 +147,8 @@ const handleSubmit = async (e: FormEvent) => {
     }
 
     // Grundlegendes Payload mit Pflichtfeldern erstellen
-    const payload: any = {
+    // Verwende einen spezifischen Typ anstelle von 'any'
+    const payload: Partial<CollectionItem> = {
       sneakerId,
       sku: sneaker.sku,
       brand: sneaker.brand,
