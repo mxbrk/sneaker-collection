@@ -11,33 +11,23 @@ export const fetchSneakersData = async (
 
   console.log(`Fetching sneakers with query: ${query}, showKidsShoes: ${showKidsShoes}, genderFilter: ${genderFilter}`);
 
-  const options: RequestInit = {
-    method: 'GET',
-    headers: {
-      Authorization: process.env.NEXT_PUBLIC_SNEAKERS_API_KEY || '',
-    },
-    next: { revalidate: 3600 },
-  };
-
   try {
-    // If filtering, fetch more items initially to compensate for filtered results
-    const limit = (!showKidsShoes || genderFilter !== 'both') ? 36 : 12;
-    
-    // New endpoint!
+    // Verwende deinen eigenen API-Endpunkt statt der direkten Sneakers API
     const response = await fetch(
-      `https://api.sneakersapi.dev/api/v3/goat/products?query=${encodeURIComponent(query)}&limit=${limit}`, 
-      options
+      `/api/sneakers?query=${encodeURIComponent(query)}&limit=12`
     );
 
     if (!response.ok) {
-      throw new Error('Error fetching data');
+      const errorText = await response.text();
+      console.error(`Error fetching data: ${response.status}, ${errorText}`);
+      throw new Error(`Error fetching data: ${errorText}`);
     }
 
-    const apiResponse = await response.json();   
+    const apiResponse = await response.json();
     console.log(`Received ${apiResponse.data?.length || 0} results from API`);
     
     // Transform the GOAT API response to match our application's expected format
-    const transformedData = apiResponse.data.map((item: GoatSneaker) => ({
+    const transformedData = apiResponse.data ? apiResponse.data.map((item: GoatSneaker) => ({
       id: item.id.toString(),
       title: item.name,
       sku: item.sku || '',
@@ -50,7 +40,7 @@ export const fetchSneakersData = async (
       releaseDate: item.release_date ? formatReleaseDate(item.release_date) : null,
       model: item.model || '',
       description: item.description || '',
-    }));
+    })) : [];
     
     let filteredData = transformedData || [];
     
