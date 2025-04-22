@@ -122,26 +122,20 @@ export default function CollectionModal({
     });
   };
 
-// Replace just the handleSubmit function in your CollectionModal.tsx
 
-// Replace just the handleSubmit function in your CollectionModal.tsx component
-
-// Ersetze die handleSubmit-Funktion in deiner CollectionModal.tsx mit dieser Version
-
-// Ersetze die handleSubmit-Funktion in deiner CollectionModal.tsx mit dieser Version
-
+// In src/components/CollectionModal.tsx, etwa Zeile 170-230
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
   setIsLoading(true);
   setError(null);
 
   try {
-    // Validiere Pflichtfelder
+    // Pflichtfelder validieren
     if (!formData.sizeUS || !formData.condition) {
       throw new Error('Bitte fülle alle Pflichtfelder aus');
     }
 
-    // Ermittle sneakerId mit Type Guards
+    // Sneaker-ID ermitteln
     let sneakerId: string;
     if (isSneaker(sneaker)) {
       sneakerId = sneaker.id;
@@ -151,48 +145,27 @@ const handleSubmit = async (e: FormEvent) => {
       throw new Error('Ungültige Sneaker-Daten');
     }
 
-    // Erstelle ein grundlegendes Payload mit den Pflichtfeldern
-    // Wichtig: nur Felder einschließen, die wirklich benötigt werden
-    const payload: CollectionItem = {
+    // Grundlegendes Payload mit Pflichtfeldern erstellen
+    const payload: any = {
       sneakerId,
       sku: sneaker.sku,
       brand: sneaker.brand,
       title: sneaker.title,
       colorway: sneaker.colorway || '',
-      image: sneaker.image || '',
+      image: sneaker.image || null,
       sizeUS: formData.sizeUS,
-      sizeEU: selectedSize?.eu || '',
-      sizeUK: selectedSize?.uk || '',
+      sizeEU: selectedSize?.eu || null,
+      sizeUK: selectedSize?.uk || null,
       condition: formData.condition,
       labels: formData.labels || [],
-      id: '',
-      purchaseDate: null,
-      retailPrice: null,
-      purchasePrice: null,
-      notes: null,
-      createdAt: '',
-      updatedAt: ''
+      // Wichtig: Sicherstellen, dass optionale Felder korrekt behandelt werden
+      notes: formData.notes?.trim() || null,
+      purchaseDate: formData.purchaseDate?.trim() ? formData.purchaseDate : null,
+      purchasePrice: formData.purchasePrice?.trim() ? parseFloat(formData.purchasePrice) : null,
+      retailPrice: isSneaker(sneaker) && sneaker.retailPrice ? Number(sneaker.retailPrice) : null
     };
 
-    // Nur Werte hinzufügen, wenn sie tatsächlich vorhanden sind
-    // Lasse die optionalen Felder komplett weg, wenn sie nicht vorhanden sind
-    if (formData.purchaseDate && formData.purchaseDate.trim() !== '') {
-      payload.purchaseDate = formData.purchaseDate;
-    }
-
-    if (formData.purchasePrice && formData.purchasePrice.trim() !== '') {
-      payload.purchasePrice = parseFloat(formData.purchasePrice);
-    }
-
-    if (formData.notes && formData.notes.trim() !== '') {
-      payload.notes = formData.notes;
-    }
-
-    if (isSneaker(sneaker) && sneaker.retailPrice) {
-      payload.retailPrice = Number(sneaker.retailPrice);
-    }
-
-    console.log(`${mode === 'add' ? 'Füge hinzu' : 'Aktualisiere'} Sneaker:`, payload);
+    console.log(`${mode === 'add' ? 'Adding' : 'Updating'} sneaker:`, payload);
 
     let url = '/api/collection';
     let method = 'POST';
@@ -213,21 +186,21 @@ const handleSubmit = async (e: FormEvent) => {
     const data = await response.json();
     
     if (!response.ok) {
-      console.log('Server-Antwort:', data);
+      console.log('Server response:', data);
       
       if (data.details) {
-        console.error('Validierungsdetails:', data.details);
-        throw new Error(data.error || `Validierungsfehler`);
+        console.error('Validation details:', data.details);
+        throw new Error(data.error || 'Validation error');
       }
       
-      throw new Error(data.error || `Fehler beim ${mode === 'add' ? 'Hinzufügen zum' : 'Aktualisieren des'} Collection`);
+      throw new Error(data.error || `Error ${mode === 'add' ? 'adding to' : 'updating'} collection`);
     }
 
-    // Erfolg
+    // Success
     onSuccess();
   } catch (err) {
-    setError(err instanceof Error ? err.message : 'Etwas ist schiefgelaufen');
-    console.error('Fehler:', err);
+    setError(err instanceof Error ? err.message : 'Something went wrong');
+    console.error('Error:', err);
   } finally {
     setIsLoading(false);
   }

@@ -20,7 +20,7 @@ const addToCollectionSchema = z.object({
   purchaseDate: z.string().optional(),
   retailPrice: z.number().optional().nullable(),
   purchasePrice: z.number().optional(),
-  notes: z.string().optional(),
+  notes: z.string().nullable().optional(),
   labels: z.array(z.enum(getValidLabelValues() as [string, ...string[]])).optional(), // Add labels field
 });
 
