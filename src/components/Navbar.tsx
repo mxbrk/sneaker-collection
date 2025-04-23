@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
 
   const isActive = (path: string) => {
-    if (path === '/' && pathname === '/') return true;
-    if (path !== '/' && pathname.startsWith(path)) return true;
+    if (path === "/" && pathname === "/") return true;
+    if (path !== "/" && pathname.startsWith(path)) return true;
     return false;
   };
 
@@ -26,90 +26,92 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="text-xl font-bold text-[#d14124]">
-            Sneaker Collection
+            SoleUp
           </Link>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-4">
             <Link
               href="/"
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/') 
-                  ? 'bg-[#fae5e1] text-[#d14124]' 
-                  : 'text-[#171717] hover:bg-[#f5f5f5]'
+                isActive("/")
+                  ? "bg-[#fae5e1] text-[#d14124]"
+                  : "text-[#171717] hover:bg-[#f5f5f5]"
               }`}
             >
               Home
             </Link>
-            
+
             {/* Only show Add Sneaker link for logged-in users */}
             {user && (
               <Link
                 href="/search"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/search') 
-                    ? 'bg-[#fae5e1] text-[#d14124]' 
-                    : 'text-[#171717] hover:bg-[#f5f5f5]'
+                  isActive("/search")
+                    ? "bg-[#fae5e1] text-[#d14124]"
+                    : "text-[#171717] hover:bg-[#f5f5f5]"
                 }`}
               >
                 Add Sneaker
               </Link>
             )}
-            
-            {user ? (
-              // User is logged in
-              <Link
-                href="/profile"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/profile') 
-                    ? 'bg-[#fae5e1] text-[#d14124]' 
-                    : 'text-[#171717] hover:bg-[#f5f5f5]'
-                }`}
-              >
-                Profile
-              </Link>
-            ) : !loading ? (
-              // User is not logged in and auth is not loading
-              <>
+
+            {
+              user ? (
+                // User is logged in
                 <Link
-                  href="/login"
+                  href="/profile"
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/login') 
-                      ? 'bg-[#fae5e1] text-[#d14124]' 
-                      : 'text-[#171717] hover:bg-[#f5f5f5]'
+                    isActive("/profile")
+                      ? "bg-[#fae5e1] text-[#d14124]"
+                      : "text-[#171717] hover:bg-[#f5f5f5]"
                   }`}
                 >
-                  Login
+                  Profile
                 </Link>
-                <Link
-                  href="/signup"
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/signup') 
-                      ? 'bg-[#fae5e1] text-[#d14124]' 
-                      : 'text-[#171717] hover:bg-[#f5f5f5]'
-                  }`}
-                >
-                  Sign Up
-                </Link>
-              </>
-            ) : null /* Show nothing while loading */}
+              ) : !loading ? (
+                // User is not logged in and auth is not loading
+                <>
+                  <Link
+                    href="/login"
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive("/login")
+                        ? "bg-[#fae5e1] text-[#d14124]"
+                        : "text-[#171717] hover:bg-[#f5f5f5]"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive("/signup")
+                        ? "bg-[#fae5e1] text-[#d14124]"
+                        : "text-[#171717] hover:bg-[#f5f5f5]"
+                    }`}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              ) : null /* Show nothing while loading */
+            }
           </nav>
-          
+
           {/* Mobile Menu Button */}
-          <button 
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-md text-[#171717] hover:bg-[#f5f5f5] transition-colors"
             aria-label="Toggle menu"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
               strokeLinejoin="round"
             >
               {isMenuOpen ? (
@@ -125,7 +127,7 @@ export default function Navbar() {
           </button>
         </div>
       </div>
-      
+
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden p-4 border-t border-[#e5e5e5] bg-white">
@@ -134,9 +136,9 @@ export default function Navbar() {
               href="/"
               onClick={closeMenu}
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/') 
-                  ? 'bg-[#fae5e1] text-[#d14124]' 
-                  : 'text-[#171717] hover:bg-[#f5f5f5]'
+                isActive("/")
+                  ? "bg-[#fae5e1] text-[#d14124]"
+                  : "text-[#171717] hover:bg-[#f5f5f5]"
               }`}
             >
               Home
@@ -147,55 +149,57 @@ export default function Navbar() {
                 href="/search"
                 onClick={closeMenu}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/search') 
-                    ? 'bg-[#fae5e1] text-[#d14124]' 
-                    : 'text-[#171717] hover:bg-[#f5f5f5]'
+                  isActive("/search")
+                    ? "bg-[#fae5e1] text-[#d14124]"
+                    : "text-[#171717] hover:bg-[#f5f5f5]"
                 }`}
               >
                 Add Sneaker
               </Link>
             )}
-            
-            {user ? (
-              // User is logged in
-              <Link
-                href="/profile"
-                onClick={closeMenu}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/profile') 
-                    ? 'bg-[#fae5e1] text-[#d14124]' 
-                    : 'text-[#171717] hover:bg-[#f5f5f5]'
-                }`}
-              >
-                Profile
-              </Link>
-            ) : !loading ? (
-              // User is not logged in and auth is not loading
-              <>
+
+            {
+              user ? (
+                // User is logged in
                 <Link
-                  href="/login"
+                  href="/profile"
                   onClick={closeMenu}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/login') 
-                      ? 'bg-[#fae5e1] text-[#d14124]' 
-                      : 'text-[#171717] hover:bg-[#f5f5f5]'
+                    isActive("/profile")
+                      ? "bg-[#fae5e1] text-[#d14124]"
+                      : "text-[#171717] hover:bg-[#f5f5f5]"
                   }`}
                 >
-                  Login
+                  Profile
                 </Link>
-                <Link
-                  href="/signup"
-                  onClick={closeMenu}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive('/signup') 
-                      ? 'bg-[#fae5e1] text-[#d14124]' 
-                      : 'text-[#171717] hover:bg-[#f5f5f5]'
-                  }`}
-                >
-                  Sign Up
-                </Link>
-              </>
-            ) : null /* Show nothing while loading */}
+              ) : !loading ? (
+                // User is not logged in and auth is not loading
+                <>
+                  <Link
+                    href="/login"
+                    onClick={closeMenu}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive("/login")
+                        ? "bg-[#fae5e1] text-[#d14124]"
+                        : "text-[#171717] hover:bg-[#f5f5f5]"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={closeMenu}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive("/signup")
+                        ? "bg-[#fae5e1] text-[#d14124]"
+                        : "text-[#171717] hover:bg-[#f5f5f5]"
+                    }`}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              ) : null /* Show nothing while loading */
+            }
           </nav>
         </div>
       )}
