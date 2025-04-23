@@ -87,7 +87,7 @@ export default function Home() {
       </main>
 
       <footer className="w-full max-w-7xl mx-auto text-center text-sm text-foreground/70">
-        <p>Sneaker Collection &copy; {new Date().getFullYear()}</p>
+        <p>SoleUp &copy; {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
