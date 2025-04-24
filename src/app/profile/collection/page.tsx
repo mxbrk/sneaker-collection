@@ -1,7 +1,7 @@
 'use client';
 
 import MainLayout from '@/components/MainLayout';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
@@ -25,7 +25,7 @@ interface CollectionItem {
   retailPrice: number | null;
   purchasePrice: number | null;
   notes: string | null;
-  labels: string[]; // Add labels field
+  labels: string[]; 
   createdAt: string;
   updatedAt: string;
 }
@@ -34,12 +34,14 @@ export default function CollectionPage() {
   const router = useRouter();
   const [collection, setCollection] = useState<CollectionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
   } | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const cacheValidityTime = 30000; // 30 Sekunden Cache
 
   // Filter states
   const [selectedBrand, setSelectedBrand] = useState<string>('');
@@ -47,13 +49,19 @@ export default function CollectionPage() {
   const [selectedLabel, setSelectedLabel] = useState<string>('');
   const [sortOption, setSortOption] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [visibleCount, setVisibleCount] = useState<number>(20);
   
   // State für ein-/ausgeklappte Filter
   const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(false);
   
   useEffect(() => {
-    fetchCollection();
-  }, []);
+    const now = Date.now();
+    // Nur neu laden, wenn Cache abgelaufen ist oder Daten fehlen
+    if (now - lastFetchTime > cacheValidityTime || collection.length === 0) {
+      fetchCollection();
+      setLastFetchTime(now);
+    }
+  }, [lastFetchTime, collection.length]);
 
   const fetchCollection = async () => {
     try {
@@ -84,17 +92,22 @@ export default function CollectionPage() {
   
   const confirmRemoveFromCollection = async (id: string) => {
     try {
+      // Optimistische UI Aktualisierung
+      const newCollection = collection.filter(item => item.id !== id);
+      setCollection(newCollection);
+      
       const response = await fetch(`/api/collection/${id}`, {
         method: 'DELETE',
       });
   
       if (response.ok) {
-        setCollection(collection.filter(item => item.id !== id));
         setNotification({
           message: 'Removed from collection',
           type: 'success'
         });
       } else {
+        // Bei Fehler Collection wiederherstellen
+        await fetchCollection();
         setNotification({
           message: 'Failed to remove from collection',
           type: 'error'
@@ -102,65 +115,92 @@ export default function CollectionPage() {
       }
     } catch (error) {
       console.error('Error removing from collection:', error);
+      // Bei Fehler Collection wiederherstellen
+      await fetchCollection();
       setNotification({
         message: 'Failed to remove from collection',
         type: 'error'
       });
     } finally {
+      // Clear the confirmation state
       setShowDeleteConfirmation(null);
     }
   };
 
   // Get unique brands for filter
-  const uniqueBrands = Array.from(new Set(collection.map(item => item.brand))).sort();
+  const uniqueBrands = useMemo(() => {
+    return Array.from(new Set(collection.map(item => item.brand))).sort();
+  }, [collection]);
   
   // Get unique labels used in the collection
-  const usedLabels = Array.from(
-    new Set(collection.flatMap(item => item.labels || []))
-  ).sort();
+  const usedLabels = useMemo(() => {
+    return Array.from(
+      new Set(collection.flatMap(item => item.labels || []))
+    ).sort();
+  }, [collection]);
   
-  // Filter and sort collection
-  const filteredCollection = collection.filter(item => {
-    if (selectedBrand && item.brand !== selectedBrand) return false;
-    if (selectedCondition && item.condition !== selectedCondition) return false;
-    if (selectedLabel && !(item.labels || []).includes(selectedLabel)) return false;
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        item.title.toLowerCase().includes(query) ||
-        item.sku.toLowerCase().includes(query) ||
-        item.colorway.toLowerCase().includes(query) ||
-        (item.notes && item.notes.toLowerCase().includes(query))
-      );
-    }
-    return true;
-  });
+  // Filter and sort collection - memoize this computation to avoid recalculating on every render
+  const filteredCollection = useMemo(() => {
+    return collection.filter(item => {
+      if (selectedBrand && item.brand !== selectedBrand) return false;
+      if (selectedCondition && item.condition !== selectedCondition) return false;
+      if (selectedLabel && !(item.labels || []).includes(selectedLabel)) return false;
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          item.title.toLowerCase().includes(query) ||
+          item.sku.toLowerCase().includes(query) ||
+          item.colorway.toLowerCase().includes(query) ||
+          (item.notes && item.notes.toLowerCase().includes(query))
+        );
+      }
+      return true;
+    });
+  }, [collection, selectedBrand, selectedCondition, selectedLabel, searchQuery]);
   
   // Sort collection
-  const sortedCollection = [...filteredCollection].sort((a, b) => {
-    switch (sortOption) {
-      case 'newest':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      case 'oldest':
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      case 'alphabetical':
-        return a.title.localeCompare(b.title);
-      case 'price-high':
-        return (b.purchasePrice || 0) - (a.purchasePrice || 0);
-      case 'price-low':
-        return (a.purchasePrice || 0) - (b.purchasePrice || 0);
-      default:
-        return 0;
-    }
-  });
+  const sortedCollection = useMemo(() => {
+    return [...filteredCollection].sort((a, b) => {
+      switch (sortOption) {
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        case 'price-high':
+          return (b.purchasePrice || 0) - (a.purchasePrice || 0);
+        case 'price-low':
+          return (a.purchasePrice || 0) - (b.purchasePrice || 0);
+        default:
+          return 0;
+      }
+    });
+  }, [filteredCollection, sortOption]);
 
-  const getTotalValue = () => {
+  const getTotalValue = useMemo(() => {
     return collection.reduce((total, item) => {
       return total + (item.purchasePrice || 0);
     }, 0);
+  }, [collection]);
+
+  // Wenn man nach unten scrollt, lade automatisch mehr Items
+  const handleScroll = () => {
+    if (sortedCollection.length > visibleCount) {
+      const bottom = Math.ceil(window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 800;
+      if (bottom) {
+        setVisibleCount(prev => Math.min(prev + 20, sortedCollection.length));
+      }
+    }
   };
 
-  if (isLoading) {
+  // Registriere Scroll-Event-Listener
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [sortedCollection.length, visibleCount]);
+
+  if (isLoading && collection.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
         <div className="text-center">
@@ -218,7 +258,7 @@ export default function CollectionPage() {
               </span>
             </div>
             <div className="mt-4">
-              <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
+              <span className="text-3xl font-bold">${getTotalValue.toFixed(2)}</span>
               <p className="text-[#737373] mt-1 text-sm">Total collection value</p>
             </div>
           </div>
@@ -234,7 +274,7 @@ export default function CollectionPage() {
             </div>
             <div className="mt-4">
               <span className="text-3xl font-bold">
-                ${collection.length ? (getTotalValue() / collection.length).toFixed(2) : '0.00'}
+                ${collection.length ? (getTotalValue / collection.length).toFixed(2) : '0.00'}
               </span>
               <p className="text-[#737373] mt-1 text-sm">Per sneaker</p>
             </div>
@@ -394,29 +434,29 @@ export default function CollectionPage() {
           )}
         </div>
 
-        {/* Collection Grid */}
+        {/* Collection Grid with Virtualisierung */}
         {collection.length > 0 ? (
           <>
-            <div className="mb-4 flex justify-between" >
+            <div className="mb-4 flex justify-between">
               <p className="text-[#737373]">
-                Showing {sortedCollection.length} of {collection.length} sneakers
+                Showing {Math.min(visibleCount, sortedCollection.length)} of {sortedCollection.length} sneakers
                 {selectedBrand && ` from ${selectedBrand}`}
                 {selectedCondition && ` in condition ${selectedCondition}`}
                 {selectedLabel && ` with label "${sneakerLabels.find(l => l.value === selectedLabel)?.label || selectedLabel}"`}
                 {searchQuery && ` matching "${searchQuery}"`}
               </p>
               <Link href="/search" className="text-[#d14124] hover:text-[#b93a20] transition flex items-center gap-1 text-sm font-medium">
-              <span>Add sneakers</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"/>
-                <polyline points="12 5 19 12 12 19"/>
-              </svg>
-            </Link>
-
+                <span>Add sneakers</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </Link>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {sortedCollection.map((item) => (
+              {/* Virtualisierte Liste - rendere nur die sichtbaren Elemente */}
+              {sortedCollection.slice(0, visibleCount).map((item) => (
                 <SneakerCard
                   key={item.id}
                   sneaker={item}
@@ -425,10 +465,26 @@ export default function CollectionPage() {
                     setNotification({ message, type });
                   }}
                   onRemove={() => handleRemoveFromCollection(item.id)}
-                  onEdit={() => fetchCollection()} // Reload data after edit
+                  onEdit={() => {
+                    // Invalidiere Cache beim Bearbeiten
+                    setLastFetchTime(0);
+                    fetchCollection();
+                  }}
                 />
               ))}
             </div>
+            
+            {/* "Load More" Button - nur anzeigen, wenn es mehr zu laden gibt */}
+            {sortedCollection.length > visibleCount && (
+              <div className="flex justify-center mt-8">
+                <button 
+                  onClick={() => setVisibleCount(prev => Math.min(prev + 20, sortedCollection.length))}
+                  className="px-6 py-2 bg-[#fae5e1] text-[#d14124] rounded-lg hover:bg-[#d14124] hover:text-white transition-colors"
+                >
+                  Load More Sneakers ({sortedCollection.length - visibleCount} remaining)
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">

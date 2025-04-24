@@ -1,4 +1,3 @@
-// src/app/api/wishlist/route.ts
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
@@ -35,7 +34,14 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ wishlist }, { status: 200 });
+    // Aktiviere Caching für Wishlist API
+    return new NextResponse(JSON.stringify({ wishlist }), { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'private, max-age=10, stale-while-revalidate=30' 
+      }
+    });
   } catch (error) {
     console.error('Wishlist fetch error:', error);
     return NextResponse.json(
@@ -97,6 +103,7 @@ export async function POST(request: NextRequest) {
         },
       });
       
+      // Auf POST-Anfragen kein Caching anwenden
       return NextResponse.json(
         { 
           message: 'Added to wishlist successfully',
@@ -161,6 +168,7 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
+    // Für DELETE-Anfragen auch kein Caching
     return NextResponse.json(
       { message: 'Removed from wishlist successfully' },
       { status: 200 }

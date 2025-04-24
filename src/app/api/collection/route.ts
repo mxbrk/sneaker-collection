@@ -1,4 +1,3 @@
-// src/app/api/collection/route.ts (UPDATED)
 import { getCurrentUser } from '@/lib/auth';
 import { getValidLabelValues } from '@/lib/labels';
 import { prisma } from '@/lib/prisma';
@@ -45,7 +44,14 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ collection }, { status: 200 });
+    // Nutze Next.js Cache-Control mit HTTP-Header
+    return new NextResponse(JSON.stringify({ collection }), { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'private, max-age=10, stale-while-revalidate=30' 
+      }
+    });
   } catch (error) {
     console.error('Collection fetch error:', error);
     return NextResponse.json(
@@ -119,6 +125,8 @@ export async function POST(request: NextRequest) {
         },
       });
       console.log('Created collection item:', collectionItem);
+      
+      // Auf POST-Anfragen kein Caching anwenden
       return NextResponse.json(
         { 
           message: 'Added to collection successfully',

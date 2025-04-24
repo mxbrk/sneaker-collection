@@ -27,15 +27,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const cacheValidityTime = 60000; // Cache für 1 Minute gültig
 
   useEffect(() => {
     const fetchUser = async () => {
+      // Überprüfe, ob Cache noch gültig ist
+      const now = Date.now();
+      if (now - lastFetchTime < cacheValidityTime && user) {
+        setLoading(false);
+        return; // Verwende Cache
+      }
+
       try {
         const response = await fetch('/api/user');
         
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
+          setLastFetchTime(now);
         } else {
           setUser(null);
         }
@@ -48,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     fetchUser();
-  }, []);
+  }, [lastFetchTime, user]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
