@@ -2,15 +2,21 @@
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
+import Image from 'next/image'
 
 export default function Home() {
   const { user } = useAuth();
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="grid grid-rows-[auto_1fr_auto] items-center min-h-screen p-8 pb-20 gap-16 sm:p-10 font-[family-name:var(--font-geist-sans)]">
       <header className="w-full max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-[#d14124]">SoleUp</span>
+          <Image
+                src="/logo1.png"
+                width={200}
+                height={200}
+                alt="SoleUp logo"
+          />
         </div>
         <nav className="flex gap-4">
           {user ? (

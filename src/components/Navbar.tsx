@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import Image from 'next/image'
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -26,7 +27,12 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="text-xl font-bold text-[#d14124]">
-            SoleUp
+          <Image
+                src="/logo1.png"
+                width={115}
+                height={200}
+                alt="SoleUp logo"
+          />
           </Link>
 
           {/* Desktop Navigation */}
