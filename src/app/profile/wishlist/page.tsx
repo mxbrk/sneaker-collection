@@ -35,6 +35,9 @@ export default function WishlistPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortOption, setSortOption] = useState<string>('newest');
   
+  // State für ein-/ausgeklappte Filter
+  const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(false);
+  
   useEffect(() => {
     fetchWishlist();
   }, []);
@@ -163,7 +166,7 @@ export default function WishlistPage() {
               <h3 className="text-lg font-medium text-[#171717]">Total Items</h3>
               <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
               </span>
             </div>
@@ -216,66 +219,95 @@ export default function WishlistPage() {
           </div>
         </div>
 
-        {/* Filters and Search */}
-        <div className="bg-white rounded-lg p-4 mb-6 border border-[#f0f0f0] flex flex-col gap-4">
-          <div className="flex-1 w-full">
-            <label className="block text-sm font-medium text-[#737373] mb-1">Search</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, SKU, or colorway..."
-                className="w-full border border-[#e5e5e5] rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </div>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#737373] hover:text-[#d14124]"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              )}
-            </div>
+        {/* Filters and Search - mit Ein-/Ausklapp-Funktion */}
+        <div className="bg-white rounded-lg mb-6 border border-[#f0f0f0]">
+          <div className="p-4 flex justify-between items-center cursor-pointer" onClick={() => setIsFilterExpanded(!isFilterExpanded)}>
+            <h3 className="font-medium">Filter & Sort</h3>
+            <button 
+              className="text-[#737373] hover:text-[#d14124] transition-colors"
+              aria-expanded={isFilterExpanded}
+              aria-label={isFilterExpanded ? "Collapse filters" : "Expand filters"}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className={`transform transition-transform ${isFilterExpanded ? 'rotate-180' : ''}`}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
           </div>
           
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
-              <select
-                value={selectedBrand}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              >
-                <option value="">All Brands</option>
-                {uniqueBrands.map(brand => (
-                  <option key={brand} value={brand}>{brand}</option>
-                ))}
-              </select>
+          {/* Filter content - nur anzeigen, wenn isFilterExpanded true ist */}
+          {isFilterExpanded && (
+            <div className="p-4 pt-0 border-t border-[#f0f0f0] flex flex-col gap-4">
+              <div className="flex-1 w-full">
+                <label className="block text-sm font-medium text-[#737373] mb-1">Search</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name, SKU, or colorway..."
+                    className="w-full border border-[#e5e5e5] rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#737373] hover:text-[#d14124]"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="flex-1 min-w-[200px]">
+                  <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => setSelectedBrand(e.target.value)}
+                    className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  >
+                    <option value="">All Brands</option>
+                    {uniqueBrands.map(brand => (
+                      <option key={brand} value={brand}>{brand}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="flex-1 min-w-[200px]">
+                  <label className="block text-sm font-medium text-[#737373] mb-1">Sort By</label>
+                  <select
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value)}
+                    className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="alphabetical">Alphabetical</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-[#737373] mb-1">Sort By</label>
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="alphabetical">Alphabetical</option>
-              </select>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Wishlist Grid */}

@@ -44,9 +44,12 @@ export default function CollectionPage() {
   // Filter states
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedCondition, setSelectedCondition] = useState<string>('');
-  const [selectedLabel, setSelectedLabel] = useState<string>(''); // Add label filter
+  const [selectedLabel, setSelectedLabel] = useState<string>('');
   const [sortOption, setSortOption] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // State für ein-/ausgeklappte Filter
+  const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(false);
   
   useEffect(() => {
     fetchCollection();
@@ -239,125 +242,154 @@ export default function CollectionPage() {
         </div>
 
         {/* Filters and Sorting */}
-        <div className="bg-white rounded-lg p-4 mb-6 border border-[#f0f0f0] flex flex-col gap-4">
-          <div className="flex-1 w-full mb-4">
-            <label className="block text-sm font-medium text-[#737373] mb-1">Search</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, SKU, or colorway..."
-                className="w-full border border-[#e5e5e5] rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </div>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#737373] hover:text-[#d14124]"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              )}
-            </div>
+        <div className="bg-white rounded-lg mb-6 border border-[#f0f0f0]">
+          <div className="p-4 flex justify-between items-center cursor-pointer" onClick={() => setIsFilterExpanded(!isFilterExpanded)}>
+            <h3 className="font-medium">Filter & Sort</h3>
+            <button 
+              className="text-[#737373] hover:text-[#d14124] transition-colors"
+              aria-expanded={isFilterExpanded}
+              aria-label={isFilterExpanded ? "Collapse filters" : "Expand filters"}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className={`transform transition-transform ${isFilterExpanded ? 'rotate-180' : ''}`}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
           </div>
-          
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
-              <select
-                value={selectedBrand}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              >
-                <option value="">All Brands</option>
-                {uniqueBrands.map(brand => (
-                  <option key={brand} value={brand}>{brand}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-[#737373] mb-1">Condition</label>
-              <select
-                value={selectedCondition}
-                onChange={(e) => setSelectedCondition(e.target.value)}
-                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              >
-                <option value="">All Conditions</option>
-                <option value="DS">Deadstock (DS)</option>
-                <option value="VNDS">Very Near Deadstock (VNDS)</option>
-                <option value="10">10 - Like new</option>
-                <option value="9">9 - Excellent</option>
-                <option value="8">8 - Great</option>
-                <option value="7">7 - Good</option>
-                <option value="6">6 - Acceptable</option>
-                <option value="5">5 - Worn</option>
-                <option value="4">4 - Very worn</option>
-                <option value="3">3 - Heavily worn</option>
-                <option value="2">2 - Poor</option>
-                <option value="1">1 - Very poor</option>
-              </select>
-            </div>
-            
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-[#737373] mb-1">Sort By</label>
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="alphabetical">Alphabetical</option>
-                <option value="price-high">Price (High to Low)</option>
-                <option value="price-low">Price (Low to High)</option>
-              </select>
-            </div>
-          </div>
-          
-          {/* Label Filter Section */}
-          {usedLabels.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-[#737373] mb-2">Filter by Label</label>
-              <div className="flex flex-wrap gap-2">
-                {usedLabels.map(labelValue => {
-                  const labelInfo = sneakerLabels.find(l => l.value === labelValue);
-                  if (!labelInfo) return null;
-                  
-                  const isSelected = selectedLabel === labelValue;
-                  
-                  return (
+
+          {/* Filter content - conditionally rendered based on state */}
+          {isFilterExpanded && (
+            <div className="p-4 pt-0 border-t border-[#f0f0f0] flex flex-col gap-4">
+              <div className="flex-1 w-full mb-4">
+                <label className="block text-sm font-medium text-[#737373] mb-1">Search</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name, SKU, or colorway..."
+                    className="w-full border border-[#e5e5e5] rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  {searchQuery && (
                     <button
-                      key={labelValue}
-                      onClick={() => setSelectedLabel(isSelected ? '' : labelValue)}
-                      className={`px-3 py-1.5 text-sm rounded-full transition-colors flex items-center gap-1 ${
-                        isSelected ? 'bg-opacity-20 border' : 'bg-white border border-[#e5e5e5]'
-                      }`}
-                      style={{
-                        backgroundColor: isSelected ? `${labelInfo.color}20` : undefined,
-                        color: isSelected ? labelInfo.color : '#555',
-                        borderColor: isSelected ? `${labelInfo.color}50` : undefined,
-                      }}
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#737373] hover:text-[#d14124]"
                     >
-                      {labelInfo.label}
-                      {isSelected && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      )}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
                     </button>
-                  );
-                })}
+                  )}
+                </div>
               </div>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="flex-1 min-w-[200px]">
+                  <label className="block text-sm font-medium text-[#737373] mb-1">Brand</label>
+                  <select
+                    value={selectedBrand}
+                    onChange={(e) => setSelectedBrand(e.target.value)}
+                    className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  >
+                    <option value="">All Brands</option>
+                    {uniqueBrands.map(brand => (
+                      <option key={brand} value={brand}>{brand}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="flex-1 min-w-[200px]">
+                  <label className="block text-sm font-medium text-[#737373] mb-1">Condition</label>
+                  <select
+                    value={selectedCondition}
+                    onChange={(e) => setSelectedCondition(e.target.value)}
+                    className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  >
+                    <option value="">All Conditions</option>
+                    <option value="DS">Deadstock (DS)</option>
+                    <option value="VNDS">Very Near Deadstock (VNDS)</option>
+                    <option value="10">10 - Like new</option>
+                    <option value="9">9 - Excellent</option>
+                    <option value="8">8 - Great</option>
+                    <option value="7">7 - Good</option>
+                    <option value="6">6 - Acceptable</option>
+                    <option value="5">5 - Worn</option>
+                    <option value="4">4 - Very worn</option>
+                    <option value="3">3 - Heavily worn</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Very poor</option>
+                  </select>
+                </div>
+                
+                <div className="flex-1 min-w-[200px]">
+                  <label className="block text-sm font-medium text-[#737373] mb-1">Sort By</label>
+                  <select
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value)}
+                    className="w-full border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d14124]"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="alphabetical">Alphabetical</option>
+                    <option value="price-high">Price (High to Low)</option>
+                    <option value="price-low">Price (Low to High)</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Label Filter Section */}
+              {usedLabels.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-[#737373] mb-2">Filter by Label</label>
+                  <div className="flex flex-wrap gap-2">
+                    {usedLabels.map(labelValue => {
+                      const labelInfo = sneakerLabels.find(l => l.value === labelValue);
+                      if (!labelInfo) return null;
+                      
+                      const isSelected = selectedLabel === labelValue;
+                      
+                      return (
+                        <button
+                          key={labelValue}
+                          onClick={() => setSelectedLabel(isSelected ? '' : labelValue)}
+                          className={`px-3 py-1.5 text-sm rounded-full transition-colors flex items-center gap-1 ${
+                            isSelected ? 'bg-opacity-20 border' : 'bg-white border border-[#e5e5e5]'
+                          }`}
+                          style={{
+                            backgroundColor: isSelected ? `${labelInfo.color}20` : undefined,
+                            color: isSelected ? labelInfo.color : '#555',
+                            borderColor: isSelected ? `${labelInfo.color}50` : undefined,
+                          }}
+                        >
+                          {labelInfo.label}
+                          {isSelected && (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

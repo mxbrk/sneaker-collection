@@ -133,16 +133,6 @@ export default function SneakerCard({
     }
   };
 
-  // Format price display for collection items or sneakers
-  const getPriceDisplay = () => {
-    if ('retailPrice' in sneaker && sneaker.retailPrice) {
-      return `$${sneaker.retailPrice}`;
-    } else if ('purchasePrice' in sneaker && sneaker.purchasePrice) {
-      return `$${sneaker.purchasePrice}`;
-    }
-    return null;
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#f0f0f0] relative h-full flex flex-col">
       {/* Success message toast (only used if no onNotification prop) */}
@@ -301,11 +291,9 @@ export default function SneakerCard({
             <span className="text-xs font-mono text-[#737373] truncate max-w-[60%]">
               {sneaker.sku}
             </span>
-            {getPriceDisplay() && (
-              <span className="text-[#d14124] font-medium ml-auto">
-                {getPriceDisplay()}
-              </span>
-            )}
+            <span className="text-[#d14124] font-medium ml-auto">
+  {'purchasePrice' in sneaker && sneaker.purchasePrice ? `$${sneaker.purchasePrice}` : ''}
+</span>
           </div>
         </div>
       </div>
