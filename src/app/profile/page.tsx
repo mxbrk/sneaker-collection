@@ -2,7 +2,7 @@
 
 import MainLayout from '@/components/MainLayout';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
@@ -53,36 +53,22 @@ export default function ProfilePage() {
   const [collection, setCollection] = useState<CollectionItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
   } | null>(null);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
-  const cacheValidityTime = 30000; // 30 Sekunden Cache
 
   useEffect(() => {
-    const now = Date.now();
-    // Nur neu laden, wenn Cache abgelaufen ist oder Daten fehlen
-    if (now - lastFetchTime > cacheValidityTime || !user || collection.length === 0 || wishlist.length === 0) {
-      fetchData();
-      setLastFetchTime(now);
-    }
-  }, [lastFetchTime, user, collection.length, wishlist.length]);
+    fetchData();
+  }, [router]);
 
   const fetchData = async () => {
     try {
-      setIsLoading(true);
+      // Fetch user data
+      const userResponse = await fetch('/api/user');
       
-      // Parallelisiere deine API-Aufrufe
-      const [userResponse, collectionResponse, wishlistResponse] = await Promise.all([
-        fetch('/api/user'),
-        fetch('/api/collection'),
-        fetch('/api/wishlist')
-      ]);
-      
-      // Verarbeite Responses nur, wenn sie erfolgreich sind
       if (!userResponse.ok) {
         if (userResponse.status === 401) {
           router.push('/login');
@@ -94,13 +80,15 @@ export default function ProfilePage() {
       const userData = await userResponse.json();
       setUser(userData.user);
 
-      // Verarbeite Collection-Daten
+      // Fetch collection data
+      const collectionResponse = await fetch('/api/collection');
       if (collectionResponse.ok) {
         const collectionData = await collectionResponse.json();
         setCollection(collectionData.collection || []);
       }
 
-      // Verarbeite Wishlist-Daten
+      // Fetch wishlist data
+      const wishlistResponse = await fetch('/api/wishlist');
       if (wishlistResponse.ok) {
         const wishlistData = await wishlistResponse.json();
         setWishlist(wishlistData.wishlist || []);
@@ -130,25 +118,20 @@ export default function ProfilePage() {
       setIsLoading(false);
     }
   };
-  
   const handleRemoveFromWishlist = async (id: string) => {
     try {
-      // Optimistische UI Aktualisierung
-      const newWishlist = wishlist.filter(item => item.id !== id);
-      setWishlist(newWishlist);
-      
       const response = await fetch(`/api/wishlist?id=${id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
+        // Update the wishlist state by removing the deleted item
+        setWishlist(wishlist.filter(item => item.id !== id));
         setNotification({
           message: 'Removed from wishlist',
           type: 'success'
         });
       } else {
-        // Bei Fehler Wishlist wiederherstellen
-        await fetchData();
         setNotification({
           message: 'Failed to remove from wishlist',
           type: 'error'
@@ -156,8 +139,6 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Error removing from wishlist:', error);
-      // Bei Fehler Wishlist wiederherstellen
-      await fetchData();
       setNotification({
         message: 'Failed to remove from wishlist',
         type: 'error'
@@ -172,22 +153,18 @@ export default function ProfilePage() {
   
   const confirmRemoveFromCollection = async (id: string) => {
     try {
-      // Optimistische UI Aktualisierung
-      const newCollection = collection.filter(item => item.id !== id);
-      setCollection(newCollection);
-      
       const response = await fetch(`/api/collection/${id}`, {
         method: 'DELETE',
       });
   
       if (response.ok) {
+        // Update the collection state by removing the deleted item
+        setCollection(collection.filter(item => item.id !== id));
         setNotification({
           message: 'Removed from collection',
           type: 'success'
         });
       } else {
-        // Bei Fehler Collection wiederherstellen
-        await fetchData();
         setNotification({
           message: 'Failed to remove from collection',
           type: 'error'
@@ -195,8 +172,6 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Error removing from collection:', error);
-      // Bei Fehler Collection wiederherstellen
-      await fetchData();
       setNotification({
         message: 'Failed to remove from collection',
         type: 'error'
@@ -207,12 +182,11 @@ export default function ProfilePage() {
     }
   };
 
-  // Memoize total value calculation to avoid recalculation on every render
-  const totalValue = useMemo(() => {
+  const getTotalValue = () => {
     return collection.reduce((total, item) => {
       return total + (item.purchasePrice || 0);
     }, 0);
-  }, [collection]);
+  };
 
   if (isLoading && !user) {
     return (
@@ -322,10 +296,9 @@ export default function ProfilePage() {
             </Link>
             
             <Link 
-              href=""
-              className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
-            >
-              <div className="flex justify-between items-center">
+  href=""
+  className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
+>              <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-[#171717]">Value</h3>
                 <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -335,10 +308,11 @@ export default function ProfilePage() {
                 </span>
               </div>
               <div className="mt-4">
-                <span className="text-3xl font-bold">${totalValue.toFixed(2)}</span>
+                <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
                 <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
               </div>
             </Link>
+
           </div>
 
           {/* Collection Section */}
@@ -365,13 +339,10 @@ export default function ProfilePage() {
                       setNotification({ message, type });
                     }}
                     onRemove={() => handleRemoveFromCollection(item.id)}
-                    onEdit={() => {
-                      // Invalidiere Cache beim Bearbeiten
-                      setLastFetchTime(0);
-                      fetchData();
-                    }}
+                    onEdit={() => fetchData()} // Reload data after edit
                   />
                 ))}
+
               </div>
             ) : (
               <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
@@ -426,8 +397,6 @@ export default function ProfilePage() {
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                           className="object-contain scale-125 p-2"
-                          loading="lazy"
-                          quality={75}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[#d0d0d0]">
@@ -454,7 +423,7 @@ export default function ProfilePage() {
                 ))}
               </div>
             ) : (
-<div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
+              <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
                 <div className="mx-auto w-16 h-16 mb-4 text-[#d14124] opacity-70">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>

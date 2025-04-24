@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
+// src/components/SneakerCard.tsx:
+
 import { Sneaker } from '@/types/sneakers';
 import Image from 'next/image';
+import { useState } from 'react';
 import CollectionModal from './CollectionModal';
 import { LabelGroup } from './Label';
 
@@ -35,7 +37,7 @@ interface SneakerCardProps {
   onEdit?: () => void;
 }
 
-function SneakerCard({ 
+export default function SneakerCard({ 
   sneaker, 
   onNotification,
   isCollectionItem = false,
@@ -47,10 +49,8 @@ function SneakerCard({
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Get labels if this is a collection item - memoize this computation
-  const labels = useMemo(() => {
-    return isCollectionItem && 'labels' in sneaker ? sneaker.labels || [] : [];
-  }, [isCollectionItem, sneaker]);
+  // Get labels if this is a collection item
+  const labels = isCollectionItem && 'labels' in sneaker ? sneaker.labels || [] : [];
 
   const handleAddToWishlist = async () => {
     if (addedToWishlist || isAddingToWishlist) return;
@@ -141,7 +141,7 @@ function SneakerCard({
           {successMessage}
         </div>
       )}
-      
+      {/*um größe anzupassen muss jeweils scale in classname angepasst werden*/}
       <div className="relative h-64 bg-[#ffffff] overflow-hidden p-2">
         {sneaker.image ? (
           <Image
@@ -151,9 +151,10 @@ function SneakerCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-contain scale-115 hover:scale-130 transition-transform duration-300"
             style={{ objectPosition: 'center' }}
-            quality={70}
-            loading="lazy"
-            priority={false}
+            quality={85}
+            loading="eager"
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjdmN2Y3Ii8+PC9zdmc+"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[#d0d0d0]">
@@ -291,8 +292,8 @@ function SneakerCard({
               {sneaker.sku}
             </span>
             <span className="text-[#d14124] font-medium ml-auto">
-              {'purchasePrice' in sneaker && sneaker.purchasePrice ? `$${sneaker.purchasePrice}` : ''}
-            </span>
+  {'purchasePrice' in sneaker && sneaker.purchasePrice ? `$${sneaker.purchasePrice}` : ''}
+</span>
           </div>
         </div>
       </div>
@@ -310,27 +311,3 @@ function SneakerCard({
     </div>
   );
 }
-
-// Wrap the component in React.memo for Performance-Optimierung
-const MemoizedSneakerCard = React.memo(
-  SneakerCard,
-  (prevProps, nextProps) => {
-    // Vergleiche nur wichtige Props
-    if (prevProps.isCollectionItem !== nextProps.isCollectionItem) return false;
-    
-    // Bei Collection-Items müssen wir auch auf Änderungen achten
-    if (prevProps.isCollectionItem) {
-      const prevItem = prevProps.sneaker as CollectionItem;
-      const nextItem = nextProps.sneaker as CollectionItem;
-      return prevItem.id === nextItem.id && 
-             (prevItem.updatedAt === nextItem.updatedAt);
-    }
-    
-    // Bei normalen Sneakers reicht der ID-Vergleich
-    const prevSneaker = prevProps.sneaker as Sneaker;
-    const nextSneaker = nextProps.sneaker as Sneaker;
-    return prevSneaker.id === nextSneaker.id;
-  }
-);
-
-export default MemoizedSneakerCard;
