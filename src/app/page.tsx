@@ -23,13 +23,13 @@ export default function Home() {
             <>
               <Link
                 href="/profile"
-                className="rounded-lg border border-solid border-[#e5e5e5] px-4 py-2 hover:bg-[#fdf1f0] transition-colors"
+                className="flex rounded-lg border justify-center items-center text-center border-solid border-[#e5e5e5] px-4 py-2 hover:bg-[#fdf1f0] transition-colors"
               >
                 Profile
               </Link>
               <Link
                 href="/search"
-                className="rounded-lg bg-[#d14124] text-white px-4 py-2 hover:bg-[#b93a20] transition-colors"
+                className="flex justify-center items-center rounded-lg bg-[#d14124] text-white px-4 py-2 hover:bg-[#b93a20] transition-colors"
               >
                 Add Sneakers
               </Link>
@@ -38,13 +38,13 @@ export default function Home() {
             <>
               <Link
                 href="/login"
-                className="rounded-lg border border-solid border-[#e5e5e5] px-4 py-2 hover:bg-[#fdf1f0] transition-colors"
+                className="flex rounded-lg border justify-center items-center text-center border-solid border-[#e5e5e5] px-4 py-2 hover:bg-[#fdf1f0] transition-colors"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-[#d14124] text-white px-4 py-2 hover:bg-[#b93a20] transition-colors"
+                className="flex justify-center items-center rounded-lg bg-[#d14124] text-white px-4 py-2 hover:bg-[#b93a20] transition-colors"
               >
                 Sign Up
               </Link>
