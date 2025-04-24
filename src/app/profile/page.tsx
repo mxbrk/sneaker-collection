@@ -53,15 +53,17 @@ export default function ProfilePage() {
   const [collection, setCollection] = useState<CollectionItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
   } | null>(null);
+  const [totalValue, setTotalValue] = useState<number>(0);
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const fetchData = async () => {
@@ -114,25 +116,36 @@ export default function ProfilePage() {
       }
     };
 
-    // Starte alle Anfragen parallel und warte nicht auf alle
+    // Starte alle Anfragen parallel 
     const userPromise = fetchUserData();
     const collectionPromise = fetchCollectionData();
     const wishlistPromise = fetchWishlistData();
 
-    // Setze die Wishlist sofort, wenn sie verfügbar ist
-    const wishlistData = await wishlistPromise;
-    setWishlist(wishlistData);
+    try {
+      // Direkt verarbeiten des Collection Promise
+      const collectionData = await collectionPromise;
+      setCollection(collectionData);
+      
+      // Berechne sofort den Total Value und setze ihn
+      const value = collectionData.reduce((total: number, item: CollectionItem) => {
+        return total + (item.purchasePrice || 0);
+      }, 0);
+      setTotalValue(value);
+      
+      // Direkt verarbeiten der Wishlist Promise
+      const wishlistData = await wishlistPromise;
+      setWishlist(wishlistData);
 
-    // Verarbeite die anderen Daten
-    const userData = await userPromise;
-    if (userData) {
-      setUser(userData);
+      // Dann den User Promise abwarten
+      const userData = await userPromise;
+      if (userData) {
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error("Error processing data:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    const collectionData = await collectionPromise;
-    setCollection(collectionData);
-
-    setIsLoading(false);
   };
 
   const handleLogout = async () => {
@@ -195,7 +208,16 @@ export default function ProfilePage() {
   
       if (response.ok) {
         // Update the collection state by removing the deleted item
-        setCollection(collection.filter(item => item.id !== id));
+        const updatedCollection = collection.filter(item => item.id !== id);
+        setCollection(updatedCollection);
+        
+        // Aktualisiere auch direkt den totalValue
+        const newTotalValue = updatedCollection.reduce(
+          (total, item) => total + (item.purchasePrice || 0), 
+          0
+        );
+        setTotalValue(newTotalValue);
+        
         setNotification({
           message: 'Removed from collection',
           type: 'success'
@@ -216,12 +238,6 @@ export default function ProfilePage() {
       // Clear the confirmation state
       setShowDeleteConfirmation(null);
     }
-  };
-
-  const getTotalValue = () => {
-    return collection.reduce((total, item) => {
-      return total + (item.purchasePrice || 0);
-    }, 0);
   };
 
   if (isLoading && !user) {
@@ -345,7 +361,7 @@ export default function ProfilePage() {
                 </span>
               </div>
               <div className="mt-4">
-                <span className="text-3xl font-bold">${getTotalValue().toFixed(2)}</span>
+                <span className="text-3xl font-bold">${totalValue.toFixed(2)}</span>
                 <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
               </div>
             </Link>
