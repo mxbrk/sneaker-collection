@@ -53,7 +53,7 @@ export default function ProfilePage() {
   const [collection, setCollection] = useState<CollectionItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
@@ -65,39 +65,74 @@ export default function ProfilePage() {
   }, [router]);
 
   const fetchData = async () => {
-    try {
-      // Fetch user data
-      const userResponse = await fetch('/api/user');
-      
-      if (!userResponse.ok) {
-        if (userResponse.status === 401) {
-          router.push('/login');
-          return;
+    setIsLoading(true);
+    
+    // Separate Funktionen für jeden Datentyp
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/user');
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push('/login');
+            return null;
+          }
+          throw new Error('Failed to fetch user data');
         }
-        throw new Error('Failed to fetch user data');
+        const data = await response.json();
+        return data.user;
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
       }
+    };
 
-      const userData = await userResponse.json();
-      setUser(userData.user);
-
-      // Fetch collection data
-      const collectionResponse = await fetch('/api/collection');
-      if (collectionResponse.ok) {
-        const collectionData = await collectionResponse.json();
-        setCollection(collectionData.collection || []);
+    const fetchCollectionData = async () => {
+      try {
+        const response = await fetch('/api/collection');
+        if (response.ok) {
+          const data = await response.json();
+          return data.collection || [];
+        }
+        return [];
+      } catch (error) {
+        console.error('Error fetching collection data:', error);
+        return [];
       }
+    };
 
-      // Fetch wishlist data
-      const wishlistResponse = await fetch('/api/wishlist');
-      if (wishlistResponse.ok) {
-        const wishlistData = await wishlistResponse.json();
-        setWishlist(wishlistData.wishlist || []);
+    const fetchWishlistData = async () => {
+      try {
+        const response = await fetch('/api/wishlist');
+        if (response.ok) {
+          const data = await response.json();
+          return data.wishlist || [];
+        }
+        return [];
+      } catch (error) {
+        console.error('Error fetching wishlist data:', error);
+        return [];
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      setIsLoading(false);
+    };
+
+    // Starte alle Anfragen parallel und warte nicht auf alle
+    const userPromise = fetchUserData();
+    const collectionPromise = fetchCollectionData();
+    const wishlistPromise = fetchWishlistData();
+
+    // Setze die Wishlist sofort, wenn sie verfügbar ist
+    const wishlistData = await wishlistPromise;
+    setWishlist(wishlistData);
+
+    // Verarbeite die anderen Daten
+    const userData = await userPromise;
+    if (userData) {
+      setUser(userData);
     }
+
+    const collectionData = await collectionPromise;
+    setCollection(collectionData);
+
+    setIsLoading(false);
   };
 
   const handleLogout = async () => {
@@ -118,6 +153,7 @@ export default function ProfilePage() {
       setIsLoading(false);
     }
   };
+  
   const handleRemoveFromWishlist = async (id: string) => {
     try {
       const response = await fetch(`/api/wishlist?id=${id}`, {
@@ -296,9 +332,10 @@ export default function ProfilePage() {
             </Link>
             
             <Link 
-  href=""
-  className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
->              <div className="flex justify-between items-center">
+              href=""
+              className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow hover:border-[#d14124] cursor-pointer"
+            >              
+              <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium text-[#171717]">Value</h3>
                 <span className="text-[#d14124] bg-[#fae5e1] rounded-full w-10 h-10 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -312,7 +349,6 @@ export default function ProfilePage() {
                 <p className="text-[#737373] mt-1 text-sm">Estimated value</p>
               </div>
             </Link>
-
           </div>
 
           {/* Collection Section */}
@@ -342,7 +378,6 @@ export default function ProfilePage() {
                     onEdit={() => fetchData()} // Reload data after edit
                   />
                 ))}
-
               </div>
             ) : (
               <div className="bg-white border border-dashed border-[#e5e5e5] rounded-xl p-10 text-center">
