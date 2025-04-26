@@ -1,7 +1,10 @@
-import { getCurrentUser } from '@/lib/auth';
-import { NextResponse } from 'next/server';
+// src/app/api/user/route.ts
+// Zeile ~4-28 ändern:
 
-// In src/app/api/user/route.ts, modify the GET function:
+import { NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/auth';
+
+export const revalidate = 60; // Cache für 60 Sekunden
 
 export async function GET() {
   try {
@@ -10,7 +13,12 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
-        { status: 401 }
+        { 
+          status: 401,
+          headers: {
+            'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+          }
+        }
       );
     }
 
@@ -22,10 +30,16 @@ export async function GET() {
           username: user.username,
           createdAt: user.createdAt,
           showKidsShoes: user.showKidsShoes,
-          genderFilter: user.genderFilter || 'both', // Add this line
+          genderFilter: user.genderFilter || 'both',
         }
       },
-      { status: 200 }
+      { 
+        status: 200,
+        headers: {
+          // Cache für eingeloggte Benutzer für 60 Sekunden
+          'Cache-Control': 'private, max-age=60, stale-while-revalidate=300',
+        }
+      }
     );
   } catch (error) {
     console.error('Get user error:', error);
