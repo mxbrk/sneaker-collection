@@ -48,6 +48,9 @@ export default function CollectionPage() {
   const [sortOption, setSortOption] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+    // State für ein-/ausgeklappte Filter
+  const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(false);
+
   useEffect(() => {
     fetchCollection();
   }, []);
@@ -238,9 +241,37 @@ export default function CollectionPage() {
           </div>
         </div>
 
+        {/* Filters and Search - mit Ein-/Ausklapp-Funktion */}
+        <div className="bg-white rounded-lg mb-6 border border-[#f0f0f0]">
+          <div className="p-4 flex justify-between items-center cursor-pointer" onClick={() => setIsFilterExpanded(!isFilterExpanded)}>
+            <h3 className="font-medium">Filter & Sort</h3>
+            <button 
+              className="text-[#737373] hover:text-[#d14124] transition-colors"
+              aria-expanded={isFilterExpanded}
+              aria-label={isFilterExpanded ? "Collapse filters" : "Expand filters"}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className={`transform transition-transform ${isFilterExpanded ? 'rotate-180' : ''}`}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+
+
         {/* Filters and Sorting */}
-        <div className="bg-white rounded-lg p-4 mb-6 border border-[#f0f0f0] flex flex-col gap-4">
-          <div className="flex-1 w-full mb-4">
+        {isFilterExpanded && (
+        <div className="p-4 pt-0 border-t border-[#f0f0f0] flex flex-col gap-4">
+              <div className="flex-1 w-full">
             <label className="block text-sm font-medium text-[#737373] mb-1">Search</label>
             <div className="relative">
               <input
@@ -360,6 +391,8 @@ export default function CollectionPage() {
               </div>
             </div>
           )}
+        </div>
+      )}
         </div>
 
         {/* Collection Grid */}
