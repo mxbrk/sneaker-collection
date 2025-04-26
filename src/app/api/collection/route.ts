@@ -36,7 +36,6 @@ export async function GET() {
       );
     }
 
-    // Wichtig: Nur die tatsächlich benötigten Felder abfragen
     const collection = await prisma.collection.findMany({
       where: {
         userId: user.id,
@@ -44,35 +43,9 @@ export async function GET() {
       orderBy: {
         createdAt: 'desc',
       },
-      // Performance-Optimierung: Selektieren Sie nur die benötigten Felder
-      select: {
-        id: true,
-        sneakerId: true,
-        sku: true,
-        brand: true,
-        title: true,
-        colorway: true,
-        image: true,
-        sizeUS: true,
-        sizeEU: true,
-        sizeUK: true,
-        condition: true,
-        purchaseDate: true,
-        retailPrice: true,
-        purchasePrice: true,
-        notes: true,
-        labels: true,
-        createdAt: true,
-        updatedAt: true,
-      }
     });
 
-    return NextResponse.json({ collection }, { 
-      status: 200,
-      headers: {
-        'Cache-Control': 'private, max-age=30, stale-while-revalidate=300',
-      }
-    });
+    return NextResponse.json({ collection }, { status: 200 });
   } catch (error) {
     console.error('Collection fetch error:', error);
     return NextResponse.json(

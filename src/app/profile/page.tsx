@@ -61,53 +61,11 @@ export default function ProfilePage() {
   } | null>(null);
   const [totalValue, setTotalValue] = useState<number>(0);
 
-useEffect(() => {
-  const fetchData = async () => {
-    setIsLoading(true);
-    
-    try {
-      // Parallele Anfragen mit Promise.all für bessere Performance
-      const [userResponse, collectionResponse, wishlistResponse] = await Promise.all([
-        fetch('/api/user'),
-        fetch('/api/collection'),
-        fetch('/api/wishlist')
-      ]);
-      
-      // User-Daten verarbeiten
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        setUser(userData.user);
-      } else if (userResponse.status === 401) {
-        router.push('/login');
-        return;
-      }
-      
-      // Collection-Daten verarbeiten
-      if (collectionResponse.ok) {
-        const collectionData = await collectionResponse.json();
-        const items = collectionData.collection || [];
-        setCollection(items);
-        
-        // Sofort Gesamtwert berechnen
-        const value = collectionData.reduce((total: number, item: CollectionItem) => {
-          return total + (item.purchasePrice || 0);
-        }, 0);        setTotalValue(value);
-      }
-      
-      // Wishlist-Daten verarbeiten
-      if (wishlistResponse.ok) {
-        const wishlistData = await wishlistResponse.json();
-        setWishlist(wishlistData.wishlist || []);
-      }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  fetchData();
-}, [router]);
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
   const fetchData = async () => {
     setIsLoading(true);
     
