@@ -32,15 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      // Überprüfe, ob Cache noch gültig ist
+      // Optimierter Cache-Check mit SWR-ähnlichem Ansatz
       const now = Date.now();
-      if (now - lastFetchTime < cacheValidityTime && user) {
+      const shouldRefetch = !user || (now - lastFetchTime > cacheValidityTime);
+      
+      if (!shouldRefetch) {
         setLoading(false);
-        return; // Verwende Cache
+        return;
       }
-
+  
       try {
-        const response = await fetch('/api/user');
+        setLoading(true); // Nur setzen, wenn wir wirklich laden
+        const response = await fetch('/api/user', {
+          // Wichtig: Verhindert Caching durch den Browser
+          headers: { 'Cache-Control': 'no-cache' }
+        });
         
         if (response.ok) {
           const data = await response.json();
@@ -56,9 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     };
-
+  
     fetchUser();
-  }, [lastFetchTime, user]);
+  }, [lastFetchTime, user, cacheValidityTime]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);

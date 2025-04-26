@@ -36,7 +36,7 @@ export async function createSession(userId: string) {
     data: {
       userId,
       expiresAt,
-      token, // Add token field to satisfy the schema constraint
+      token,
     },
   });
 
@@ -47,9 +47,9 @@ export async function createSession(userId: string) {
     value: session.id,
     httpOnly: true,
     path: '/',
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: MAX_AGE,
-    sameSite: 'strict',
+    sameSite: 'lax',
   });
 
   return session;
