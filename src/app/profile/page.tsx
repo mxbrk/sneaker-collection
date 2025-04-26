@@ -89,7 +89,9 @@ export default function ProfilePage() {
           setCollection(items);
           
           // Sofort Gesamtwert berechnen
-          const value = items.reduce((total: any, item: { purchasePrice: any; }) => total + (item.purchasePrice || 0), 0);
+          const value = items.reduce((total: number, item: CollectionItem) => {
+            return total + (item.purchasePrice || 0);
+          }, 0);
           setTotalValue(value);
         }
         
