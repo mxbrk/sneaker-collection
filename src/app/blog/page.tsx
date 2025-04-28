@@ -28,7 +28,7 @@ export default function BlogPage() {
             </div>
             <h2 className="text-2xl font-bold text-[#171717] mb-4">Blog Coming Soon</h2>
             <p className="text-[#737373] mb-8 max-w-lg mx-auto">
-              We're working on creating insightful sneaker content. Our blog will launch soon with articles, guides, and news about the latest trends and opinions in the sneaker world.
+              We&apos;re working on creating insightful sneaker content. Our blog will launch soon with articles, guides, and news about the latest trends and opinions in the sneaker world.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
