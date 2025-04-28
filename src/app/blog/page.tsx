@@ -53,7 +53,7 @@ export default function BlogPage() {
                 <div className="inline-block px-3 py-1 rounded-full bg-[#fae5e1] text-[#d14124] text-sm font-medium mb-4">
                   Coming Soon
                 </div>
-                <h2 className="text-2xl font-bold text-[#171717] mb-4">We're Crafting Something Special</h2>
+                <h2 className="text-2xl font-bold text-[#171717] mb-4">We&apos;re Crafting Something Special</h2>
                 <p className="text-[#737373] mb-8 leading-relaxed">
                   Our team is working on creating insightful content about sneaker culture, collection management, 
                   and the latest industry trends. The blog will launch soon with expert guides, news, and community stories.
