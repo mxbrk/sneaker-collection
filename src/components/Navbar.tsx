@@ -38,14 +38,14 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-4">
             <Link
-              href="/"
+              href="/blog"
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive("/")
+                isActive("/blog")
                   ? "bg-[#fae5e1] text-[#d14124]"
                   : "text-[#171717] hover:bg-[#f5f5f5]"
               }`}
             >
-              Home
+              Blog
             </Link>
 
             {/* Only show Add Sneaker link for logged-in users */}
@@ -139,15 +139,15 @@ export default function Navbar() {
         <div className="md:hidden p-4 border-t border-[#e5e5e5] bg-white">
           <nav className="flex flex-col space-y-2">
             <Link
-              href="/"
+              href="/blog"
               onClick={closeMenu}
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive("/")
+                isActive("/blog")
                   ? "bg-[#fae5e1] text-[#d14124]"
                   : "text-[#171717] hover:bg-[#f5f5f5]"
               }`}
             >
-              Home
+              Blog
             </Link>
             {/* Only show Add Sneaker link for logged-in users in mobile menu */}
             {user && (

@@ -87,6 +87,13 @@ export default function Home() {
               >
                 Get Started
               </Link>
+              <Link
+                href="/blog"
+                className="flex rounded-lg border justify-center items-center text-center border-solid border-[#e5e5e5] px-4 py-2 hover:bg-[#fdf1f0] transition-colors"
+              >
+                Blog
+              </Link>
+
             </>
           )}
         </div>
