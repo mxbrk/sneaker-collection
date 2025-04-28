@@ -130,7 +130,7 @@ export default function BlogPage() {
                 <div className="mb-6 md:mb-0 md:pr-12">
                   <h3 className="text-xl font-bold text-[#171717] mb-3">Be the First to Know</h3>
                   <p className="text-[#737373] leading-relaxed">
-                    Subscribe to get notified when our blog launches. We'll send you updates 
+                    Subscribe to get notified when our blog launches. We&apos;ll send you updates 
                     about new articles, exclusive content, and special sneaker events.
                   </p>
                 </div>
