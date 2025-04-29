@@ -126,7 +126,7 @@ export async function fetchArticleBySlug(
         );
 
         content = richTextBlocks
-          .map((block: any) => `<p>${block.body}</p>`)
+          .map((block) => `<p>${block.body}</p>`)
           .join("\n");
       }
 
