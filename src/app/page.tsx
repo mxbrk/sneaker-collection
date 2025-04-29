@@ -141,7 +141,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-[#171717]">Collection Management</h3>
-                <p className="text-[#737373]">Track your sneaker collection with detailed information including size, condition, and purchase details.</p>
+                <p className="text-[#737373]">Track your sneaker collection with detailed information including condition, purchase details and other useful labels.</p>
               </div>
               
               {/* Feature 2 */}

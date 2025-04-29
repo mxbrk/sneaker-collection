@@ -1,10 +1,10 @@
-// src/lib/blog-service.ts
+
 export interface Article {
   id: number;
   documentId: string;
   title: string;
   description: string;
-  content?: string; // Add content field for rich text
+  content?: string;
   slug: string;
   createdAt: string;
   updatedAt: string;
@@ -41,7 +41,7 @@ export async function fetchArticles(): Promise<ArticleResponse> {
   }
   
   try {
-    const response = await fetch('https://beneficial-health-05fdf4deec.strapiapp.com/api/articles', {
+    const response = await fetch('https://beneficial-health-05fdf4deec.strapiapp.com/api/articles?populate=*', {
       cache: 'no-store', // Disable caching to always get fresh data
       headers: {
         'Content-Type': 'application/json',
@@ -81,62 +81,56 @@ export async function fetchArticles(): Promise<ArticleResponse> {
  */
 export async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   try {
-    // First try to find the article in the list
-    const articles = await fetchArticles();
-    const article = articles.data.find(article => article.slug === slug);
-    
-    if (!article) {
+    const response = await fetch(
+      `https://beneficial-health-05fdf4deec.strapiapp.com/api/articles?filters[slug][$eq]=${slug}&populate=*`, 
+      {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.warn(`Could not fetch detailed article content, status: ${response.status}`);
       return null;
     }
+
+    const data = await response.json();
     
-    try {
-      // Fetch the detailed article with rich text content
-      // For Strapi v4, we need to use the documented API format and may need to filter by slug
-      const response = await fetch(
-        `https://beneficial-health-05fdf4deec.strapiapp.com/api/articles?filters[slug][$eq]=${slug}&populate=*`, 
-        {
-          cache: 'no-store',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    if (data && data.data && data.data.length > 0) {
+      const fullArticle = data.data[0];
+      const attributes = fullArticle;
 
-      if (!response.ok) {
-        console.warn(`Could not fetch detailed article content, status: ${response.status}`);
-        return article; // Return basic article without content
+      // Extrahiere Inhalte aus dem Block (z. B. nur rich-text)
+      let content = '';
+      if (attributes.blocks && Array.isArray(attributes.blocks)) {
+        const richTextBlocks = attributes.blocks.filter(
+          (block: any) => block.__component === 'shared.rich-text' && block.body
+        );
+        content = richTextBlocks.map((block: any) => `<p>${block.body}</p>`).join('\n');
       }
 
-      const data = await response.json();
-      
-      // Check if we have data and it has the expected structure
-      if (data && data.data && data.data.length > 0) {
-        const fullArticle = data.data[0];
-        const attributes = fullArticle.attributes;
-        
-        // Look for content field in the attributes
-        const richTextContent = attributes.content || '';
-        
-        // Return enhanced article with content
-        return {
-          ...article,
-          content: richTextContent
-        };
-      } else {
-        console.warn('Unexpected API response structure:', data);
-      }
-    } catch (contentError) {
-      console.error('Error fetching detailed article:', contentError);
-      // If fetching detailed content fails, return the basic article
+      return {
+        id: attributes.id,
+        documentId: attributes.documentId,
+        title: attributes.title,
+        description: attributes.description,
+        slug: attributes.slug,
+        createdAt: attributes.createdAt,
+        updatedAt: attributes.updatedAt,
+        publishedAt: attributes.publishedAt,
+        content,
+      };
     }
-    
-    // Return the basic article if we couldn't enhance it with content
-    return article;
+
+    return null;
   } catch (error) {
     console.error(`Error fetching article with slug "${slug}":`, error);
     return null;
   }
 }
+
 
 /**
  * Fetches the featured article
