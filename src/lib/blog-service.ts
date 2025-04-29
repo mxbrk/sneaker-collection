@@ -4,6 +4,7 @@ export interface Article {
   documentId: string;
   title: string;
   description: string;
+  content?: string; // Add content field for rich text
   slug: string;
   createdAt: string;
   updatedAt: string;
@@ -80,8 +81,57 @@ export async function fetchArticles(): Promise<ArticleResponse> {
  */
 export async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   try {
-    const response = await fetchArticles();
-    return response.data.find(article => article.slug === slug) || null;
+    // First try to find the article in the list
+    const articles = await fetchArticles();
+    const article = articles.data.find(article => article.slug === slug);
+    
+    if (!article) {
+      return null;
+    }
+    
+    try {
+      // Fetch the detailed article with rich text content
+      // For Strapi v4, we need to use the documented API format and may need to filter by slug
+      const response = await fetch(
+        `https://beneficial-health-05fdf4deec.strapiapp.com/api/articles?filters[slug][$eq]=${slug}&populate=*`, 
+        {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.warn(`Could not fetch detailed article content, status: ${response.status}`);
+        return article; // Return basic article without content
+      }
+
+      const data = await response.json();
+      
+      // Check if we have data and it has the expected structure
+      if (data && data.data && data.data.length > 0) {
+        const fullArticle = data.data[0];
+        const attributes = fullArticle.attributes;
+        
+        // Look for content field in the attributes
+        const richTextContent = attributes.content || '';
+        
+        // Return enhanced article with content
+        return {
+          ...article,
+          content: richTextContent
+        };
+      } else {
+        console.warn('Unexpected API response structure:', data);
+      }
+    } catch (contentError) {
+      console.error('Error fetching detailed article:', contentError);
+      // If fetching detailed content fails, return the basic article
+    }
+    
+    // Return the basic article if we couldn't enhance it with content
+    return article;
   } catch (error) {
     console.error(`Error fetching article with slug "${slug}":`, error);
     return null;
