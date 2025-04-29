@@ -86,6 +86,7 @@ export default function BlogArticlePage() {
   const [error, setError] = useState<string | null>(null);
   const slug = params.slug as string;
 
+  
   useEffect(() => {
     const getArticle = async () => {
       try {
