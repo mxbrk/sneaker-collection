@@ -1,11 +1,41 @@
 'use client';
 
 import MainLayout from '@/components/MainLayout';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/auth-context';
+import { Article, fetchArticles, fetchFeaturedArticle, formatDate } from '@/lib/blog-service';
+import BlogCard from '@/components/BlogCard';
+import BlogCardSkeleton, { FeaturedArticleSkeleton } from '@/components/BlogCardSkeleton';
 
 export default function BlogPage() {
-  const { user } = useAuth();
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getArticles = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch all articles and the featured article in parallel
+        const [articlesResponse, featured] = await Promise.all([
+          fetchArticles(),
+          fetchFeaturedArticle()
+        ]);
+        
+        setArticles(articlesResponse.data);
+        setFeaturedArticle(featured);
+      } catch (err) {
+        setError('Failed to load articles. Please try again later.');
+        console.error('Error loading articles:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getArticles();
+  }, []);
 
   return (
     <MainLayout>
@@ -26,7 +56,7 @@ export default function BlogPage() {
                 <span className="text-[#d14124]"> Blog</span>
               </h1>
               <p className="text-lg text-[#737373] max-w-2xl mx-auto mb-10 leading-relaxed">
-                Your source for sneaker culture, collection tips, and the latest drops.
+                Your source for sneaker culture, collection tips, and useful guides.
               </p>
               
               <div className="w-24 h-1 bg-[#d14124] mx-auto mb-10 rounded-full"></div>
@@ -35,49 +65,55 @@ export default function BlogPage() {
         </div>
         
         {/* Main Content */}
-        <div className="max-w-5xl mx-auto px-4 py-12">
-          {/* Coming Soon Card */}
-          <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-[#f0f0f0] transform transition-all duration-300 hover:shadow-xl">
-            <div className="md:flex">
-              {/* Left Column - Graphic */}
-              <div className="bg-gradient-to-br from-[#fae5e1] to-white md:w-2/5 p-8 flex items-center justify-center">
-                <div className="text-[#d14124] w-32 h-32 md:w-40 md:h-40">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-              </div>
-              
-              {/* Right Column - Content */}
-              <div className="md:w-3/5 p-8 md:p-10">
-                <div className="inline-block px-3 py-1 rounded-full bg-[#fae5e1] text-[#d14124] text-sm font-medium mb-4">
-                  Coming Soon
-                </div>
-                <h2 className="text-2xl font-bold text-[#171717] mb-4">We&apos;re Crafting Something Special</h2>
-                <p className="text-[#737373] mb-8 leading-relaxed">
-                  Our team is working on creating insightful content about sneaker culture, collection management, 
-                  and the latest industry trends. The blog will launch soon with expert guides, news, and community stories.
-                </p>
-                
-                <div className="flex flex-wrap gap-4">
-                  <Link 
-                    href="/profile" 
-                    className="px-6 py-3 bg-white border border-[#e5e5e5] text-[#171717] rounded-lg hover:bg-[#f8f8f8] transition-colors font-medium"
-                  >
-                    Back to Profile
-                  </Link>
-                  <Link 
-                    href="/search" 
-                    className="px-6 py-3 bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition-colors font-medium"
-                  >
-                    Explore Sneakers
-                  </Link>
-                </div>
-              </div>
-            </div>
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          
+          {/* Articles Grid Header */}
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-[#171717]">Latest Articles</h2>
           </div>
           
-          {/* Features Preview */}
+          {/* Articles Grid */}
+          {error ? (
+            <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-8 text-center">
+              {error}
+            </div>
+          ) : isLoading ? (
+            <>
+              {/* Featured Article Skeleton */}
+              <div className="mb-16">
+                <div className="h-8 w-56 bg-[#f5f5f5] rounded-md mb-6 animate-pulse"></div>
+                <FeaturedArticleSkeleton />
+              </div>
+              
+              {/* Articles Grid Skeleton */}
+              <div className="h-8 w-48 bg-[#f5f5f5] rounded-md mb-8 animate-pulse"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(6)].map((_, index) => (
+                  <BlogCardSkeleton key={index} />
+                ))}
+              </div>
+            </>
+          ) : articles.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {articles.map((article) => (
+                <BlogCard key={article.id} article={article} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl p-10 text-center border border-[#f0f0f0] shadow-sm">
+              <div className="mx-auto w-16 h-16 mb-4 text-[#d14124] opacity-70">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium text-[#171717] mb-2">No articles found</h3>
+              <p className="text-[#737373] max-w-md mx-auto mb-6">
+                Check back later for new content about sneaker culture and collection tips.
+              </p>
+            </div>
+          )}
+          
+          {/* 
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow text-center">
               <div className="w-12 h-12 mx-auto mb-4 text-[#d14124]">
@@ -87,7 +123,7 @@ export default function BlogPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">News & Releases</h3>
               <p className="text-[#737373] text-sm">
-                Stay informed about the latest drops, restocks, and industry news in the sneaker world.
+                Stay informed about the latest trends and industry news in the sneaker world.
               </p>
             </div>
             
@@ -115,6 +151,7 @@ export default function BlogPage() {
               </p>
             </div>
           </div>
+        */}
           
           {/* Newsletter Signup */}
           <div className="mt-20 bg-gradient-to-r from-[#fae5e1] to-white rounded-xl p-8 relative overflow-hidden">
@@ -128,10 +165,9 @@ export default function BlogPage() {
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="mb-6 md:mb-0 md:pr-12">
-                  <h3 className="text-xl font-bold text-[#171717] mb-3">Be the First to Know</h3>
+                  <h3 className="text-xl font-bold text-[#171717] mb-3">Subscribe to Our Newsletter</h3>
                   <p className="text-[#737373] leading-relaxed">
-                    Subscribe to get notified when our blog launches. We&apos;ll send you updates 
-                    about new articles, exclusive content, and special sneaker events.
+                    Get the latest articles, collection tips, and sneaker news delivered straight to your inbox.
                   </p>
                 </div>
                 
@@ -143,7 +179,7 @@ export default function BlogPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    Enable Notifications
+                    Subscribe Now
                   </Link>
                 </div>
               </div>
