@@ -3,6 +3,7 @@
 import MainLayout from '@/components/MainLayout';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Article, fetchArticles, fetchFeaturedArticle, formatDate } from '@/lib/blog-service';
 import BlogCard from '@/components/BlogCard';
 import BlogCardSkeleton, { FeaturedArticleSkeleton } from '@/components/BlogCardSkeleton';
@@ -42,30 +43,83 @@ export default function BlogPage() {
       <div className="bg-gradient-to-b from-white to-[#fafafa] min-h-screen">
         {/* Hero Section */}
         <div className="relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 z-0 opacity-10">
+          {/* Background Pattern - breiter gemacht */}
+          <div className="absolute inset-0 z-0 opacity-10 scale-165">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <path fill="#d14124" d="M42.8,-68.2C56.9,-61.3,70.5,-52.1,78.3,-39.4C86.2,-26.7,88.2,-10.4,84.6,4.3C81.1,19,72,32.2,61.3,41.8C50.6,51.4,38.2,57.3,25.3,60.9C12.3,64.4,-1.2,65.5,-14.3,63.1C-27.4,60.7,-40.1,54.8,-49.4,45.5C-58.7,36.1,-64.5,23.3,-69.1,9.1C-73.8,-5.1,-77.3,-20.6,-71.5,-31.6C-65.8,-42.6,-50.6,-49.2,-36.9,-56C-23.1,-62.9,-11.6,-70,2.2,-73.5C15.9,-77,31.8,-76.9,42.8,-68.2Z" transform="translate(50 50)" />
             </svg>
           </div>
           
-          <div className="max-w-5xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28 relative z-10">
+          <div className="max-w-5xl mx-auto px-4 pt-10 pb-8 sm:pt-12 sm:pb-10 relative z-10">
             <div className="text-center">
-              <h1 className="text-5xl font-bold text-[#171717] mb-4 tracking-tight">
+              <h1 className="text-4xl font-bold text-[#171717] mb-3 tracking-tight">
                 <span className="inline-block transform transition-transform hover:scale-105 duration-500">SoleUp</span>
                 <span className="text-[#d14124]"> Blog</span>
               </h1>
-              <p className="text-lg text-[#737373] max-w-2xl mx-auto mb-10 leading-relaxed">
-                Your source for sneaker culture, collection tips, and useful guides.
+              <p className="text-base text-[#737373] max-w-2xl mx-auto mb-5 leading-relaxed">
+                Your source for sneaker culture, collection tips, and the latest drops.
               </p>
               
-              <div className="w-24 h-1 bg-[#d14124] mx-auto mb-10 rounded-full"></div>
+              <div className="w-16 h-1 bg-[#d14124] mx-auto mb-6 rounded-full"></div>
             </div>
           </div>
         </div>
         
         {/* Main Content */}
         <div className="max-w-6xl mx-auto px-4 py-12">
+          {/* Featured Article Section (if articles exist) */}
+          {!isLoading && featuredArticle && !error && (
+            <div className="mb-16">
+              <h2 className="text-2xl font-bold text-[#171717] mb-6">Featured Article</h2>
+              
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-[#f0f0f0] transition-all duration-300 hover:shadow-lg">
+                <div className="grid md:grid-cols-5">
+                  {/* Left Image/Color Column */}
+                  <div className="hidden md:block md:col-span-1 bg-gradient-to-br from-[#d14124] to-[#fae5e1] relative">
+                    {featuredArticle.coverImage && featuredArticle.coverImage.attributes && featuredArticle.coverImage.attributes.url ? (
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={featuredArticle.coverImage.attributes.url}
+                          alt={featuredArticle.coverImage.attributes.alternativeText || featuredArticle.title}
+                          fill
+                          sizes="(max-width: 768px) 0vw, 20vw"
+                          className="object-cover"
+                          priority
+                        />
+                        {/* Overlay für besseren Kontrast */}
+                        <div className="absolute inset-0 bg-[#d14124] opacity-30 mix-blend-overlay"></div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-16 h-16 opacity-80">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Content Column */}
+                  <div className="p-8 md:col-span-4">
+                    <div className="inline-block px-3 py-1 rounded-full bg-[#fae5e1] text-[#d14124] text-xs font-medium mb-4">
+                      {formatDate(featuredArticle.publishedAt)}
+                    </div>
+                    <h3 className="text-2xl font-bold text-[#171717] mb-4">{featuredArticle.title}</h3>
+                    <p className="text-[#737373] mb-6 line-clamp-3">{featuredArticle.description}</p>
+                    <Link 
+                      href={`/blog/${featuredArticle.slug}`} 
+                      className="inline-flex items-center px-4 py-2 bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition-colors text-sm font-medium"
+                    >
+                      <span>Read Article</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Articles Grid Header */}
           <div className="flex justify-between items-center mb-8">
@@ -113,7 +167,7 @@ export default function BlogPage() {
             </div>
           )}
           
-          {/* 
+          {/* Features/Category Preview */}
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] hover:shadow-md transition-shadow text-center">
               <div className="w-12 h-12 mx-auto mb-4 text-[#d14124]">
@@ -151,7 +205,6 @@ export default function BlogPage() {
               </p>
             </div>
           </div>
-        */}
           
           {/* Newsletter Signup */}
           <div className="mt-20 bg-gradient-to-r from-[#fae5e1] to-white rounded-xl p-8 relative overflow-hidden">
