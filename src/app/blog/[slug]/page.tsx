@@ -140,8 +140,8 @@ export default function BlogArticlePage() {
                 {/* Placeholder for article content since the API doesn't provide the full content */}
                 <div className="py-6">
                   <p className="mb-4">
-                    This is a placeholder for the article content. Since the API doesn't provide the full content body, 
-                    we're showing the article description instead. In a production environment, you would fetch the full 
+                    This is a placeholder for the article content. Since the API doesn&apos;t provide the full content body, 
+                    we&apos;re showing the article description instead. In a production environment, you would fetch the full 
                     article content and render it here.
                   </p>
                   
