@@ -102,8 +102,15 @@ export default function Home() {
                         href="/login"
                         className="px-6 py-3 rounded-lg border border-[#e5e5e5] text-[#171717] hover:bg-[#fdf1f0] hover:border-[#d14124] transition-colors"
                       >
-                        I Already Have an Account
+                        I already have an account
                       </Link>
+                      <Link
+                        href="/blog"
+                        className="px-6 py-3 rounded-lg bg-[#d14124] text-white hover:bg-[#b93a20] transition-colors shadow-md"
+                      >
+                        Blog
+                      </Link>
+
                     </>
                   )}
                 </div>
