@@ -7,6 +7,8 @@ import { Article, fetchArticles, fetchFeaturedArticle, formatDate } from '@/lib/
 import BlogCard from '@/components/BlogCard';
 import BlogCardSkeleton, { FeaturedArticleSkeleton } from '@/components/BlogCardSkeleton';
 
+// Removed metadata export since it's not allowed in client components
+
 export default function BlogPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
@@ -67,7 +69,43 @@ export default function BlogPage() {
         {/* Main Content */}
         <div className="max-w-6xl mx-auto px-4 py-12">
           {/* Featured Article Section (if articles exist) */}
-         
+          {!isLoading && featuredArticle && !error && (
+            <div className="mb-16">
+              <h2 className="text-2xl font-bold text-[#171717] mb-6">Featured Article</h2>
+              
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-[#f0f0f0] transition-all duration-300 hover:shadow-lg">
+                <div className="grid md:grid-cols-5">
+                  {/* Left Color Column */}
+                  <div className="hidden md:block md:col-span-1 bg-gradient-to-br from-[#d14124] to-[#fae5e1]">
+                    <div className="w-full h-full flex items-center justify-center text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-16 h-16 opacity-80">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  {/* Content Column */}
+                  <div className="p-8 md:col-span-4">
+                    <div className="inline-block px-3 py-1 rounded-full bg-[#fae5e1] text-[#d14124] text-xs font-medium mb-4">
+                      {formatDate(featuredArticle.publishedAt)}
+                    </div>
+                    <h3 className="text-2xl font-bold text-[#171717] mb-4">{featuredArticle.title}</h3>
+                    <p className="text-[#737373] mb-6 line-clamp-3">{featuredArticle.description}</p>
+                    <Link 
+                      href={`/blog/${featuredArticle.slug}`} 
+                      className="inline-flex items-center px-4 py-2 bg-[#d14124] text-white rounded-lg hover:bg-[#b93a20] transition-colors text-sm font-medium"
+                    >
+                      <span>Read Article</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Articles Grid Header */}
           <div className="flex justify-between items-center mb-8">

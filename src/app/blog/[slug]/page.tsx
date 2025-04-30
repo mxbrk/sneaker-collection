@@ -6,78 +6,6 @@ import MainLayout from '@/components/MainLayout';
 import Link from 'next/link';
 import { Article, fetchArticleBySlug, formatDate } from '@/lib/blog-service';
 
-// Add CSS for rich text content styling
-const richTextStyles = `
-  .rich-text-content h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #171717;
-  }
-  .rich-text-content h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #171717;
-  }
-  .rich-text-content h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-top: 1.25rem;
-    margin-bottom: 0.75rem;
-    color: #171717;
-  }
-  .rich-text-content p {
-    margin-bottom: 1rem;
-    line-height: 1.7;
-  }
-  .rich-text-content ul, .rich-text-content ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  .rich-text-content ul {
-    list-style-type: disc;
-  }
-  .rich-text-content ol {
-    list-style-type: decimal;
-  }
-  .rich-text-content li {
-    margin-bottom: 0.5rem;
-  }
-  .rich-text-content a {
-    color: #d14124;
-    text-decoration: underline;
-  }
-  .rich-text-content a:hover {
-    color: #b93a20;
-  }
-  .rich-text-content blockquote {
-    border-left: 4px solid #d14124;
-    padding-left: 1rem;
-    margin-left: 0;
-    margin-right: 0;
-    font-style: italic;
-    color: #737373;
-  }
-  .rich-text-content img {
-    max-width: 100%;
-    height: auto;
-    margin: 1.5rem 0;
-    border-radius: 0.5rem;
-  }
-  .rich-text-content figure {
-    margin: 1.5rem 0;
-  }
-  .rich-text-content figcaption {
-    font-size: 0.875rem;
-    color: #737373;
-    text-align: center;
-    margin-top: 0.5rem;
-  }
-`;
-
 export default function BlogArticlePage() {
   const params = useParams();
   const router = useRouter();
@@ -86,7 +14,6 @@ export default function BlogArticlePage() {
   const [error, setError] = useState<string | null>(null);
   const slug = params.slug as string;
 
-  
   useEffect(() => {
     const getArticle = async () => {
       try {
@@ -163,8 +90,6 @@ export default function BlogArticlePage() {
 
   return (
     <MainLayout>
-      {/* Add style tag for rich text content */}
-      <style dangerouslySetInnerHTML={{ __html: richTextStyles }} />
       <div className="min-h-screen bg-[#fafafa]">
         {/* Article Hero */}
         <div className="w-full bg-gradient-to-r from-[#fae5e1] to-white py-16 relative overflow-hidden">
@@ -216,7 +141,6 @@ export default function BlogArticlePage() {
                 <div className="py-6">
                   {article.content ? (
                     <div 
-                      className="rich-text-content" 
                       dangerouslySetInnerHTML={{ __html: article.content }}
                     />
                   ) : (
@@ -235,51 +159,6 @@ export default function BlogArticlePage() {
               </div>
             </div>
             
-                       {/* 
-            <div className="mb-12">
-              <h3 className="text-2xl font-bold text-[#171717] mb-6">You Might Also Like</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] hover:shadow-md transition-all duration-300">
-                  <div className="p-6">
-                    <h4 className="font-bold text-lg mb-2 text-[#171717]">Collection Maintenance Tips</h4>
-                    <p className="text-[#737373] mb-4 line-clamp-2">
-                      Learn how to keep your sneaker collection in pristine condition with these expert tips.
-                    </p>
-                    <Link 
-                      href="/blog" 
-                      className="text-[#d14124] hover:text-[#b93a20] font-medium flex items-center gap-1 text-sm"
-                    >
-                      <span>Read article</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
-                
-                <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] hover:shadow-md transition-all duration-300">
-                  <div className="p-6">
-                    <h4 className="font-bold text-lg mb-2 text-[#171717]">Upcoming Releases</h4>
-                    <p className="text-[#737373] mb-4 line-clamp-2">
-                      Stay ahead of the game with our guide to the most anticipated sneaker drops this month.
-                    </p>
-                    <Link 
-                      href="/blog" 
-                      className="text-[#d14124] hover:text-[#b93a20] font-medium flex items-center gap-1 text-sm"
-                    >
-                      <span>Read article</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-            */}
             {/* Back to Blog Button */}
             <div className="text-center">
               <Link

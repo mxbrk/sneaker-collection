@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'SoleUp Sneaker Collection',
-  description: 'A modern, secure, and scalable application built with Next.js',
+  description: 'An app to collect and manage your sneaker. Overview your wishlist and the best prices on the market.',
   icons: {
     icon: [
       {
