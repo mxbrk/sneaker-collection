@@ -1,4 +1,3 @@
-// src/app/blog/page.tsx
 'use client';
 
 import MainLayout from "@/components/MainLayout";
@@ -14,19 +13,16 @@ interface Article {
 }
 
 export default function BlogPage() {
-  // Diese Funktion würde später durch ContentLayer Implementierung ersetzt
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Simuliere das Laden von Artikeln (später durch ContentLayer ersetzt)
   useEffect(() => {
     setIsLoading(true);
-    // Platzhalter - wird später durch ContentLayer ersetzt
     const placeholderArticles: Article[] = [
       {
-        title: "Artikel-Platzhalter",
-        description: "Dies ist ein Platzhalter für einen Artikel. Wird später durch echte Artikel ersetzt.",
-        slug: "artikel-platzhalter",
+        title: "Article-Placeholder",
+        description: "This is a placeholder for an article. Will be replaced later by real articles.no articles available yet",
+        slug: "article-placeholder",
         publishedAt: new Date().toISOString(),
       }
     ];
@@ -50,7 +46,7 @@ export default function BlogPage() {
                 <span className="text-[#d14124]"> Blog</span>
               </h1>
               <p className="text-base text-[#737373] max-w-2xl mx-auto mb-5">
-                Deine Quelle für Sneaker-Kultur und die neuesten Trends.
+                Your source for sneaker culture and the latest industry trends.
               </p>
               <div className="w-16 h-1 bg-[#d14124] mx-auto mb-6 rounded-full"></div>
             </div>
@@ -61,14 +57,14 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto px-4 py-12">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-[#171717]">
-              Neueste Artikel
+              Newest articles
             </h2>
           </div>
           
           {isLoading ? (
             <div className="text-center py-12">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d14124] border-r-transparent"></div>
-              <p className="mt-4 text-[#737373]">Artikel werden geladen...</p>
+              <p className="mt-4 text-[#737373]">Loading articles...</p>
             </div>
           ) : articles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -82,7 +78,7 @@ export default function BlogPage() {
             </div>
           ) : (
             <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-              <p className="text-[#737373]">Noch keine Artikel verfügbar.</p>
+              <p className="text-[#737373]">No articles available yet.</p>
             </div>
           )}
         </div>
