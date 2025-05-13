@@ -10,6 +10,7 @@ interface Article {
   description: string;
   slug: string;
   publishedAt: string;
+  author: string;
 }
 
 export default function BlogPage() {
@@ -24,6 +25,7 @@ export default function BlogPage() {
         description: "This is a placeholder for an article. Will be replaced later by real articles.no articles available yet",
         slug: "article-placeholder",
         publishedAt: new Date().toISOString(),
+        author: "Max B."
       }
     ];
     
@@ -72,7 +74,10 @@ export default function BlogPage() {
                 <div key={index} className="bg-white rounded-xl shadow-sm border border-[#f0f0f0] p-6">
                   <h3 className="text-xl font-bold mb-2">{article.title}</h3>
                   <p className="text-[#737373] mb-4">{article.description}</p>
-                  <p className="text-sm text-[#d14124]">{new Date(article.publishedAt).toLocaleDateString()}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-[#d14124]">{new Date(article.publishedAt).toLocaleDateString()}</p>
+                  <p className="text-sm text-[#737373]">{article.author}</p>
+                  </div>
                 </div>
               ))}
             </div>
