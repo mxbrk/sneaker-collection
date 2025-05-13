@@ -3,18 +3,6 @@
 import MainLayout from "@/components/MainLayout";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  Article,
-  fetchArticles,
-  fetchFeaturedArticle,
-  formatDate,
-} from "@/lib/blog-service";
-import BlogCard from "@/components/BlogCard";
-import BlogCardSkeleton, {
-  FeaturedArticleSkeleton,
-} from "@/components/BlogCardSkeleton";
-
-// Removed metadata export since it's not allowed in client components
 
 export default function BlogPage() {
   const [articles, setArticles] = useState<Article[]>([]);
