@@ -8,6 +8,7 @@ import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { sneakerLabels } from '@/lib/labels';
+import { useSneakerData, CACHE_KEYS } from '@/hooks/useSneakerData';
 import { SkeletonGrid } from '@/components/SkeletonLoader';
 
 interface CollectionItem {
@@ -33,50 +34,43 @@ interface CollectionItem {
 
 export default function CollectionPage() {
   const router = useRouter();
-  const [collection, setCollection] = useState<CollectionItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{
-    message: string;
-    type: 'success' | 'error';
-  } | null>(null);
-
+  
+  // SWR für Collection-Daten verwenden
+  const { 
+    data, 
+    isLoading, 
+    error: fetchError, 
+    refreshData, 
+    updateCache 
+  } = useSneakerData(CACHE_KEYS.collection);
+  
+  const collection = data?.collection || [];
+  
   // Filter states
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [selectedLabel, setSelectedLabel] = useState<string>(''); // Add label filter
   const [sortOption, setSortOption] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
-    // State für ein-/ausgeklappte Filter
+  // State für ein-/ausgeklappte Filter
   const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchCollection();
-  }, []);
-
-  const fetchCollection = async () => {
-    try {
-      setIsLoading(true);
-      
-      const response = await fetch('/api/collection');
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push('/login');
-          return;
-        }
-        throw new Error('Failed to fetch collection data');
-      }
-
-      const data = await response.json();
-      setCollection(data.collection || []);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      setIsLoading(false);
+    // Fehler aus SWR übernehmen
+    if (fetchError) {
+      setError(fetchError instanceof Error ? fetchError.message : 'Something went wrong');
     }
+  }, [fetchError]);
+
+  const fetchCollection = () => {
+    refreshData();
   };
 
   const handleRemoveFromCollection = (id: string) => {
@@ -90,7 +84,10 @@ export default function CollectionPage() {
       });
   
       if (response.ok) {
-        setCollection(collection.filter(item => item.id !== id));
+        // Cache aktualisieren
+        const updatedCollection = collection.filter(item => item.id !== id);
+        updateCache({ collection: updatedCollection });
+        
         setNotification({
           message: 'Removed from collection',
           type: 'success'

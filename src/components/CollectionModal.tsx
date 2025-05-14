@@ -5,6 +5,7 @@ import { Button, FormError} from './ui';
 import { conditionOptions, shoeSizes } from '@/lib/size-conversion';
 import { sneakerLabels } from '@/lib/labels';
 import Image from 'next/image';
+import { useSneakerData, CACHE_KEYS } from '@/hooks/useSneakerData';
 
 // Add a CollectionItem type for existing items
 export interface CollectionItem {
@@ -123,90 +124,94 @@ export default function CollectionModal({
   };
 
 
-// In src/components/CollectionModal.tsx, etwa Zeile 170-230
-// In src/components/CollectionModal.tsx, etwa Zeile 170-230
-const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError(null);
-
-  try {
-    // Pflichtfelder validieren
-    if (!formData.sizeUS || !formData.condition) {
-      throw new Error('Bitte fülle alle Pflichtfelder aus');
-    }
-
-    // Sneaker-ID ermitteln
-    let sneakerId: string;
-    if (isSneaker(sneaker)) {
-      sneakerId = sneaker.id;
-    } else if (isCollectionItem(sneaker)) {
-      sneakerId = sneaker.sneakerId;
-    } else {
-      throw new Error('Ungültige Sneaker-Daten');
-    }
-
-    // Grundlegendes Payload mit Pflichtfeldern erstellen
-    // Verwende einen spezifischen Typ anstelle von 'any'
-    const payload: Partial<CollectionItem> = {
-      sneakerId,
-      sku: sneaker.sku,
-      brand: sneaker.brand,
-      title: sneaker.title,
-      colorway: sneaker.colorway || '',
-      image: sneaker.image || null,
-      sizeUS: formData.sizeUS,
-      sizeEU: selectedSize?.eu || null,
-      sizeUK: selectedSize?.uk || null,
-      condition: formData.condition,
-      labels: formData.labels || [],
-      // Wichtig: Sicherstellen, dass optionale Felder korrekt behandelt werden
-      notes: formData.notes?.trim() || null,
-      purchaseDate: formData.purchaseDate?.trim() ? formData.purchaseDate : null,
-      purchasePrice: formData.purchasePrice?.trim() ? parseFloat(formData.purchasePrice) : null,
-      retailPrice: isSneaker(sneaker) && sneaker.retailPrice ? Number(sneaker.retailPrice) : null
-    };
-
-    console.log(`${mode === 'add' ? 'Adding' : 'Updating'} sneaker:`, payload);
-
-    let url = '/api/collection';
-    let method = 'POST';
-
-    if (mode === 'edit' && existingItem) {
-      url = `/api/collection/${existingItem.id}`;
-      method = 'PUT';
-    }
-
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.log('Server response:', data);
-      
-      if (data.details) {
-        console.error('Validation details:', data.details);
-        throw new Error(data.error || 'Validation error');
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      // Pflichtfelder validieren
+      if (!formData.sizeUS || !formData.condition) {
+        throw new Error('Bitte fülle alle Pflichtfelder aus');
       }
+  
+      // Sneaker-ID ermitteln
+      let sneakerId: string;
+      if (isSneaker(sneaker)) {
+        sneakerId = sneaker.id;
+      } else if (isCollectionItem(sneaker)) {
+        sneakerId = sneaker.sneakerId;
+      } else {
+        throw new Error('Ungültige Sneaker-Daten');
+      }
+  
+      // Grundlegendes Payload mit Pflichtfeldern erstellen
+      const payload: Partial<CollectionItem> = {
+        sneakerId,
+        sku: sneaker.sku,
+        brand: sneaker.brand,
+        title: sneaker.title,
+        colorway: sneaker.colorway || '',
+        image: sneaker.image || null,
+        sizeUS: formData.sizeUS,
+        sizeEU: selectedSize?.eu || null,
+        sizeUK: selectedSize?.uk || null,
+        condition: formData.condition,
+        labels: formData.labels || [],
+        notes: formData.notes?.trim() || null,
+        purchaseDate: formData.purchaseDate?.trim() ? formData.purchaseDate : null,
+        purchasePrice: formData.purchasePrice?.trim() ? parseFloat(formData.purchasePrice) : null,
+        retailPrice: isSneaker(sneaker) && sneaker.retailPrice ? Number(sneaker.retailPrice) : null
+      };
+  
+      console.log(`${mode === 'add' ? 'Adding' : 'Updating'} sneaker:`, payload);
+  
+      let url = '/api/collection';
+      let method = 'POST';
+  
+      if (mode === 'edit' && existingItem) {
+        url = `/api/collection/${existingItem.id}`;
+        method = 'PUT';
+      }
+  
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await response.json();
       
-      throw new Error(data.error || `Error ${mode === 'add' ? 'adding to' : 'updating'} collection`);
+      if (!response.ok) {
+        console.log('Server response:', data);
+        
+        if (data.details) {
+          console.error('Validation details:', data.details);
+          throw new Error(data.error || 'Validation error');
+        }
+        
+        throw new Error(data.error || `Error ${mode === 'add' ? 'adding to' : 'updating'} collection`);
+      }
+  
+      // Nach erfolgreicher Aktion Cache aktualisieren
+      refreshCollection();
+      refreshProfile();
+      
+      // Success
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      console.error('Error:', err);
+    } finally {
+      setIsLoading(false);
     }
+  };
+  
+const { refreshData: refreshCollection } = useSneakerData(CACHE_KEYS.collection);
+const { refreshData: refreshProfile } = useSneakerData(CACHE_KEYS.profileData);
 
-    // Success
-    onSuccess();
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Something went wrong');
-    console.error('Error:', err);
-  } finally {
-    setIsLoading(false);
-  }
-};
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       {/* Backdrop for closing */}
