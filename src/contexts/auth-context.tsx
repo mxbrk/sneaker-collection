@@ -118,3 +118,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      
+      // Explicitly set user to null
+      setUser(null);
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        login,
+        signup,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
