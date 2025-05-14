@@ -11,6 +11,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
     "@prisma/client": "^6.5.0",
+    "@tinacms/cli": "^1.9.7",
     "@types/recharts": "^1.8.29",
     "@vercel/analytics": "^1.5.0",
     "bcryptjs": "^3.0.2",
@@ -21,6 +22,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.1",
+    "tinacms": "^2.7.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import useSWR from 'swr';
 
 // Updated User interface with all properties
 interface User {
@@ -30,41 +31,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const cacheValidityTime = 60000; // Cache für 1 Minute gültig
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      // Optimierter Cache-Check mit SWR-ähnlichem Ansatz
-      const now = Date.now();
-      const shouldRefetch = !user || (now - lastFetchTime > cacheValidityTime);
-      
-      if (!shouldRefetch) {
-        setLoading(false);
-        return;
-      }
-  
-      try {
-        setLoading(true); // Nur setzen, wenn wir wirklich laden
-        const response = await fetch('/api/user', {
-          // Wichtig: Verhindert Caching durch den Browser
-          headers: { 'Cache-Control': 'no-cache' }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-          setLastFetchTime(now);
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
-        console.error('Failed to fetch user data', err);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchUser();
-  }, [lastFetchTime, user, cacheValidityTime]);
+const { data, error, isLoading } = useSWR('/api/user', 
+  async (url) => {
+    const response = await fetch(url, {
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.user;
+  },
+  { 
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+    errorRetryCount: 2
+  }
+);
+
+// Update state based on SWR results
+useEffect(() => {
+  setUser(data || null);
+  setLoading(isLoading);
+  setError(error ? error.message : null);
+}, [data, error, isLoading]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
