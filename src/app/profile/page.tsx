@@ -8,7 +8,6 @@ import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import { useSneakerData, CACHE_KEYS } from '@/hooks/useSneakerData';
 import { SkeletonGrid } from '@/components/SkeletonLoader';
 
 interface User {
@@ -34,7 +33,6 @@ interface CollectionItem {
   retailPrice: number | null;
   purchasePrice: number | null;
   notes: string | null;
-  labels?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -50,49 +48,49 @@ interface WishlistItem {
   createdAt: string;
 }
 
-// Definiere die Struktur der API-Antwort
-interface ProfileResponse {
-  user: User;
-  collection: CollectionItem[];
-  wishlist: WishlistItem[];
-  totalValue: number;
-}
-
 export default function ProfilePage() {
   const router = useRouter();
-  
-  // SWR für alle Profildaten verwenden mit explizitem Typ
-  const { 
-    data: profileData, 
-    isLoading, 
-    error: fetchError, 
-    refreshData, 
-    updateCache 
-  } = useSneakerData<ProfileResponse>(CACHE_KEYS.profileData);
-  
-  // Daten aus der Antwort extrahieren
-  const user = profileData?.user;
-  const collection = profileData?.collection || [];
-  const wishlist = profileData?.wishlist || [];
-  const totalValue = profileData?.totalValue || 0;
-
+  const [user, setUser] = useState<User | null>(null);
+  const [collection, setCollection] = useState<CollectionItem[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
   } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [totalValue, setTotalValue] = useState<number>(0);
 
   useEffect(() => {
-    // Fehler aus SWR übernehmen
-    if (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : 'Something went wrong');
-    }
-  }, [fetchError]);
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
-  // Diese Funktion aufrufen, wenn Daten aktualisiert werden müssen
-  const fetchData = () => {
-    refreshData();
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/profile-data');
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/login');
+          return;
+        }
+        throw new Error('Failed to fetch profile data');
+      }
+      
+      const data = await response.json();
+      setUser(data.user);
+      setCollection(data.collection || []);
+      setWishlist(data.wishlist || []);
+      setTotalValue(data.totalValue || 0);
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRemoveFromWishlist = async (id: string) => {
@@ -100,20 +98,10 @@ export default function ProfilePage() {
       const response = await fetch(`/api/wishlist?id=${id}`, {
         method: 'DELETE',
       });
-  
+
       if (response.ok) {
-        // Sicherstellen, dass wir ein vollständiges Objekt haben, bevor wir den Cache aktualisieren
-        if (profileData) {
-          // Lokalen Cache nur aktualisieren, wenn profileData vorhanden ist
-          const updatedWishlist = wishlist.filter(item => item.id !== id);
-          updateCache({
-            user: profileData.user,
-            collection: profileData.collection,
-            wishlist: updatedWishlist,
-            totalValue: profileData.totalValue
-          });
-        }
-        
+        // Update the wishlist state by removing the deleted item
+        setWishlist(wishlist.filter(item => item.id !== id));
         setNotification({
           message: 'Removed from wishlist',
           type: 'success'
@@ -134,53 +122,49 @@ export default function ProfilePage() {
   };
 
   const handleRemoveFromCollection = (id: string) => {
+    // Instead of showing a confirm dialog, set the state to show our custom modal
     setShowDeleteConfirmation(id);
   };
   
-const confirmRemoveFromCollection = async (id: string) => {
-  try {
-    const response = await fetch(`/api/collection/${id}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
-      // Nur aktualisieren, wenn profileData vorhanden ist
-      if (profileData) {
-        // Lokalen Cache aktualisieren
+  const confirmRemoveFromCollection = async (id: string) => {
+    try {
+      const response = await fetch(`/api/collection/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        // Update the collection state by removing the deleted item
         const updatedCollection = collection.filter(item => item.id !== id);
+        setCollection(updatedCollection);
+        
+        // Aktualisiere auch direkt den totalValue
         const newTotalValue = updatedCollection.reduce(
           (total, item) => total + (item.purchasePrice || 0), 
           0
         );
+        setTotalValue(newTotalValue);
         
-        updateCache({
-          user: profileData.user,
-          collection: updatedCollection,
-          wishlist: profileData.wishlist,
-          totalValue: newTotalValue
+        setNotification({
+          message: 'Removed from collection',
+          type: 'success'
+        });
+      } else {
+        setNotification({
+          message: 'Failed to remove from collection',
+          type: 'error'
         });
       }
-      
-      setNotification({
-        message: 'Removed from collection',
-        type: 'success'
-      });
-    } else {
+    } catch (error) {
+      console.error('Error removing from collection:', error);
       setNotification({
         message: 'Failed to remove from collection',
         type: 'error'
       });
+    } finally {
+      // Clear the confirmation state
+      setShowDeleteConfirmation(null);
     }
-  } catch (error) {
-    console.error('Error removing from collection:', error);
-    setNotification({
-      message: 'Failed to remove from collection',
-      type: 'error'
-    });
-  } finally {
-    setShowDeleteConfirmation(null);
-  }
-};
+  };
 
   if (isLoading && !user) {
     return (

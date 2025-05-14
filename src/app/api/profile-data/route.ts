@@ -13,7 +13,7 @@ export async function GET() {
       );
     }
 
-    // Alle Abfragen parallel ausführen
+    // Execute database queries in parallel
     const [collection, wishlist] = await Promise.all([
       prisma.collection.findMany({
         where: { userId: user.id },
@@ -25,7 +25,6 @@ export async function GET() {
       })
     ]);
 
-    // Berechne den Gesamtwert
     const totalValue = collection.reduce(
       (total, item) => total + (item.purchasePrice || 0), 
       0

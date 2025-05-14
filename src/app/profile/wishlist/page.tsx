@@ -7,8 +7,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import { useSneakerData, CACHE_KEYS } from '@/hooks/useSneakerData';
-import { SkeletonGrid } from '@/components/SkeletonLoader';
 
 interface WishlistItem {
   id: string;
@@ -21,30 +19,16 @@ interface WishlistItem {
   createdAt: string;
 }
 
-// Definiere die Struktur der API-Antwort
-interface WishlistResponse {
-  wishlist: WishlistItem[];
-}
-
 export default function WishlistPage() {
   const router = useRouter();
-  
-  // SWR für Wishlist-Daten mit explizitem Typ
-  const { 
-    data, 
-    isLoading, 
-    error: fetchError, 
-    updateCache 
-  } = useSneakerData<WishlistResponse>(CACHE_KEYS.wishlist);
-  
-  const wishlist = data?.wishlist || [];
-  
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error';
   } | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   // Filter states
   const [selectedBrand, setSelectedBrand] = useState<string>('');
@@ -55,11 +39,31 @@ export default function WishlistPage() {
   const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(false);
   
   useEffect(() => {
-    // Fehler aus SWR übernehmen
-    if (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : 'Something went wrong');
+    fetchWishlist();
+  }, []);
+
+  const fetchWishlist = async () => {
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/wishlist');
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/login');
+          return;
+        }
+        throw new Error('Failed to fetch wishlist data');
+      }
+
+      const data = await response.json();
+      setWishlist(data.wishlist || []);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Something went wrong');
+    } finally {
+      setIsLoading(false);
     }
-  }, [fetchError]);
+  };
 
   const handleRemoveFromWishlist = (id: string) => {
     setShowDeleteConfirmation(id);
@@ -72,10 +76,7 @@ export default function WishlistPage() {
       });
   
       if (response.ok) {
-        // Cache aktualisieren
-        const updatedWishlist = wishlist.filter(item => item.id !== id);
-        updateCache({ wishlist: updatedWishlist });
-        
+        setWishlist(wishlist.filter(item => item.id !== id));
         setNotification({
           message: 'Removed from wishlist',
           type: 'success'
@@ -130,38 +131,12 @@ export default function WishlistPage() {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <div className="min-h-screen bg-[#fafafa]">
-          <main className="max-w-7xl mx-auto px-4 py-8">
-            <div className="mb-6 flex items-center">
-              <div className="h-8 bg-[#f5f5f5] rounded w-1/4"></div>
-            </div>
-            
-            {/* Skeleton für Stats-Karten */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] animate-pulse">
-                  <div className="flex justify-between items-center">
-                    <div className="h-5 bg-[#f5f5f5] rounded w-1/3"></div>
-                    <div className="w-10 h-10 rounded-full bg-[#f5f5f5]"></div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="h-8 bg-[#f5f5f5] rounded w-1/4 mb-2"></div>
-                    <div className="h-4 bg-[#f5f5f5] rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Filter Skeleton */}
-            <div className="bg-white rounded-lg mb-6 border border-[#f0f0f0] p-4">
-              <div className="h-6 bg-[#f5f5f5] rounded w-1/4"></div>
-            </div>
-            
-            <SkeletonGrid count={8} />
-          </main>
+      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d14124] border-r-transparent"></div>
+          <p className="mt-2 text-[#737373]">Loading your wishlist...</p>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
