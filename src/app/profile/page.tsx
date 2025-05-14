@@ -8,6 +8,7 @@ import Link from 'next/link';
 import SneakerCard from '@/components/SneakerCard';
 import Notification from '@/components/Notification';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import { SkeletonGrid } from '@/components/SkeletonLoader';
 
 interface User {
   id: string;
@@ -91,7 +92,7 @@ export default function ProfilePage() {
       setIsLoading(false);
     }
   };
-  
+
   const handleRemoveFromWishlist = async (id: string) => {
     try {
       const response = await fetch(`/api/wishlist?id=${id}`, {
@@ -168,10 +169,51 @@ export default function ProfilePage() {
   if (isLoading && !user) {
     return (
       <MainLayout>
-        <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
-          <div className="text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d14124] border-r-transparent"></div>
-            <p className="mt-2 text-[#737373]">Loading your profile...</p>
+        <div className="min-h-screen bg-[#fafafa] py-6">
+          <div className="max-w-7xl mx-auto px-4">
+            {/* Skeleton für Hero-Sektion */}
+            <div className="relative bg-gradient-to-r from-[#fae5e1] to-[#fcf5f3] rounded-2xl overflow-hidden mb-10 animate-pulse">
+              <div className="flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                <div className="w-36 h-36 md:w-40 md:h-40 rounded-full bg-[#f5f5f5]"></div>
+                <div className="flex-1">
+                  <div className="h-8 bg-[#f5f5f5] rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-[#f5f5f5] rounded w-1/3"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Skeleton für Stats-Karten */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-[#f0f0f0] animate-pulse">
+                  <div className="flex justify-between items-center">
+                    <div className="h-5 bg-[#f5f5f5] rounded w-1/3"></div>
+                    <div className="w-10 h-10 rounded-full bg-[#f5f5f5]"></div>
+                  </div>
+                  <div className="mt-4">
+                    <div className="h-8 bg-[#f5f5f5] rounded w-1/4 mb-2"></div>
+                    <div className="h-4 bg-[#f5f5f5] rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Skeletons für Collection und Wishlist */}
+            <div className="mb-10">
+              <div className="flex justify-between items-center mb-6">
+                <div className="h-6 bg-[#f5f5f5] rounded w-1/4"></div>
+                <div className="h-4 bg-[#f5f5f5] rounded w-16"></div>
+              </div>
+              <SkeletonGrid count={4} />
+            </div>
+            
+            <div className="mb-10">
+              <div className="flex justify-between items-center mb-6">
+                <div className="h-6 bg-[#f5f5f5] rounded w-1/4"></div>
+                <div className="h-4 bg-[#f5f5f5] rounded w-16"></div>
+              </div>
+              <SkeletonGrid count={4} />
+            </div>
           </div>
         </div>
       </MainLayout>
