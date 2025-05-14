@@ -37,7 +37,7 @@ interface SneakerCardProps {
   onEdit?: () => void;
 }
 
-export default function SneakerCard({ 
+function SneakerCard({ 
   sneaker, 
   onNotification,
   isCollectionItem = false,
