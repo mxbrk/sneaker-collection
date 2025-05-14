@@ -35,15 +35,18 @@ interface CollectionItem {
 export default function CollectionPage() {
   const router = useRouter();
   
-  // SWR für Collection-Daten verwenden
+  interface CollectionResponse {
+    collection: CollectionItem[];
+  }
+  
   const { 
     data, 
     isLoading, 
     error: fetchError, 
     refreshData, 
     updateCache 
-  } = useSneakerData(CACHE_KEYS.collection);
-    
+  } = useSneakerData<CollectionResponse>(CACHE_KEYS.collection);
+  
   const collection = data?.collection || [];
   
   // Filter states
