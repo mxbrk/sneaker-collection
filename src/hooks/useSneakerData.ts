@@ -9,30 +9,63 @@ export const CACHE_KEYS = {
 };
 
 // Definiere generische Typen für die Daten
+interface CollectionItem {
+  id: string;
+  sneakerId: string;
+  sku: string;
+  brand: string;
+  title: string;
+  colorway: string;
+  image: string | null;
+  sizeUS: string;
+  sizeEU: string | null;
+  sizeUK: string | null;
+  condition: string;
+  purchaseDate: string | null;
+  retailPrice: number | null;
+  purchasePrice: number | null;
+  notes: string | null;
+  labels?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface WishlistItem {
+  id: string;
+  sneakerId: string;
+  sku: string;
+  brand: string;
+  title: string;
+  colorway: string;
+  image: string | null;
+  createdAt: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+  username: string | null;
+  showKidsShoes?: boolean;
+  genderFilter?: string;
+  createdAt?: string;
+}
+
 interface CollectionData {
-  collection: Array<{
-    id: string;
-    [key: string]: any;
-  }>;
+  collection: CollectionItem[];
 }
 
 interface WishlistData {
-  wishlist: Array<{
-    id: string;
-    [key: string]: any;
-  }>;
+  wishlist: WishlistItem[];
 }
 
 interface UserData {
-  user: {
-    id: string;
-    email: string;
-    username: string | null;
-    [key: string]: any;
-  };
+  user: User;
 }
 
-interface ProfileData extends UserData, CollectionData, WishlistData {
+interface ProfileData {
+  user: User;
+  collection: CollectionItem[];
+  wishlist: WishlistItem[];
   totalValue: number;
 }
 
