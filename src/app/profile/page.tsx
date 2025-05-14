@@ -68,86 +68,30 @@ export default function ProfilePage() {
 
   const fetchData = async () => {
     setIsLoading(true);
-    
-    // Separate Funktionen für jeden Datentyp
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/user');
-        if (!response.ok) {
-          if (response.status === 401) {
-            router.push('/login');
-            return null;
-          }
-          throw new Error('Failed to fetch user data');
-        }
-        const data = await response.json();
-        return data.user;
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        return null;
-      }
-    };
-
-    const fetchCollectionData = async () => {
-      try {
-        const response = await fetch('/api/collection');
-        if (response.ok) {
-          const data = await response.json();
-          return data.collection || [];
-        }
-        return [];
-      } catch (error) {
-        console.error('Error fetching collection data:', error);
-        return [];
-      }
-    };
-
-    const fetchWishlistData = async () => {
-      try {
-        const response = await fetch('/api/wishlist');
-        if (response.ok) {
-          const data = await response.json();
-          return data.wishlist || [];
-        }
-        return [];
-      } catch (error) {
-        console.error('Error fetching wishlist data:', error);
-        return [];
-      }
-    };
-
-    // Starte alle Anfragen parallel 
-    const userPromise = fetchUserData();
-    const collectionPromise = fetchCollectionData();
-    const wishlistPromise = fetchWishlistData();
-
     try {
-      // Direkt verarbeiten des Collection Promise
-      const collectionData = await collectionPromise;
-      setCollection(collectionData);
+      const response = await fetch('/api/profile-data');
       
-      // Berechne sofort den Total Value und setze ihn
-      const value = collectionData.reduce((total: number, item: CollectionItem) => {
-        return total + (item.purchasePrice || 0);
-      }, 0);
-      setTotalValue(value);
-      
-      // Direkt verarbeiten der Wishlist Promise
-      const wishlistData = await wishlistPromise;
-      setWishlist(wishlistData);
-
-      // Dann den User Promise abwarten
-      const userData = await userPromise;
-      if (userData) {
-        setUser(userData);
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/login');
+          return;
+        }
+        throw new Error('Failed to fetch profile data');
       }
+      
+      const data = await response.json();
+      setUser(data.user);
+      setCollection(data.collection || []);
+      setWishlist(data.wishlist || []);
+      setTotalValue(data.totalValue || 0);
     } catch (error) {
-      console.error("Error processing data:", error);
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const handleRemoveFromWishlist = async (id: string) => {
     try {
       const response = await fetch(`/api/wishlist?id=${id}`, {
