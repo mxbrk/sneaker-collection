@@ -50,17 +50,25 @@ interface WishlistItem {
   createdAt: string;
 }
 
+// Definiere die Struktur der API-Antwort
+interface ProfileResponse {
+  user: User;
+  collection: CollectionItem[];
+  wishlist: WishlistItem[];
+  totalValue: number;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   
-  // SWR für alle Profildaten verwenden
+  // SWR für alle Profildaten verwenden mit explizitem Typ
   const { 
     data: profileData, 
     isLoading, 
     error: fetchError, 
     refreshData, 
     updateCache 
-  } = useSneakerData(CACHE_KEYS.profileData);
+  } = useSneakerData<ProfileResponse>(CACHE_KEYS.profileData);
   
   // Daten aus der Antwort extrahieren
   const user = profileData?.user;

@@ -21,16 +21,21 @@ interface WishlistItem {
   createdAt: string;
 }
 
+// Definiere die Struktur der API-Antwort
+interface WishlistResponse {
+  wishlist: WishlistItem[];
+}
+
 export default function WishlistPage() {
   const router = useRouter();
   
-  // SWR für Wishlist-Daten
+  // SWR für Wishlist-Daten mit explizitem Typ
   const { 
     data, 
     isLoading, 
     error: fetchError, 
     updateCache 
-  } = useSneakerData(CACHE_KEYS.wishlist);
+  } = useSneakerData<WishlistResponse>(CACHE_KEYS.wishlist);
   
   const wishlist = data?.wishlist || [];
   
