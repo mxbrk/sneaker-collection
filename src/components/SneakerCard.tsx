@@ -2,7 +2,7 @@
 
 import { Sneaker } from '@/types/sneakers';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import CollectionModal from './CollectionModal';
 import { LabelGroup } from './Label';
 
@@ -311,11 +311,3 @@ export default function SneakerCard({
     </div>
   );
 }
-export default React.memo(SneakerCard, (prevProps, nextProps) => {
-  // Custom comparison function to prevent unnecessary re-renders
-  // Only re-render if these props change
-  return (
-    prevProps.sneaker.id === nextProps.sneaker.id &&
-    prevProps.isCollectionItem === nextProps.isCollectionItem
-  );
-});
