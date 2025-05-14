@@ -68,27 +68,31 @@ export default function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-
-    // Separate Funktionen für jeden Datentyp
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch("/api/user");
-        if (!response.ok) {
-          if (response.status === 401) {
-            router.push("/login");
-            return null;
-          }
-          throw new Error("Failed to fetch user data");
-        }
-        const data = await response.json();
-        return data.user;
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        return null;
+const fetchData = async () => {
+  setIsLoading(true);
+  try {
+    const response = await fetch('/api/profile-data');
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        router.push('/login');
+        return;
       }
-    };
+      throw new Error('Failed to fetch profile data');
+    }
+    
+    const data = await response.json();
+    setUser(data.user);
+    setCollection(data.collection || []);
+    setWishlist(data.wishlist || []);
+    setTotalValue(data.totalValue || 0);
+  } catch (error) {
+    console.error('Error:', error);
+    setError(error instanceof Error ? error.message : 'Something went wrong');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     const fetchCollectionData = async () => {
       try {
