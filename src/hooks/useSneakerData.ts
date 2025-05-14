@@ -1,3 +1,4 @@
+// src/hooks/useSneakerData.ts - vollständig überarbeitete Version mit Generics
 import useSWR from 'swr';
 
 // Cache-Schlüssel für konsistentes Caching
@@ -8,8 +9,8 @@ export const CACHE_KEYS = {
   profileData: '/api/profile-data'
 };
 
-// Definiere generische Typen für die Daten
-interface CollectionItem {
+// Definiere Interfaces für spezifische Datentypen
+export interface CollectionItem {
   id: string;
   sneakerId: string;
   sku: string;
@@ -30,7 +31,7 @@ interface CollectionItem {
   updatedAt: string;
 }
 
-interface WishlistItem {
+export interface WishlistItem {
   id: string;
   sneakerId: string;
   sku: string;
@@ -41,7 +42,7 @@ interface WishlistItem {
   createdAt: string;
 }
 
-interface User {
+export interface User {
   id: string;
   email: string;
   username: string | null;
@@ -50,29 +51,36 @@ interface User {
   createdAt?: string;
 }
 
-interface CollectionData {
+// Definiere Response-Typen für verschiedene Endpunkte
+export interface CollectionResponse {
   collection: CollectionItem[];
 }
 
-interface WishlistData {
+export interface WishlistResponse {
   wishlist: WishlistItem[];
 }
 
-interface UserData {
+export interface UserResponse {
   user: User;
 }
 
-interface ProfileData {
+export interface ProfileResponse {
   user: User;
   collection: CollectionItem[];
   wishlist: WishlistItem[];
   totalValue: number;
 }
 
-// Union-Typ für alle möglichen Datentypen
-type SneakerDataType = CollectionData | WishlistData | UserData | ProfileData | null;
+// Typ-Map, um Cache-Keys mit ihren Antworttypen zu verbinden
+interface CacheKeyToResponseMap {
+  [CACHE_KEYS.collection]: CollectionResponse;
+  [CACHE_KEYS.wishlist]: WishlistResponse;
+  [CACHE_KEYS.userData]: UserResponse;
+  [CACHE_KEYS.profileData]: ProfileResponse;
+}
 
-const fetcher = async (url: string) => {
+// Generischer Fetcher
+const fetcher = async <T>(url: string): Promise<T> => {
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error('Failed to fetch data');
@@ -80,23 +88,30 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-// Haupthook für Sneaker-Daten
-export function useSneakerData(cacheKey: string, initialData?: SneakerDataType) {
-  const { data, error, isLoading, mutate } = useSWR<SneakerDataType>(cacheKey, fetcher, {
-    revalidateOnFocus: false,        // Keine Revalidierung beim Tab-Wechsel
-    dedupingInterval: 30000,         // 30 Sekunden Duplizierungsschutz
-    fallbackData: initialData,       // Optionale Initial-Daten
-    revalidateIfStale: false,        // Keine automatische Revalidierung für alte Daten
-    revalidateOnReconnect: false     // Keine Revalidierung bei Wiederverbindung
-  });
+// Generischer Hook für Sneaker-Daten
+export function useSneakerData<K extends keyof CacheKeyToResponseMap>(
+  cacheKey: K,
+  initialData?: CacheKeyToResponseMap[K]
+) {
+  const { data, error, isLoading, mutate } = useSWR<CacheKeyToResponseMap[K]>(
+    cacheKey,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 30000,
+      fallbackData: initialData,
+      revalidateIfStale: false,
+      revalidateOnReconnect: false
+    }
+  );
 
-  // Helper-Funktionen für Cache-Invalidierung
-  const updateCache = (newData: SneakerDataType) => {
-    mutate(newData, false); // Update Cache ohne Revalidierung
+  // Helper-Funktionen mit korrekter Typisierung
+  const updateCache = (newData: CacheKeyToResponseMap[K]) => {
+    mutate(newData, false);
   };
 
   const refreshData = () => {
-    mutate(); // Erzwungene Revalidierung
+    mutate();
   };
 
   return {

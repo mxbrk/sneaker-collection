@@ -43,7 +43,7 @@ export default function CollectionPage() {
     refreshData, 
     updateCache 
   } = useSneakerData(CACHE_KEYS.collection);
-  
+    
   const collection = data?.collection || [];
   
   // Filter states
