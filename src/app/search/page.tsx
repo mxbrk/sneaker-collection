@@ -8,6 +8,7 @@ import SneakerCard from '@/components/SneakerCard';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Notification from '@/components/Notification';
 import { useAuth } from '@/contexts/auth-context';
+import { SkeletonGrid } from '@/components/SkeletonLoader';
 
 export default function SearchPage() {
   const router = useRouter();
@@ -251,28 +252,18 @@ export default function SearchPage() {
             
             {/* Sneaker grid with skeleton loading state */}
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[...Array(8)].map((_, index) => (
-                  <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[#f0f0f0] animate-pulse">
-                    <div className="aspect-square bg-[#f5f5f5]"></div>
-                    <div className="p-4">
-                      <div className="h-5 bg-[#f5f5f5] rounded-md mb-2"></div>
-                      <div className="h-4 bg-[#f5f5f5] rounded-md w-1/2"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {sneakers.map((sneaker) => (
-                  <SneakerCard 
-                    key={sneaker.id} 
-                    sneaker={sneaker} 
-                    onNotification={showNotification}
-                  />
-                ))}
-              </div>
-            )}
+  <SkeletonGrid count={8} />
+) : (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {sneakers.map((sneaker) => (
+      <SneakerCard 
+        key={sneaker.id} 
+        sneaker={sneaker} 
+        onNotification={showNotification}
+      />
+    ))}
+  </div>
+)}
             
             {/* Empty state - shown when search returns no results */}
             {!isLoading && sneakers && sneakers.length === 0 && searchQuery && (
