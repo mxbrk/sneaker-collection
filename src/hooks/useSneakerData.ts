@@ -8,6 +8,37 @@ export const CACHE_KEYS = {
   profileData: '/api/profile-data'
 };
 
+// Definiere generische Typen für die Daten
+interface CollectionData {
+  collection: Array<{
+    id: string;
+    [key: string]: any;
+  }>;
+}
+
+interface WishlistData {
+  wishlist: Array<{
+    id: string;
+    [key: string]: any;
+  }>;
+}
+
+interface UserData {
+  user: {
+    id: string;
+    email: string;
+    username: string | null;
+    [key: string]: any;
+  };
+}
+
+interface ProfileData extends UserData, CollectionData, WishlistData {
+  totalValue: number;
+}
+
+// Union-Typ für alle möglichen Datentypen
+type SneakerDataType = CollectionData | WishlistData | UserData | ProfileData | null;
+
 const fetcher = async (url: string) => {
   const res = await fetch(url);
   if (!res.ok) {
@@ -17,8 +48,8 @@ const fetcher = async (url: string) => {
 };
 
 // Haupthook für Sneaker-Daten
-export function useSneakerData(cacheKey: string, initialData?: any) {
-  const { data, error, isLoading, mutate } = useSWR(cacheKey, fetcher, {
+export function useSneakerData(cacheKey: string, initialData?: SneakerDataType) {
+  const { data, error, isLoading, mutate } = useSWR<SneakerDataType>(cacheKey, fetcher, {
     revalidateOnFocus: false,        // Keine Revalidierung beim Tab-Wechsel
     dedupingInterval: 30000,         // 30 Sekunden Duplizierungsschutz
     fallbackData: initialData,       // Optionale Initial-Daten
@@ -27,7 +58,7 @@ export function useSneakerData(cacheKey: string, initialData?: any) {
   });
 
   // Helper-Funktionen für Cache-Invalidierung
-  const updateCache = (newData: any) => {
+  const updateCache = (newData: SneakerDataType) => {
     mutate(newData, false); // Update Cache ohne Revalidierung
   };
 
