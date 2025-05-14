@@ -133,6 +133,10 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemoveFromCollection = (id: string) => {
+    setShowDeleteConfirmation(id);
+  };
+  
 const confirmRemoveFromCollection = async (id: string) => {
   try {
     const response = await fetch(`/api/collection/${id}`, {
