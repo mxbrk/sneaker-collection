@@ -100,14 +100,19 @@ export default function ProfilePage() {
       const response = await fetch(`/api/wishlist?id=${id}`, {
         method: 'DELETE',
       });
-
+  
       if (response.ok) {
-        // Lokalen Cache aktualisieren
-        const updatedWishlist = wishlist.filter(item => item.id !== id);
-        updateCache({
-          ...profileData,
-          wishlist: updatedWishlist
-        });
+        // Sicherstellen, dass wir ein vollständiges Objekt haben, bevor wir den Cache aktualisieren
+        if (profileData) {
+          // Lokalen Cache nur aktualisieren, wenn profileData vorhanden ist
+          const updatedWishlist = wishlist.filter(item => item.id !== id);
+          updateCache({
+            user: profileData.user,
+            collection: profileData.collection,
+            wishlist: updatedWishlist,
+            totalValue: profileData.totalValue
+          });
+        }
         
         setNotification({
           message: 'Removed from wishlist',
@@ -128,17 +133,15 @@ export default function ProfilePage() {
     }
   };
 
-  const handleRemoveFromCollection = (id: string) => {
-    setShowDeleteConfirmation(id);
-  };
-  
-  const confirmRemoveFromCollection = async (id: string) => {
-    try {
-      const response = await fetch(`/api/collection/${id}`, {
-        method: 'DELETE',
-      });
-  
-      if (response.ok) {
+const confirmRemoveFromCollection = async (id: string) => {
+  try {
+    const response = await fetch(`/api/collection/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      // Nur aktualisieren, wenn profileData vorhanden ist
+      if (profileData) {
         // Lokalen Cache aktualisieren
         const updatedCollection = collection.filter(item => item.id !== id);
         const newTotalValue = updatedCollection.reduce(
@@ -147,31 +150,33 @@ export default function ProfilePage() {
         );
         
         updateCache({
-          ...profileData,
+          user: profileData.user,
           collection: updatedCollection,
+          wishlist: profileData.wishlist,
           totalValue: newTotalValue
         });
-        
-        setNotification({
-          message: 'Removed from collection',
-          type: 'success'
-        });
-      } else {
-        setNotification({
-          message: 'Failed to remove from collection',
-          type: 'error'
-        });
       }
-    } catch (error) {
-      console.error('Error removing from collection:', error);
+      
+      setNotification({
+        message: 'Removed from collection',
+        type: 'success'
+      });
+    } else {
       setNotification({
         message: 'Failed to remove from collection',
         type: 'error'
       });
-    } finally {
-      setShowDeleteConfirmation(null);
     }
-  };
+  } catch (error) {
+    console.error('Error removing from collection:', error);
+    setNotification({
+      message: 'Failed to remove from collection',
+      type: 'error'
+    });
+  } finally {
+    setShowDeleteConfirmation(null);
+  }
+};
 
   if (isLoading && !user) {
     return (
